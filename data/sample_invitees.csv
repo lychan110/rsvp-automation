@@ -1,0 +1,4 @@
+FirstName,LastName,Email,Mailing Address,Number of Attendees,InviteSent,RSVP_Status,RSVP_Timestamp
+Alice,Lee,alice.lee@example.com,123 Main St,2,FALSE,,
+Brian,Chen,brian.chen@example.com,456 Market Ave,1,FALSE,,
+Chloe,Wang,chloe.wang@example.com,789 Elm Dr,3,FALSE,,
