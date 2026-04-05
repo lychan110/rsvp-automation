@@ -78,65 +78,29 @@ You can store this in a Google Doc or directly in Apps Script.
 
 ### ⚙️ Step 4: Add Apps Script to automate everything
 
-Open your Sheet → Extensions → Apps Script → paste this:
+**For most users, use the config-driven approach:**
 
-```js
-function sendInvitations() {
-  const sheet = SpreadsheetApp.getActiveSheet();
-  const data = sheet.getDataRange().getValues();
-  const formBaseURL = "YOURPREFILLEDFORM_URL";
+1. Open your Sheet → Extensions → Apps Script
+2. Copy the contents of `scripts/general_user_workflow.gs`
+3. Click Save
+4. Refresh your Sheet
+5. Create a new sheet called `Config`
+6. In the Config sheet, add your settings (see `config/sample_config_sheet.json` for a template)
+7. Use the `Invite Workflow` menu to generate links, send invites, and sync responses
 
-  // Example: https://docs.google.com/forms/d/e/.../viewform?usp=pp_url&entry.12345=FIRSTNAME+LASTNAME&entry.67890=EMAIL
-
-  for (let i = 1; i < data.length; i++) {
-    let row = data[i];
-    let first = row[0];
-    let last = row[1];
-    let email = row[2];
-    let mailingAddress = row[3];
-    let numberOfAttendees = row[4];
-    let inviteSent = row[7];
-    if (inviteSent === true) continue;
-
-    let fullName = `${first} ${last}`;
-    let rsvpLink = formBaseURL
-      .replace("FIRSTNAME+LASTNAME", encodeURIComponent(fullName))
-      .replace("EMAIL", encodeURIComponent(email));
-
-    sheet.getRange(i + 1, 7).setValue(rsvpLink);
-
-    let message = `
-Hi ${first},
-
-You’re invited to our event!
-
-Please RSVP using your personalized link:
-
-${rsvpLink}
-
-We look forward to seeing you.
-
-Mailing Address: ${mailingAddress || "(not provided)"}
-Number of Attendees: ${numberOfAttendees}
-`;
-
-    GmailApp.sendEmail(email, "You're Invited!", message);
-    sheet.getRange(i + 1, 8).setValue(true);
-  }
-}
-```
-
-This script:
-- Builds a unique RSVP link for each invitee
-- Sends a personalized email body including mailing address and number of attendees
-- Marks “InviteSent = TRUE”
-- Stores the RSVP link in the Sheet
-
-The sendInvitations script runs only when you manually trigger it. It checks the InviteSent column and sends emails only to invitees who have not yet been sent an invitation.
-
-This prevents duplicate emails and gives you control over when invitations are sent.
+That's it. No code editing needed. The `general_user_workflow.gs` script reads all configuration from the Config sheet.
 
 ### 📥 Step 5: Automatically track RSVPs
+
+Once your Google Form is attached to a response sheet named `Form Responses 1`, use the `VIP Invite -> Sync RSVPs` menu item.
+
+That function will:
+- read the form response rows
+- match responses by `Email`
+- update `RSVP_Status`
+- update `RSVP_Timestamp`
+
+This keeps your master invite sheet current without running Python locally.
 
 Your Google Form already writes responses to a Sheet.
 
