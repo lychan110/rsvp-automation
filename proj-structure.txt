@@ -1,0 +1,43 @@
+automate-invite-emails/
+│
+├── html/
+│   ├── test_template.html
+│   ├── af_templates
+    │   ├── invitation_template.html
+    │   ├── footer_template.html
+    │   ├── placeholders.md
+    │   └── images_base64/
+    │       ├── asian_focus_logo.txt
+    │       ├── dragon_emblem.txt
+    │       └── signature.txt
+│
+├── scripts/
+│   ├── sendInvites.gs
+│   ├── generateRSVPLinks.gs
+│   ├── utilities.gs
+│   └── README.md
+│
+├── data/
+│   ├── sample_invitees.csv
+│   ├── sample_invitees_sheet.json
+│   └── README.md
+│
+├── docs/
+│   ├── screenshots/
+│   ├── troubleshooting.md
+│   └── workflow_diagram.png
+│
+├── ui/                     ← future extension
+│   ├── prototype/
+│   │   ├── index.html
+│   │   ├── styles.css
+│   │   └── mock_data.json
+│   └── README.md
+│
+├── tools/
+│   ├── image_to_base64_instructions.md
+│   └── recommended_tools.md
+│
+├── .gitignore
+├── LICENSE
+└── README.md
