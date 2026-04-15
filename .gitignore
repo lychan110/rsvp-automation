@@ -10,3 +10,25 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Streamlit
+.streamlit/secrets.toml
+.streamlit/uploads/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.env.local
