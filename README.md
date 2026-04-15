@@ -31,6 +31,12 @@ See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the complete step-by-step guide
 
 Everything is driven from the Config sheet. No coding required.
 
+### Optional: Streamlit GUI
+
+```bash
+uv run python -m streamlit run ui/app.py
+```
+
 ### Optional: Python CLI (for preview/offline)
 
 ```bash
