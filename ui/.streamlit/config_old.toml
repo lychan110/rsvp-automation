@@ -1,0 +1,28 @@
+# Streamlit Configuration with Native Theming
+
+[theme]
+# Color scheme
+primaryColor = "#2E7D32"      # Rich green (Asian Focus brand)
+backgroundColor = "#FFFFFF"   # Clean white
+secondaryBackgroundColor = "#F5F7FA"  # Light neutral gray
+textColor = "#1A1A1A"         # Dark text for readability
+font = "sans serif"
+
+# Optional: Specify a custom theme name
+[client]
+showErrorDetails = true
+
+[logger]
+level = "info"
+
+# Other settings
+[server]
+headless = true
+port = 8501
+runOnSave = true
+maxUploadSize = 200  # MB
+enableXsrfProtection = true
+
+[browser]
+gatherUsageStats = false
+
