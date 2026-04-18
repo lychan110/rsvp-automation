@@ -17,8 +17,8 @@ class TemplateMaker:
         self.templates_dir = Path(__file__).parent.parent / "html"
         self.templates_dir.mkdir(parents=True, exist_ok=True)
         
-        # Images stored in html/af_templates/images_png/
-        self.images_dir = self.templates_dir / "af_templates" / "images_png"
+        # Images stored in html/user_images/
+        self.images_dir = self.templates_dir / "user_images"
         self.images_dir.mkdir(parents=True, exist_ok=True)
     
     def _image_to_base64(self, filepath: Path) -> str:
@@ -98,7 +98,7 @@ class TemplateMaker:
         base64_data_uri = self._image_to_base64(filepath)
         base64_snippet = f'<img src="{base64_data_uri}" alt="Image" style="max-width:100%; height:auto;">'
         
-        relative_path = f"af_templates/images_png/{filename}"
+        relative_path = f"user_images/{filename}"
         file_snippet = f'<img src="{relative_path}" alt="Image" style="max-width:100%; height:auto;">'
         
         return filename, base64_snippet, file_snippet
@@ -112,7 +112,7 @@ class TemplateMaker:
                 base64_data_uri = self._image_to_base64(img_file)
                 base64_snippet_full = self.generate_sized_snippet(base64_data_uri, "100%", img_file.name)
                 
-                relative_path = f"af_templates/images_png/{img_file.name}"
+                relative_path = f"user_images/{img_file.name}"
                 file_snippet = f'<img src="{relative_path}" alt="Image" style="max-width:100%; height:auto;">'
                 
                 # Generate sized variants
