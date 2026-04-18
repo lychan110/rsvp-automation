@@ -11,24 +11,28 @@ def load_responses_csv(path: str) -> List[Dict[str, str]]:
 
 
 def sync_response_status(master_rows: List[Dict[str, str]], responses: List[Dict[str, str]],
-                         email_field: str = "Email", status_field: str = "RSVP_Status",
-                         timestamp_field: str = "RSVP_Timestamp") -> List[Dict[str, str]]:
+                         master_email_field: str = "Email",
+                         response_email_field: str = "Email",
+                         response_status_field: str = "Status",
+                         response_timestamp_field: str = "Timestamp",
+                         output_status_field: str = "RSVP_Status",
+                         output_timestamp_field: str = "RSVP_Timestamp") -> List[Dict[str, str]]:
     email_map = {}
     for row in responses:
-        email = row.get(email_field, "").strip().lower()
-        if not email:
+        response_email = row.get(response_email_field, "").strip().lower()
+        if not response_email:
             continue
-        email_map[email] = {
-            "status": row.get(status_field, row.get("RSVP", "")).strip(),
-            "timestamp": row.get(timestamp_field, row.get("Timestamp", "")).strip(),
+        email_map[response_email] = {
+            "status": row.get(response_status_field, "").strip(),
+            "timestamp": row.get(response_timestamp_field, "").strip(),
         }
 
     updated = []
     for row in master_rows:
-        email = row.get(email_field, "").strip().lower()
-        if email in email_map:
-            row[status_field] = email_map[email]["status"]
-            row[timestamp_field] = email_map[email]["timestamp"]
+        master_email = row.get(master_email_field, "").strip().lower()
+        if master_email in email_map:
+            row[output_status_field] = email_map[master_email]["status"]
+            row[output_timestamp_field] = email_map[master_email]["timestamp"]
         updated.append(row)
 
     return updated

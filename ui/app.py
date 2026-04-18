@@ -48,18 +48,37 @@ if "template_editing" not in st.session_state:
     st.session_state.template_editing = False  # Track if user started editing
 if "uploaded_images" not in st.session_state:
     st.session_state.uploaded_images = []
+if "setup_mode" not in st.session_state:
+    st.session_state.setup_mode = "create"
+if "setup_editing" not in st.session_state:
+    st.session_state.setup_editing = False
 if "google_sheets_manager" not in st.session_state:
     st.session_state.google_sheets_manager = None
+if "google_sheets_credentials" not in st.session_state:
+    st.session_state.google_sheets_credentials = None
 if "gs_credentials_uploaded" not in st.session_state:
     st.session_state.gs_credentials_uploaded = False
 if "gs_invitees_sheet_id" not in st.session_state:
     st.session_state.gs_invitees_sheet_id = ""
+if "gs_invitees_sheet_name" not in st.session_state:
+    st.session_state.gs_invitees_sheet_name = "Invitees"
 if "gs_responses_sheet_id" not in st.session_state:
     st.session_state.gs_responses_sheet_id = ""
+if "gs_responses_sheet_name" not in st.session_state:
+    st.session_state.gs_responses_sheet_name = "Form Responses"
+if "gs_invitees_headers" not in st.session_state:
+    st.session_state.gs_invitees_headers = []
+if "gs_invitees_header_error" not in st.session_state:
+    st.session_state.gs_invitees_header_error = ""
 if "cached_invitees" not in st.session_state:
     st.session_state.cached_invitees = None
 if "cached_responses" not in st.session_state:
     st.session_state.cached_responses = None
+
+if st.session_state.google_sheets_manager is None and st.session_state.google_sheets_credentials:
+    gs_manager = GoogleSheetsManager(credentials_dict=st.session_state.google_sheets_credentials)
+    if gs_manager.authenticate():
+        st.session_state.google_sheets_manager = gs_manager
 
 # Comprehensive styling
 st.markdown("""
@@ -277,279 +296,424 @@ tab_setup, tab_template, tab_links, tab_sync, tab_help = st.tabs([
 
 # TAB 1: SETUP
 with tab_setup:
-    # Quick save/load at top
-    st.markdown("<h3 style='color: #1b5e20; margin-top: 0;'>💾 Save & Load Configuration</h3>", unsafe_allow_html=True)
+    st.markdown("<h2 style='color: #1b5e20; margin-top: 0;'>⚙️ Setup Configurations</h2>", unsafe_allow_html=True)
     col1, col2, col3 = st.columns([2, 1, 1])
-    
     with col1:
-        save_name = st.text_input(
-            "Configuration name:",
-            value=st.session_state.current_config_name or "",
-            placeholder="e.g., Asia_Fest_2026"
-        )
-    
+        st.markdown("<small style='color: #666;'>Choose whether to start a new configuration or load an existing one.</small>", unsafe_allow_html=True)
     with col2:
-        if save_name and st.button("💾 Save", use_container_width=True, type="primary"):
-            config_mgr.save_config(save_name, st.session_state.current_config)
-            st.session_state.current_config_name = save_name
-            st.success(f"✓ Saved as '{save_name}'")
+        create_pressed = st.button("✏️ Create New", use_container_width=True, key="setup_create", type="primary" if st.session_state.setup_mode == "create" else "secondary")
+        if create_pressed:
+            st.session_state.setup_mode = "create"
+            st.session_state.setup_editing = True
+            st.session_state.current_config = config_mgr.get_default_config()
+            st.session_state.current_config_name = None
             st.rerun()
-    
     with col3:
-        saved = config_mgr.list_saved_configs()
-        if saved:
-            if st.button("📂 Load", use_container_width=True):
-                selected = st.selectbox("Select configuration", saved, label_visibility="collapsed")
-                st.session_state.current_config = config_mgr.load_config(selected)
-                st.session_state.current_config_name = selected
-                st.rerun()
-    
-    st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
-    
-    # Event details
-    st.markdown("<h3 style='color: #1b5e20;'>📅 Event Details</h3>", unsafe_allow_html=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        st.session_state.current_config["event_name"] = st.text_input(
-            "Event Name *",
-            value=st.session_state.current_config.get("event_name", ""),
-            placeholder="e.g., Asia Fest 2026"
-        )
-    with col2:
-        st.session_state.current_config["event_description"] = st.text_input(
-            "Description",
-            value=st.session_state.current_config.get("event_description", ""),
-            placeholder="Brief description of the event"
-        )
-    
-    st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
-    
-    # Form settings
-    st.markdown("<h3 style='color: #1b5e20;'>📋 Google Form Settings</h3>", unsafe_allow_html=True)
-    st.session_state.current_config["form_url"] = st.text_area(
-        "Form Prefill URL *",
-        value=st.session_state.current_config.get("form_url", ""),
-        height=60,
-        placeholder="Copy the prefilled link from Google Form > Share > Get prefilled link",
-        help="This URL will be used to create personalized RSVP links for each invitee"
-    )
-    
-    st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
-    
-    # Email settings
-    st.markdown("<h3 style='color: #1b5e20;'>✉️ Email Settings</h3>", unsafe_allow_html=True)
-    
-    st.markdown("<small style='color: #666;'>**Available Variables:** {{FirstName}}, {{LastName}}, {{EventName}}, {{RSVPLink}}</small>", unsafe_allow_html=True)
-    
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.session_state.current_config["email_subject"] = st.text_input(
-            "Email Subject *",
-            value=st.session_state.current_config.get("email_subject", ""),
-            placeholder="e.g., You're Invited to {{EventName}}!"
-        )
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.session_state.current_config["email_intro"] = st.text_area(
-            "Email Opening",
-            value=st.session_state.current_config.get("email_intro", ""),
-            height=70,
-            placeholder="Hi {{FirstName}}, you are warmly invited to {{EventName}}..."
-        )
-    with col2:
-        st.session_state.current_config["email_outro"] = st.text_area(
-            "Email Closing",
-            value=st.session_state.current_config.get("email_outro", ""),
-            height=70,
-            placeholder="We look forward to celebrating with you!"
-        )
-    
-    st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
-    
-    # Column management - simplified
-    st.markdown("**Master Sheet Columns** (columns in your invitee CSV)")
-    
-    master_cols = st.session_state.current_config.get("master_columns", [])
-    new_master_cols = []
-    
-    for idx, col in enumerate(master_cols):
-        col1, col2, col3 = st.columns([2, 1, 0.8])
-        
-        with col1:
-            name = st.text_input(
-                "Name",
-                value=col.get("name", ""),
-                key=f"mc_name_{idx}",
-                placeholder="e.g., FirstName",
-                label_visibility="collapsed"
-            )
-        
-        with col2:
-            col_type = st.selectbox(
-                "Type",
-                ["string", "email", "number"],
-                index=["string", "email", "number"].index(col.get("type", "string")),
-                key=f"mc_type_{idx}",
-                label_visibility="collapsed"
-            )
-        
-        with col3:
-            if st.button("Remove", key=f"mc_del_{idx}", use_container_width=True):
-                continue
-        
-        if name:
-            new_master_cols.append({"name": name, "type": col_type})
-    
-    col1, col2 = st.columns([3, 1])
-    with col2:
-        if st.button("Add Column", key="mc_add_btn", use_container_width=True):
-            st.session_state.current_config["master_columns"].append({"name": "", "type": "string"})
+        load_pressed = st.button("📂 Load Existing", use_container_width=True, key="setup_load", type="primary" if st.session_state.setup_mode == "load" else "secondary")
+        if load_pressed:
+            st.session_state.setup_mode = "load"
+            st.session_state.setup_editing = False
             st.rerun()
-    
-    st.session_state.current_config["master_columns"] = new_master_cols
-    
-    st.divider()
-    
-    st.markdown("**Form Response Columns** (columns in Google Form export)")
-    
-    form_cols = st.session_state.current_config.get("form_columns", [])
-    new_form_cols = []
-    
-    for idx, col in enumerate(form_cols):
-        col1, col2, col3 = st.columns([2, 1, 0.8])
-        
-        with col1:
-            name = st.text_input(
-                "Name",
-                value=col.get("name", ""),
-                key=f"fc_name_{idx}",
-                placeholder="e.g., Email",
-                label_visibility="collapsed"
-            )
-        
-        with col2:
-            col_type = st.selectbox(
-                "Type",
-                ["string", "email", "number"],
-                index=["string", "email", "number"].index(col.get("type", "string")),
-                key=f"fc_type_{idx}",
-                label_visibility="collapsed"
-            )
-        
-        with col3:
-            if st.button("Remove", key=f"fc_del_{idx}", use_container_width=True):
-                continue
-        
-        if name:
-            new_form_cols.append({"name": name, "type": col_type})
-    
-    col1, col2 = st.columns([3, 1])
-    with col2:
-        if st.button("Add Column", key="fc_add_btn", use_container_width=True):
-            st.session_state.current_config["form_columns"].append({"name": "", "type": "string"})
-            st.rerun()
-    
-    st.session_state.current_config["form_columns"] = new_form_cols
-    
-    # Google Sheets Integration
-    st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
-    st.markdown("<h3 style='color: #1b5e20;'>🔗 Google Sheets Integration</h3>", unsafe_allow_html=True)
-    st.markdown("<small style='color: #666;'>Connect to your Google Sheets for live data sync. <a href='docs/GOOGLE_SHEETS_SETUP.md' target='_blank'>Setup Guide →</a></small>", unsafe_allow_html=True)
-    
-    # Step 1
-    with st.expander("📝 Step 1: Upload Credentials", expanded=not st.session_state.gs_credentials_uploaded):
-        st.markdown("<small style='color: #666;'>**How to get credentials:**</small>", unsafe_allow_html=True)
-        st.markdown("""
-        1. Go to [Google Cloud Console](https://console.cloud.google.com/)
-        2. Create a new project
-        3. Enable Google Sheets API
-        4. Create a service account
-        5. Download the JSON credentials file
-        """)
-        
-        creds_file = st.file_uploader("Upload Service Account JSON", type=["json"], key="gs_creds_upload", help="Download from Google Cloud Console")
-        
-        if creds_file:
-            try:
-                creds_dict = json.loads(creds_file.read())
-                creds_path = Path("credentials.json")
-                with open(creds_path, "w") as f:
-                    json.dump(creds_dict, f)
-                st.session_state.gs_credentials_uploaded = True
-                
-                # Try to authenticate
-                gs_manager = GoogleSheetsManager("credentials.json")
-                if gs_manager.authenticate():
-                    st.session_state.google_sheets_manager = gs_manager
-                    st.success("✅ Google Sheets API authenticated successfully")
-                else:
-                    st.error("❌ Failed to authenticate. Check your credentials.")
-            except Exception as e:
-                st.error(f"Error: {str(e)}")
-    
-    # Step 2
-    if st.session_state.gs_credentials_uploaded:
-        with st.expander("🔗 Step 2: Link Your Sheets", expanded=True):
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown("<small style='color: #666;'>**Invitees Sheet**</small>", unsafe_allow_html=True)
-                invitees_url = st.text_input(
-                    "Invitees Sheet URL",
-                    value=st.session_state.gs_invitees_sheet_id or "",
-                    placeholder="Paste your invitees Google Sheet URL",
-                    key="invitees_url_input"
-                )
-                if invitees_url:
-                    gs_manager = st.session_state.google_sheets_manager
-                    if gs_manager:
-                        sheet_id = gs_manager.extract_sheet_id_from_url(invitees_url)
-                        if sheet_id:
-                            st.session_state.gs_invitees_sheet_id = sheet_id
-                            st.markdown(f"<span class='status-ok'>✓ Sheet ID extracted</span>", unsafe_allow_html=True)
-                        else:
-                            st.warning("Could not extract sheet ID from URL")
-            
-            with col2:
-                st.markdown("<small style='color: #666;'>**Form Responses Sheet**</small>", unsafe_allow_html=True)
-                responses_url = st.text_input(
-                    "Form Responses Sheet URL",
-                    value=st.session_state.gs_responses_sheet_id or "",
-                    placeholder="Paste your form responses sheet URL",
-                    key="responses_url_input"
-                )
-                if responses_url:
-                    gs_manager = st.session_state.google_sheets_manager
-                    if gs_manager:
-                        sheet_id = gs_manager.extract_sheet_id_from_url(responses_url)
-                        if sheet_id:
-                            st.session_state.gs_responses_sheet_id = sheet_id
-                            st.markdown(f"<span class='status-ok'>✓ Sheet ID extracted</span>", unsafe_allow_html=True)
-                        else:
-                            st.warning("Could not extract sheet ID from URL")
-            
-            if st.session_state.gs_invitees_sheet_id and st.session_state.gs_responses_sheet_id:
-                st.markdown("""<div style='background: #E8F5E9; padding: 1rem; border-radius: 6px; margin-top: 1rem; border-left: 4px solid #2E7D32;'>
-                <strong style='color: #1b5e20;'>✅ Ready to sync!</strong><br>
-                <small style='color: #666;'>Both sheets are linked. Go to the "Sync Responses" tab to fetch data.</small>
-                </div>""", unsafe_allow_html=True)
-    
-    # Status
-    st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
-    st.markdown("<h3 style='color: #1b5e20;'>✓ Configuration Status</h3>", unsafe_allow_html=True)
-    
-    is_valid, errors = config_mgr.validate_config(st.session_state.current_config)
-    
-    if is_valid:
-        st.markdown("""<div style='background: #E8F5E9; padding: 1rem; border-radius: 6px; border-left: 4px solid #2E7D32;'>
-        <strong style='color: #1b5e20;'>✅ Configuration Complete</strong><br>
-        <small style='color: #666;'>Your event is configured. You can now generate links or sync responses.</small>
+
+    if st.session_state.setup_mode == "load":
+        st.markdown("""<div style='background: #F3E5F5; padding: 1rem; border-radius: 6px; margin: 1rem 0; border-left: 4px solid #9C27B0;'>
+        <strong style='color: #6A1B9A;'>📂 Load Existing Configuration</strong><br>
+        <small style='color: #666;'>Select a saved configuration to load it into the Setup editor.</small>
         </div>""", unsafe_allow_html=True)
+
+        saved = config_mgr.list_saved_configs()
+        if not saved:
+            st.info("No saved configurations found. Click '✏️ Create New' to start a new setup.")
+        else:
+            for config_name in saved:
+                card_col1, card_col2 = st.columns([3, 1])
+                with card_col1:
+                    st.markdown(f"<div class='card'><strong>{config_name}</strong></div>", unsafe_allow_html=True)
+                with card_col2:
+                    if st.button("Load", key=f"load_config_{config_name}", use_container_width=True):
+                        loaded_config = config_mgr.load_config(config_name)
+                        st.session_state.current_config = loaded_config
+                        st.session_state.current_config_name = config_name
+                        st.session_state.gs_invitees_sheet_id = loaded_config.get("gs_invitees_sheet_id", "") or st.session_state.gs_invitees_sheet_id
+                        st.session_state.gs_invitees_sheet_name = loaded_config.get("gs_invitees_sheet_name", "Invitees")
+                        st.session_state.gs_responses_sheet_id = loaded_config.get("gs_responses_sheet_id", "") or st.session_state.gs_responses_sheet_id
+                        st.session_state.gs_responses_sheet_name = loaded_config.get("gs_responses_sheet_name", "Form Responses")
+                        st.session_state.setup_mode = "create"
+                        st.session_state.setup_editing = True
+                        st.success(f"Loaded '{config_name}' for editing")
+                        st.rerun()
+                    if st.button("Delete", key=f"delete_config_{config_name}", use_container_width=True):
+                        config_mgr.delete_config(config_name)
+                        st.success(f"Deleted '{config_name}'")
+                        st.rerun()
     else:
-        st.warning("⚠️ Configuration incomplete:")
-        for error in errors:
-            st.markdown(f"<small style='color: #E65100;'>• {error}</small>", unsafe_allow_html=True)
+        if st.session_state.setup_editing and st.session_state.current_config_name:
+            st.markdown("""<div style='background: #E8F5E9; padding: 1rem; border-radius: 6px; margin: 1rem 0; border-left: 4px solid #2E7D32;'>
+            <strong style='color: #1b5e20;'>✏️ Editing Saved Config: {name}</strong><br>
+            <small style='color: #666;'>This configuration will update the saved file when you save.</small>
+            </div>""".format(name=st.session_state.current_config_name), unsafe_allow_html=True)
+            if st.button("📂 Switch to saved configs", use_container_width=True, key="back_to_saved_configs"):
+                st.session_state.setup_mode = "load"
+                st.session_state.setup_editing = False
+                st.rerun()
+        if not st.session_state.setup_editing:
+            st.markdown("""<div style='background: #FFF8E1; padding: 1rem; border-radius: 6px; margin: 1rem 0; border-left: 4px solid #FDD835;'>
+            <strong style='color: #F57C00;'>✏️ Ready to create a new setup?</strong><br>
+            <small style='color: #666;'>Click 'Create New' above to configure your event, email, and Google Sheets settings.</small>
+            </div>""", unsafe_allow_html=True)
+        else:
+            st.markdown("""<div class='section-divider'></div>""", unsafe_allow_html=True)
+            # Quick save/load at top
+            st.markdown("<h3 style='color: #1b5e20; margin-top: 0;'>💾 Save Configuration</h3>", unsafe_allow_html=True)
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                save_name = st.text_input(
+                    "Configuration name:",
+                    value=st.session_state.current_config_name or "",
+                    placeholder="e.g., Asia_Fest_2026"
+                )
+            with col2:
+                if save_name and st.button("💾 Save", use_container_width=True, type="primary"):
+                    normalized_config = config_mgr.normalize_config(st.session_state.current_config)
+                    st.session_state.current_config = normalized_config
+                    schema_valid, schema_errors = config_mgr.validate_config_schema(normalized_config)
+                    if not schema_valid:
+                        st.error("Cannot save configuration because it does not match the expected schema.")
+                        for error in schema_errors:
+                            st.markdown(f"<small style='color: #E65100;'>• {error}</small>", unsafe_allow_html=True)
+                    else:
+                        config_mgr.save_config(save_name, normalized_config)
+                        st.session_state.current_config_name = save_name
+                        st.success(f"✓ Saved as '{save_name}'")
+                        st.rerun()
+
+            # Security note
+            st.markdown("<small style='color: #666; font-style: italic;'>🔒 Configurations are encrypted on disk for security.</small>", unsafe_allow_html=True)
+            if st.button("🔑 Reset Encryption Key", help="Generate a new encryption key (existing encrypted configs will become inaccessible)", use_container_width=False):
+                from pathlib import Path
+                secret_file = Path(__file__).parent.parent / ".secret_key"
+                if secret_file.exists():
+                    secret_file.unlink()
+                st.success("✅ Encryption key reset. Restart the app to generate a new key.")
+                st.rerun()
+
+            st.markdown("""<div class='section-divider'></div>""", unsafe_allow_html=True)
+
+            # Event details
+            st.markdown("<h3 style='color: #1b5e20;'>📅 Event Details</h3>", unsafe_allow_html=True)
+            col1, col2 = st.columns(2)
+            with col1:
+                st.session_state.current_config["event_name"] = st.text_input(
+                    "Event Name *",
+                    value=st.session_state.current_config.get("event_name", ""),
+                    placeholder="e.g., Asia Fest 2026"
+                )
+            with col2:
+                st.session_state.current_config["event_description"] = st.text_input(
+                    "Description",
+                    value=st.session_state.current_config.get("event_description", ""),
+                    placeholder="Brief description of the event"
+                )
+
+            st.markdown("""<div class='section-divider'></div>""", unsafe_allow_html=True)
+
+            # Form settings
+            st.markdown("<h3 style='color: #1b5e20;'>📋 Google Form Settings</h3>", unsafe_allow_html=True)
+            st.session_state.current_config["form_url"] = st.text_area(
+                "Form Prefill URL *",
+                value=st.session_state.current_config.get("form_url", ""),
+                height=60,
+                placeholder="Copy the prefilled link from Google Form > Share > Get prefilled link",
+                help="This URL will be used to create personalized RSVP links for each invitee"
+            )
+
+            st.markdown("""<div class='section-divider'></div>""", unsafe_allow_html=True)
+
+            # Email settings
+            st.markdown("<h3 style='color: #1b5e20;'>✉️ Email Settings</h3>", unsafe_allow_html=True)
+            st.markdown("<small style='color: #666;'>**Available Variables:** {{FirstName}}, {{LastName}}, {{EventName}}, {{RSVPLink}}</small>", unsafe_allow_html=True)
+
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                st.session_state.current_config["email_subject"] = st.text_input(
+                    "Email Subject *",
+                    value=st.session_state.current_config.get("email_subject", ""),
+                    placeholder="e.g., You're Invited to {{EventName}}!"
+                )
+
+            col1, col2 = st.columns(2)
+            with col1:
+                st.session_state.current_config["email_intro"] = st.text_area(
+                    "Email Opening",
+                    value=st.session_state.current_config.get("email_intro", ""),
+                    height=70,
+                    placeholder="Hi {{FirstName}}, you are warmly invited to {{EventName}}..."
+                )
+            with col2:
+                st.session_state.current_config["email_outro"] = st.text_area(
+                    "Email Closing",
+                    value=st.session_state.current_config.get("email_outro", ""),
+                    height=70,
+                    placeholder="We look forward to celebrating with you!"
+                )
+
+            st.markdown("""<div class='section-divider'></div>""", unsafe_allow_html=True)
+
+            # Column management - simplified
+            st.markdown("**Master Sheet Columns** (columns in your invitee CSV)")
+            master_cols = st.session_state.current_config.get("master_columns", [])
+            new_master_cols = []
+            for idx, col in enumerate(master_cols):
+                col1, col2, col3 = st.columns([2, 1, 0.8])
+                with col1:
+                    name = st.text_input(
+                        "Name",
+                        value=col.get("name", ""),
+                        key=f"mc_name_{idx}",
+                        placeholder="e.g., FirstName",
+                        label_visibility="collapsed"
+                    )
+                with col2:
+                    col_type = st.selectbox(
+                        "Type",
+                        ["string", "email", "number"],
+                        index=["string", "email", "number"].index(col.get("type", "string")),
+                        key=f"mc_type_{idx}",
+                        label_visibility="collapsed"
+                    )
+                with col3:
+                    if st.button("Remove", key=f"mc_del_{idx}", use_container_width=True):
+                        continue
+                if name:
+                    new_master_cols.append({"name": name, "type": col_type})
+            col1, col2 = st.columns([3, 1])
+            with col2:
+                if st.button("Add Column", key="mc_add_btn", use_container_width=True):
+                    st.session_state.current_config["master_columns"].append({"name": "", "type": "string"})
+                    st.rerun()
+            st.session_state.current_config["master_columns"] = new_master_cols
+
+            st.divider()
+            st.markdown("**Form Response Columns** (columns in Google Form export)")
+            form_cols = st.session_state.current_config.get("form_columns", [])
+            new_form_cols = []
+            for idx, col in enumerate(form_cols):
+                col1, col2, col3 = st.columns([2, 1, 0.8])
+                with col1:
+                    name = st.text_input(
+                        "Name",
+                        value=col.get("name", ""),
+                        key=f"fc_name_{idx}",
+                        placeholder="e.g., Email",
+                        label_visibility="collapsed"
+                    )
+                with col2:
+                    col_type = st.selectbox(
+                        "Type",
+                        ["string", "email", "number"],
+                        index=["string", "email", "number"].index(col.get("type", "string")),
+                        key=f"fc_type_{idx}",
+                        label_visibility="collapsed"
+                    )
+                with col3:
+                    if st.button("Remove", key=f"fc_del_{idx}", use_container_width=True):
+                        continue
+                if name:
+                    new_form_cols.append({"name": name, "type": col_type})
+            col1, col2 = st.columns([3, 1])
+            with col2:
+                if st.button("Add Column", key="fc_add_btn", use_container_width=True):
+                    st.session_state.current_config["form_columns"].append({"name": "", "type": "string"})
+                    st.rerun()
+            st.session_state.current_config["form_columns"] = new_form_cols
+
+            # Google Sheets Integration
+            st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #1b5e20;'>🔗 Google Sheets Integration</h3>", unsafe_allow_html=True)
+            st.markdown("<small style='color: #666;'>Connect to your Google Sheets for live sync. <a href='docs/GOOGLE_SHEETS_SETUP.md' target='_blank'>Setup Guide →</a></small>", unsafe_allow_html=True)
+            with st.expander("📝 Step 1: Upload Credentials", expanded=not st.session_state.gs_credentials_uploaded):
+                st.markdown("<small style='color: #666;'>**How to get credentials:**</small>", unsafe_allow_html=True)
+                st.markdown("""
+                1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+                2. Create a new project
+                3. Enable Google Sheets API
+                4. Create a service account
+                5. Download the JSON credentials file
+                """)
+                creds_file = st.file_uploader("Upload Service Account JSON", type=["json"], key="gs_creds_upload", help="Download from Google Cloud Console")
+                if creds_file:
+                    try:
+                        creds_dict = json.loads(creds_file.read())
+                        st.session_state.gs_credentials_uploaded = True
+                        st.session_state.google_sheets_credentials = creds_dict
+                        gs_manager = GoogleSheetsManager(credentials_dict=creds_dict)
+                        if gs_manager.authenticate():
+                            st.session_state.google_sheets_manager = gs_manager
+                            st.success("✅ Google Sheets API authenticated successfully")
+                        else:
+                            st.error("❌ Failed to authenticate. Check your credentials.")
+                    except Exception as e:
+                        st.error(f"Error: {str(e)}")
+            if st.session_state.gs_credentials_uploaded:
+                with st.expander("🔗 Step 2: Link Your Sheets", expanded=True):
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.markdown("<small style='color: #666;'>**Invitees Sheet**</small>", unsafe_allow_html=True)
+                        invitees_url = st.text_input(
+                            "Invitees Sheet URL",
+                            value=st.session_state.gs_invitees_sheet_id or st.session_state.current_config.get("gs_invitees_sheet_id", ""),
+                            placeholder="Paste your invitees Google Sheet URL or ID",
+                            key="invitees_url_input"
+                        )
+                        invitees_name = st.text_input(
+                            "Invitees Worksheet Name",
+                            value=st.session_state.gs_invitees_sheet_name or st.session_state.current_config.get("gs_invitees_sheet_name", "Invitees"),
+                            placeholder="Invitees",
+                            key="invitees_sheet_name_input"
+                        )
+                        if invitees_url:
+                            gs_manager = st.session_state.google_sheets_manager
+                            if gs_manager:
+                                sheet_id = gs_manager.extract_sheet_id_from_url(invitees_url) or (invitees_url if len(invitees_url) > 25 else None)
+                                if sheet_id:
+                                    st.session_state.gs_invitees_sheet_id = sheet_id
+                                    st.session_state.current_config["gs_invitees_sheet_id"] = sheet_id
+                                    st.markdown(f"<span class='status-ok'>✓ Sheet ID extracted</span>", unsafe_allow_html=True)
+                                else:
+                                    st.warning("Could not extract sheet ID from URL or ID. Please paste the full sheet URL or the sheet ID.")
+                        st.session_state.gs_invitees_sheet_name = invitees_name
+                        st.session_state.current_config["gs_invitees_sheet_name"] = invitees_name
+                    with col2:
+                        st.markdown("<small style='color: #666;'>**Form Responses Sheet**</small>", unsafe_allow_html=True)
+                        responses_url = st.text_input(
+                            "Form Responses Sheet URL",
+                            value=st.session_state.gs_responses_sheet_id or st.session_state.current_config.get("gs_responses_sheet_id", ""),
+                            placeholder="Paste your form responses Google Sheet URL or ID",
+                            key="responses_url_input"
+                        )
+                        responses_name = st.text_input(
+                            "Responses Worksheet Name",
+                            value=st.session_state.gs_responses_sheet_name or st.session_state.current_config.get("gs_responses_sheet_name", "Form Responses"),
+                            placeholder="Form Responses",
+                            key="responses_sheet_name_input"
+                        )
+                        if responses_url:
+                            gs_manager = st.session_state.google_sheets_manager
+                            if gs_manager:
+                                sheet_id = gs_manager.extract_sheet_id_from_url(responses_url) or (responses_url if len(responses_url) > 25 else None)
+                                if sheet_id:
+                                    st.session_state.gs_responses_sheet_id = sheet_id
+                                    st.session_state.current_config["gs_responses_sheet_id"] = sheet_id
+                                    st.markdown(f"<span class='status-ok'>✓ Sheet ID extracted</span>", unsafe_allow_html=True)
+                                else:
+                                    st.warning("Could not extract sheet ID from URL or ID. Please paste the full sheet URL or the sheet ID.")
+                        st.session_state.gs_responses_sheet_name = responses_name
+                        st.session_state.current_config["gs_responses_sheet_name"] = responses_name
+                    st.markdown("<div style='margin-top: 1rem;'><strong>Worksheet names:</strong> Invitees = <code>{}</code>, Responses = <code>{}</code></div>".format(
+                        st.session_state.gs_invitees_sheet_name,
+                        st.session_state.gs_responses_sheet_name
+                    ), unsafe_allow_html=True)
+                    with st.expander("🧭 Response field mappings", expanded=False):
+                        form_map = st.session_state.current_config.get("form_mappings", {})
+                        response_email_col = st.text_input(
+                            "Response Email Column",
+                            value=form_map.get("response_email", "Email"),
+                            placeholder="Email",
+                            key="response_email_mapping"
+                        )
+                        response_status_col = st.text_input(
+                            "Response Status Column",
+                            value=form_map.get("response_status", "Status"),
+                            placeholder="Status",
+                            key="response_status_mapping"
+                        )
+                        response_timestamp_col = st.text_input(
+                            "Response Timestamp Column",
+                            value=form_map.get("response_timestamp", "Timestamp"),
+                            placeholder="Timestamp",
+                            key="response_timestamp_mapping"
+                        )
+                        st.session_state.current_config["form_mappings"] = {
+                            "response_email": response_email_col,
+                            "response_status": response_status_col,
+                            "response_timestamp": response_timestamp_col,
+                        }
+
+                    with st.expander("🧪 Invitees Sheet Header Sync", expanded=False):
+                        st.markdown("<small style='color: #666;'>Keep your invitees sheet schema in sync with the app's master columns. Fetch remote headers, import them, or push local headers to the sheet.</small>", unsafe_allow_html=True)
+                        if st.button("Refresh invitees sheet headers", key="refresh_headers"):
+                            gs_manager = st.session_state.google_sheets_manager
+                            if gs_manager and st.session_state.gs_invitees_sheet_id:
+                                headers = gs_manager.fetch_sheet_headers(
+                                    st.session_state.gs_invitees_sheet_id,
+                                    sheet_name=st.session_state.gs_invitees_sheet_name or "Invitees"
+                                )
+                                if headers is None:
+                                    st.session_state.gs_invitees_headers = []
+                                    st.session_state.gs_invitees_header_error = f"Could not read headers from worksheet '{st.session_state.gs_invitees_sheet_name}'."
+                                else:
+                                    st.session_state.gs_invitees_headers = headers
+                                    st.session_state.gs_invitees_header_error = ""
+                                    st.success("✅ Fetched current invitees sheet headers")
+                            else:
+                                st.warning("Google Sheets credentials and invitees sheet ID are required.")
+
+                        if st.session_state.gs_invitees_headers:
+                            st.markdown("**Remote invitees headers:**")
+                            st.write(st.session_state.gs_invitees_headers)
+                            if st.button("Import remote headers into app columns", key="import_headers"):
+                                st.session_state.current_config["master_columns"] = [
+                                    {"name": h, "type": "email" if "email" in h.lower() else "string"}
+                                    for h in st.session_state.gs_invitees_headers if h.strip()
+                                ]
+                                st.success("Imported remote headers to master columns")
+
+                        if st.session_state.gs_invitees_header_error:
+                            st.error(st.session_state.gs_invitees_header_error)
+
+                        if st.button("Push current master columns to invitees sheet", key="push_headers"):
+                            gs_manager = st.session_state.google_sheets_manager
+                            if gs_manager and st.session_state.gs_invitees_sheet_id:
+                                header_names = [col.get("name", "") for col in st.session_state.current_config.get("master_columns", []) if col.get("name")]
+                                if not header_names:
+                                    st.warning("No master columns to push.")
+                                else:
+                                    success = gs_manager.update_sheet_headers(
+                                        st.session_state.gs_invitees_sheet_id,
+                                        header_names,
+                                        sheet_name=st.session_state.gs_invitees_sheet_name or "Invitees"
+                                    )
+                                    if success:
+                                        st.success("✅ Updated invitees sheet header row")
+                                        st.session_state.gs_invitees_headers = header_names
+                                    else:
+                                        st.error("❌ Failed to update invitees sheet headers.")
+                            else:
+                                st.warning("Google Sheets credentials and invitees sheet ID are required.")
+
+                    if st.session_state.gs_invitees_sheet_id and st.session_state.gs_responses_sheet_id:
+                        st.markdown("""<div style='background: #E8F5E9; padding: 1rem; border-radius: 6px; margin-top: 1rem; border-left: 4px solid #2E7D32;'>
+                        <strong style='color: #1b5e20;'>✅ Google Sheets details configured</strong><br>
+                        <small style='color: #666;'>Save this configuration and use the Sync tab to fetch data from the correct worksheets.</small>
+                        </div>""", unsafe_allow_html=True)
+
+            st.markdown("""<div class='section-divider'></div>""", unsafe_allow_html=True)
+            st.markdown("<h3 style='color: #1b5e20;'>✓ Configuration Status</h3>", unsafe_allow_html=True)
+            is_valid, errors = config_mgr.validate_config(st.session_state.current_config)
+            if is_valid:
+                sync_ready = bool(st.session_state.gs_invitees_sheet_id and st.session_state.gs_responses_sheet_id)
+                st.markdown("""<div style='background: #E8F5E9; padding: 1rem; border-radius: 6px; border-left: 4px solid #2E7D32;'>
+                <strong style='color: #1b5e20;'>✅ Configuration Complete</strong><br>
+                <small style='color: #666;'>Your event is configured. You can now generate links or sync responses.</small>
+                </div>""", unsafe_allow_html=True)
+                if not sync_ready:
+                    st.info("⚠️ Google Sheets sync is not fully configured yet. Add the two sheet URLs/IDs to enable Sync.")
+            else:
+                st.warning("⚠️ Configuration incomplete:")
+                for error in errors:
+                    st.markdown(f"<small style='color: #E65100;'>• {error}</small>", unsafe_allow_html=True)
+                if st.session_state.gs_invitees_sheet_id or st.session_state.gs_responses_sheet_id:
+                    st.info("You can still save the config now and finish Google Sheets details later.")
 
 # TAB 2: GENERATE LINKS
 with tab_links:
@@ -961,37 +1125,41 @@ with tab_sync:
                 with st.spinner("Fetching from Google Sheets..."):
                     try:
                         gs_manager = st.session_state.google_sheets_manager
-                        
-                        # Fetch invitees
                         invitees = gs_manager.fetch_invitees(
                             st.session_state.gs_invitees_sheet_id,
-                            sheet_name="Sheet1"  # Adjust based on your sheet name
+                            sheet_name=st.session_state.gs_invitees_sheet_name or "Invitees"
                         )
-                        if invitees:
-                            st.session_state.cached_invitees = invitees
-                            st.success(f"✅ Fetched {len(invitees)} invitees")
+                        if invitees is None:
+                            st.error(f"❌ Could not fetch invitees from worksheet '{st.session_state.gs_invitees_sheet_name}'. Check sheet name and permissions.")
                         else:
-                            st.error("❌ Could not fetch invitees. Check sheet name or permissions.")
+                            st.session_state.cached_invitees = invitees
+                            st.success(f"✅ Fetched {len(invitees)} invitees from '{st.session_state.gs_invitees_sheet_name}'")
                         
-                        # Fetch responses
                         responses = gs_manager.fetch_rsvp_responses(
                             st.session_state.gs_responses_sheet_id,
-                            sheet_name="Form Responses"  # Adjust based on your sheet name
+                            sheet_name=st.session_state.gs_responses_sheet_name or "Form Responses"
                         )
-                        if responses:
-                            st.session_state.cached_responses = responses
-                            st.success(f"✅ Fetched {len(responses)} responses")
+                        if responses is None:
+                            st.error(f"❌ Could not fetch responses from worksheet '{st.session_state.gs_responses_sheet_name}'. Check sheet name and permissions.")
                         else:
-                            st.error("❌ Could not fetch responses. Check sheet name or permissions.")
+                            st.session_state.cached_responses = responses
+                            st.success(f"✅ Fetched {len(responses)} responses from '{st.session_state.gs_responses_sheet_name}'")
                     except Exception as e:
                         st.error(f"Error fetching data: {str(e)}")
         
         with col2:
-            if st.button("🔍 View Configuration", use_container_width=True, help="View the linked sheets"):
+            if st.button("🔍 View Configuration", use_container_width=True, help="View the linked sheets and field mappings"):
                 with st.expander("Sheet Configuration", expanded=True):
                     st.json({
-                        "invitees_sheet_id": st.session_state.gs_invitees_sheet_id[:30] + "...",
-                        "responses_sheet_id": st.session_state.gs_responses_sheet_id[:30] + "..."
+                        "invitees_sheet_id": st.session_state.gs_invitees_sheet_id,
+                        "invitees_sheet_name": st.session_state.gs_invitees_sheet_name,
+                        "responses_sheet_id": st.session_state.gs_responses_sheet_id,
+                        "responses_sheet_name": st.session_state.gs_responses_sheet_name,
+                        "response_mappings": st.session_state.current_config.get("form_mappings", {}),
+                        "output_columns": {
+                            "status": st.session_state.current_config.get("column_mappings", {}).get("rsvp_status", "RSVP_Status"),
+                            "timestamp": st.session_state.current_config.get("column_mappings", {}).get("rsvp_timestamp", "Response_Timestamp"),
+                        }
                     })
         
         with col3:
@@ -1001,10 +1169,10 @@ with tab_sync:
         st.markdown("""<div class="section-divider"></div>""", unsafe_allow_html=True)
         
         # Display metrics
-        if st.session_state.cached_invitees and st.session_state.cached_responses:
-            invitees_df = pd.DataFrame(st.session_state.cached_invitees)
-            responses_df = pd.DataFrame(st.session_state.cached_responses)
-            
+        invitees_df = pd.DataFrame(st.session_state.cached_invitees or [])
+        responses_df = pd.DataFrame(st.session_state.cached_responses or [])
+
+        if not invitees_df.empty or not responses_df.empty:
             col1, col2, col3 = st.columns(3)
             
             with col1:
@@ -1023,72 +1191,76 @@ with tab_sync:
             
             st.divider()
             
-            # Show responses
-            with st.expander("📥 Form Responses", expanded=True):
-                st.dataframe(responses_df, use_container_width=True)
-                
-                csv_buffer = py_io.BytesIO()
-                responses_df.to_csv(csv_buffer, index=False)
-                csv_buffer.seek(0)
-                
-                st.download_button(
-                    "Download Responses",
-                    csv_buffer.getvalue(),
-                    "rsvp_responses.csv",
-                    "text/csv",
-                    use_container_width=True
-                )
+            if not responses_df.empty:
+                with st.expander("📥 Form Responses", expanded=True):
+                    st.dataframe(responses_df, use_container_width=True)
+                    
+                    csv_buffer = py_io.BytesIO()
+                    responses_df.to_csv(csv_buffer, index=False)
+                    csv_buffer.seek(0)
+                    
+                    st.download_button(
+                        "Download Responses",
+                        csv_buffer.getvalue(),
+                        "rsvp_responses.csv",
+                        "text/csv",
+                        use_container_width=True
+                    )
             
-            # Show invitees with sync option
-            with st.expander("📋 Invitees List", expanded=False):
-                st.dataframe(invitees_df, use_container_width=True)
-                
-                csv_buffer = py_io.BytesIO()
-                invitees_df.to_csv(csv_buffer, index=False)
-                csv_buffer.seek(0)
-                
-                st.download_button(
-                    "Download Invitees",
-                    csv_buffer.getvalue(),
-                    "invitees_list.csv",
-                    "text/csv",
-                    use_container_width=True
-                )
+            if not invitees_df.empty:
+                with st.expander("📋 Invitees List", expanded=False):
+                    st.dataframe(invitees_df, use_container_width=True)
+                    
+                    csv_buffer = py_io.BytesIO()
+                    invitees_df.to_csv(csv_buffer, index=False)
+                    csv_buffer.seek(0)
+                    
+                    st.download_button(
+                        "Download Invitees",
+                        csv_buffer.getvalue(),
+                        "invitees_list.csv",
+                        "text/csv",
+                        use_container_width=True
+                    )
             
-            # Sync button
-            if st.button("🔗 Sync Responses to Master", type="primary", use_container_width=True):
-                with st.spinner("Syncing..."):
-                    try:
-                        master_rows = st.session_state.cached_invitees
-                        response_rows = st.session_state.cached_responses
-                        
-                        form_map = st.session_state.current_config.get("form_mappings", {})
-                        
-                        updated_rows = sync_response_status(
-                            master_rows,
-                            response_rows,
-                            email_field="Email",
-                            status_field=form_map.get("response_status", "Status"),
-                            timestamp_field=form_map.get("response_timestamp", "Timestamp"),
-                        )
-                        
-                        updated_df = pd.DataFrame(updated_rows)
-                        st.success(f"✓ Synced {len(updated_df)} records")
-                        st.dataframe(updated_df, use_container_width=True)
-                        
-                        csv_buffer = py_io.BytesIO()
-                        updated_df.to_csv(csv_buffer, index=False)
-                        csv_buffer.seek(0)
-                        
-                        st.download_button(
-                            "Download Updated Master",
-                            csv_buffer.getvalue(),
-                            "master_synced.csv",
-                            "text/csv",
-                            use_container_width=True
-                        )
-                    except Exception as e:
-                        st.error(f"Error syncing: {str(e)}")
+            if not invitees_df.empty and not responses_df.empty:
+                if st.button("🔗 Sync Responses to Master", type="primary", use_container_width=True):
+                    with st.spinner("Syncing..."):
+                        try:
+                            master_rows = st.session_state.cached_invitees
+                            response_rows = st.session_state.cached_responses
+                            
+                            form_map = st.session_state.current_config.get("form_mappings", {})
+                            column_map = st.session_state.current_config.get("column_mappings", {})
+                            
+                            updated_rows = sync_response_status(
+                                master_rows,
+                                response_rows,
+                                master_email_field=column_map.get("email", "Email"),
+                                response_email_field=form_map.get("response_email", "Email"),
+                                response_status_field=form_map.get("response_status", "Status"),
+                                response_timestamp_field=form_map.get("response_timestamp", "Timestamp"),
+                                output_status_field=column_map.get("rsvp_status", "RSVP_Status"),
+                                output_timestamp_field=column_map.get("rsvp_timestamp", "Response_Timestamp"),
+                            )
+                            
+                            updated_df = pd.DataFrame(updated_rows)
+                            st.success(f"✓ Synced {len(updated_df)} records")
+                            st.dataframe(updated_df, use_container_width=True)
+                            
+                            csv_buffer = py_io.BytesIO()
+                            updated_df.to_csv(csv_buffer, index=False)
+                            csv_buffer.seek(0)
+                            
+                            st.download_button(
+                                "Download Updated Master",
+                                csv_buffer.getvalue(),
+                                "master_synced.csv",
+                                "text/csv",
+                                use_container_width=True
+                            )
+                        except Exception as e:
+                            st.error(f"Error syncing: {str(e)}")
         else:
             st.info("👆 Click 'Fetch Latest Data' to load from Google Sheets")
 
