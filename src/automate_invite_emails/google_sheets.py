@@ -13,16 +13,17 @@ from gspread.exceptions import SpreadsheetNotFound, WorksheetNotFound
 class GoogleSheetsManager:
     """Manages Google Sheets API operations."""
     
-    def __init__(self, credentials_path: Optional[str] = None):
+    def __init__(self, credentials_path: Optional[str] = None, credentials_dict: Optional[Dict] = None):
         """
         Initialize Google Sheets manager with service account credentials.
         
         Args:
             credentials_path: Path to service account JSON file.
-                            If None, attempts to find credentials.json in project root.
+            credentials_dict: Service account credentials as a Python dict.
         """
         self.client = None
         self.credentials_path = credentials_path or "credentials.json"
+        self.credentials_dict = credentials_dict
         
     def authenticate(self) -> bool:
         """
@@ -32,12 +33,16 @@ class GoogleSheetsManager:
             True if authentication successful, False otherwise.
         """
         try:
-            creds_file = Path(self.credentials_path)
-            if not creds_file.exists():
-                return False
+            creds_dict = self.credentials_dict
+            if creds_dict is None:
+                creds_file = Path(self.credentials_path)
+                if not creds_file.exists():
+                    return False
+                with open(creds_file, 'r', encoding='utf-8') as f:
+                    creds_dict = json.load(f)
             
-            with open(creds_file, 'r') as f:
-                creds_dict = json.load(f)
+            if not isinstance(creds_dict, dict):
+                return False
             
             self.client = gspread.service_account_from_dict(creds_dict)
             return True
@@ -140,6 +145,41 @@ class GoogleSheetsManager:
             return True
         except Exception as e:
             print(f"Error updating sheet: {e}")
+            return False
+    
+    def fetch_sheet_headers(self, sheet_id: str, sheet_name: str = "Invitees") -> Optional[List[str]]:
+        """
+        Fetch only the header row from a worksheet.
+        """
+        try:
+            spreadsheet = self.get_spreadsheet_by_id(sheet_id)
+            if not spreadsheet:
+                return None
+            worksheet = spreadsheet.worksheet(sheet_name)
+            headers = worksheet.row_values(1)
+            return headers
+        except WorksheetNotFound:
+            return None
+        except Exception as e:
+            print(f"Error fetching sheet headers: {e}")
+            return None
+    
+    def update_sheet_headers(self, sheet_id: str, headers: List[str], sheet_name: str = "Invitees") -> bool:
+        """
+        Update only the header row of a worksheet, creating it if needed.
+        """
+        try:
+            spreadsheet = self.get_spreadsheet_by_id(sheet_id)
+            if not spreadsheet:
+                return False
+            try:
+                worksheet = spreadsheet.worksheet(sheet_name)
+            except WorksheetNotFound:
+                worksheet = spreadsheet.add_worksheet(title=sheet_name, rows=1000, cols=max(20, len(headers)))
+            worksheet.update([headers])
+            return True
+        except Exception as e:
+            print(f"Error updating sheet headers: {e}")
             return False
     
     def extract_sheet_id_from_url(self, url: str) -> Optional[str]:
