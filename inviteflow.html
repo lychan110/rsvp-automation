@@ -293,7 +293,45 @@ function syncImageOverrides() {
 syncImageOverrides();
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// PROFILE: JSON export/import only — no localStorage
+// LOCAL STORAGE — auto-save event config + invitees across sessions
+// ═══════════════════════════════════════════════════════════════════════════════
+const LS_KEY = 'inviteflow_state';
+
+function saveState() {
+  try {
+    localStorage.setItem(LS_KEY, JSON.stringify({
+      event: S.event,
+      invitees: S.invitees,
+    }));
+  } catch(e) { /* storage full or unavailable — silently skip */ }
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (d.event)    { S.event = {...DEFAULT_EVENT, ...d.event}; syncImageOverrides(); }
+    if (d.invitees) S.invitees = d.invitees.map(i => ({...i, inviteStatus: i.inviteStatus||'not_sent'}));
+    S.unsaved = false;
+  } catch(e) { /* corrupt data — start fresh */ }
+}
+
+function clearSavedState() {
+  localStorage.removeItem(LS_KEY);
+  S.event = {...DEFAULT_EVENT};
+  S.invitees = [];
+  syncImageOverrides();
+  S.unsaved = false;
+  S.modal = null;
+  log('✓ Saved data cleared. Starting fresh.');
+  render();
+}
+
+loadState();
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PROFILE: JSON export/import
 // ═══════════════════════════════════════════════════════════════════════════════
 function exportProfile() {
   const out = {
@@ -492,6 +530,7 @@ function render() {
 
   // Populate previews AFTER DOM is updated
   if (S.tab === 0 && S.previewName) refreshInvitePreview();
+  saveState();
 }
 
 function renderLog() {
@@ -631,6 +670,12 @@ function renderSettings() {
       </div>`;
     }).join('')}
     <button class="btn gold" onclick="openFullPreview()">▶ Preview Invite with Current Settings</button>
+    <div style="margin-top:18px;padding-top:14px;border-top:1px solid #161b22">
+      <div style="font-size:9px;color:#6e7681;letter-spacing:.1em;margin-bottom:8px">DATA MANAGEMENT</div>
+      <div style="font-size:10px;color:#8b949e;margin-bottom:10px">Your event config and invitee list are auto-saved to this browser. Use Export Profile to back up to a file.</div>
+      <button class="btn sm" onclick="exportProfile()">↓ Export Profile (JSON backup)</button>
+      <button class="btn sm stop" style="margin-left:6px" onclick="if(confirm('Clear all saved data and start fresh? This cannot be undone.'))clearSavedState()">✕ Clear All Saved Data</button>
+    </div>
   </div>`;
 }
 
@@ -729,7 +774,9 @@ function renderModal() {
   return '';
 }
 
-window.addEventListener('beforeunload', e => { if (S.unsaved) { e.preventDefault(); e.returnValue=''; } });
+// Data is auto-saved to localStorage on every render. The beforeunload warning
+// only fires if the user hasn't exported a profile backup for this session.
+window.addEventListener('beforeunload', e => { if (S.unsaved) { e.preventDefault(); e.returnValue='You have unsaved changes not yet exported as a profile backup.'; } });
 
 render();
 </script>
