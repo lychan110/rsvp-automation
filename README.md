@@ -1,112 +1,125 @@
-# Automate Invite Emails
+# Invite Automation Suite
 
-A fully reusable, configuration-driven system for sending personalized event invitations and tracking RSVP responses using Google Sheets, Forms, and Apps Script.
+Two standalone browser apps for researching event contacts and sending personalized invitations.
 
-**Works for any event, any invitee list, and any RSVP form—no code editing required.**
+| App | File | Purpose |
+|-----|------|---------|
+| **ContactScout** | `contactscout.html` | Research, verify, and scan elected officials (or any contacts). Export a verified list. |
+| **InviteFlow** | `inviteflow.html` | Compose and send personalized invite emails via Gmail. Track RSVP status. |
 
-## Quick Start
+No installation, no build step. Open either file directly in a browser.
 
-1. **Copy the script** from `scripts/general_user_workflow.gs` into your Google Sheet (Extensions → Apps Script)
-2. **Create a Config sheet** with your event details (form URL, email text, sheet names, column mappings)
-3. **Click menu buttons** to generate links, send invites, and sync responses
+---
 
-See [docs/QUICKSTART.md](docs/QUICKSTART.md) for the complete step-by-step guide.
+## Workflow
 
-## What this repo contains
-
-- `scripts/general_user_workflow.gs` — one-click workflow (copy into Apps Script)
-- `docs/QUICKSTART.md` — step-by-step setup guide for any event
-- `config/` — example configurations for different event types
-- `src/automate_invite_emails/` — optional Python CLI for offline use
-- `html/af_templates/` — email template examples
-
-## How it works
-
-### Google Sheets + Forms + Apps Script (one-click)
-
-1. **Config sheet** — define your event settings, column names, form fields
-2. **Generate RSVP Links** — creates unique prefilled form URLs for each invitee
-3. **Send Invites** — emails all invitees with their personalized RSVP links
-4. **Sync RSVPs** — reads form responses and updates your master sheet
-
-Everything is driven from the Config sheet. No coding required.
-
-### Optional: Streamlit GUI
-
-```bash
-uv run python -m streamlit run ui/app.py
+```
+ContactScout → Export → InviteFlow → Gmail → Track RSVPs
 ```
 
-### Optional: Python CLI (for preview/offline)
+1. **ContactScout**: Scan your jurisdiction for elected officials using the Claude API + web search. Verify existing contacts are still in office. Export as JSON.
+2. **InviteFlow**: Import the JSON from ContactScout (or a CSV). Configure your event (name, date, venue, RSVP link). Preview and send personalized emails via Gmail one by one or in bulk.
 
-```bash
-# Generate links locally
-python main.py generate-links --config config/default.json --input data/sample_invitees.csv --output output.csv
+---
 
-# Preview an email
-python main.py preview-email --input output.csv --template html/af_templates/template.html
+## ContactScout
 
-# Sync responses from CSV export
-python main.py sync-responses --master data/sample.csv --responses data/responses.csv --output data/updated.csv
+**Open `contactscout.html` in a browser.**
+
+### Setup
+- Click **⚙ Key** in the top-right to enter your Anthropic API key. It is stored in `sessionStorage` only (cleared when you close the tab).
+- The app starts with an empty contacts list. Use the **＋ Scan for New** tab to discover officials, or add manually.
+
+### Customizing for your jurisdiction
+Edit the `SCAN_TARGETS` and `SCAN_PROMPTS` arrays at the top of the `<script>` block:
+
+```js
+const SCAN_TARGETS = [
+  {id:"us-congress", label:"US Congress — all seats", desc:"All current US reps + senators for your state"},
+  // Add or replace entries for your state/city
+];
+
+const SCAN_PROMPTS = {
+  "us-congress": "Search for every current [YOUR STATE] US Congress member...",
+  // Update prompts with your state/city name
+};
 ```
 
-## Key features
+### Export
+- **↓ CSV** — spreadsheet-friendly export of all contacts
+- **⬡ Export → InviteFlow** — exports `contactscout-invitees-YYYY-MM-DD.json` for import into InviteFlow
 
-- ✅ **Fully configurable** — all settings in a Config sheet (no code editing)
-- ✅ **Reusable for any event** — change templates, forms, columns as needed
-- ✅ **No dependencies** — works directly in Google Sheets
-- ✅ **Persists invite status** — prevents duplicate emails
-- ✅ **Auto-syncs responses** — updates RSVP status and timestamp
-- ✅ **Personalized links** — each invitee gets their own prefilled form URL
+---
 
-## Typical workflow
+## InviteFlow
 
-1. **Setup** (once): Copy script → Create Config sheet → Set event details
-2. **Send**: Generate Links → Send Invites
-3. **Monitor**: Sync RSVPs (run hourly or daily as responses come in)
-4. **Track**: Watch RSVP_Status column in your master sheet
+**Open `inviteflow.html` in a browser.**
 
-## Configuration
+### Tabs
 
-All configuration happens in a single `Config` sheet with key-value pairs:
+| Tab | What it does |
+|-----|-------------|
+| **✉ Invite** | Preview emails per invitee. Send via Gmail (opens compose window). Track sent/skipped status. |
+| **👥 Invitees** | Import from ContactScout JSON or CSV. Add manually. Export CSV. |
+| **⚙ Settings** | Configure event name, date, venue, RSVP link, contact info, org name, and images. |
 
-| Setting | Example Value |
-|---------|---------------|
-| event_name | Asia Fest 2026 |
-| form_prefill_url | https://docs.google.com/forms/d/e/.../viewform?... |
-| email_subject | You're Invited! |
-| email_intro | Hi {{FirstName}}, you're invited! |
-| email_outro | We look forward to seeing you. |
-| master_sheet_name | Master |
-| responses_sheet_name | Form Responses 1 |
-| column_first_name | FirstName |
-| column_email | Email |
-| column_rsvp_link | RSVP_Link |
-| column_rsvp_status | RSVP_Status |
-| response_email_field | Email |
-| response_status_field | RSVP |
-| response_timestamp_field | Timestamp |
+### Importing contacts
+- **From ContactScout**: Invitees tab → "Import from ContactScout" → select the `.json` file
+- **From CSV**: Invitees tab → "Import CSV" — auto-maps common field names (`email`, `office email`, `direct email`, `name`, `title`, `category`)
 
-See `config/example_configs.json` for example configurations for conferences, weddings, and corporate events.
+### Email template placeholders
 
-## Examples
+The email template uses `{{Placeholder}}` tokens replaced at send time:
 
-Check `config/example_configs.json` for sample configurations:
-- **Conference** — tech conference with registration tracking
-- **Wedding** — wedding invitation with plus-ones
-- Or create your own for any event type
+| Token | Source |
+|-------|--------|
+| `{{FirstName}}`, `{{LastName}}` | Invitee name |
+| `{{RSVP_Link}}` | Settings → RSVP Link |
+| `{{EventName}}`, `{{FullTitle}}` | Settings → Event fields |
+| `{{EventDate}}`, `{{Venue}}` | Settings → Event fields |
+| `{{VIPStart}}`, `{{VIPEnd}}` | Settings → VIP time window |
+| `{{OrgName}}`, `{{ContactName}}` | Settings → Org / contact fields |
+| `{{ContactEmail}}`, `{{ContactTitle}}` | Settings → Contact fields |
+| `{{Date_Sent}}` | Auto-generated (today's date) |
 
-## Limitations
+### Profile save/load
+- **Export Profile** (Settings tab) — saves full event config + invitee list as a `.json` file
+- **Import Profile** (Settings tab) — restores a previously exported profile
 
-- Email content is plain text (no rich HTML formatting)
-- Uses Gmail API via Apps Script (requires Google Account)
-- Response sync must be run manually (not automatic)
-- Limited to Google Sheets + Forms (by design for simplicity)
+---
 
-## License
+## Google Apps Script (optional)
 
-MIT
+`scripts/general_user_workflow.gs` provides a Google Sheets integration for tracking invite status and syncing RSVP responses from a Google Form:
 
-## Contact
+- Adds an "Invite Workflow" menu to your Google Sheet
+- **Generate RSVP Links** — creates unique prefilled form URLs per invitee
+- **Send Invites** — logs send status back to the sheet
+- **Sync RSVPs** — merges form responses into the master invitee sheet
 
-For questions or contributions, see the repository.
+See `docs/GOOGLE_SHEETS_SETUP.md` for setup instructions.
+
+---
+
+## Sample data
+
+- `data/sample_invitees.csv` — example invitee list for testing InviteFlow import
+- `data/form_responses.csv` — example Google Form export for testing response sync
+
+---
+
+## Deployment
+
+Both apps are static HTML files hosted via GitHub Pages.
+
+**Live URLs** (once Pages is enabled):
+- Landing page: `https://lychan110.github.io/automate-invite-emails/`
+- ContactScout: `https://lychan110.github.io/automate-invite-emails/contactscout.html`
+- InviteFlow: `https://lychan110.github.io/automate-invite-emails/inviteflow.html`
+
+**Enable GitHub Pages:**
+1. Go to repo Settings → Pages
+2. Source: **Deploy from a branch** → branch `main`, folder `/ (root)`
+3. Save — the site goes live in ~1 minute
+
+> **CORS note**: The Claude API requires the header `anthropic-dangerous-direct-browser-access: true` for direct browser calls. This is already set in `contactscout.html`. Some browsers or corporate proxies may block this.

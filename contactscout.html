@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ContactScout</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080c10;color:#c9d1d9;font-family:'DM Mono','Courier New',monospace;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#21262d;border-radius:3px}
+.btn{border:1px solid #21262d;background:#0d1117;color:#8b949e;padding:6px 13px;border-radius:5px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:.05em;transition:all .15s}
+.btn:hover{border-color:#58a6ff;color:#58a6ff}
+.btn.pri{background:#1f6feb;border-color:#1f6feb;color:#fff}.btn.pri:hover{background:#388bfd}
+.btn.grn{background:#238636;border-color:#238636;color:#fff}.btn.grn:hover{background:#2ea043}
+.btn.sm{padding:4px 9px;font-size:10px}
+.btn.stop{border-color:#da3633;color:#f85149}.btn.stop:hover{background:#da3633;color:#fff}
+.btn:disabled{opacity:.35;cursor:not-allowed}
+.tag{display:inline-block;font-size:9px;padding:2px 6px;border-radius:3px;letter-spacing:.07em;border:1px solid}
+.pulse{animation:pl 1.4s ease-in-out infinite}@keyframes pl{0%,100%{opacity:1}50%{opacity:.3}}
+.cat{border:1px solid #21262d;background:transparent;color:#6e7681;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:.07em;transition:all .15s}
+.cat.on{border-color:#1f6feb;color:#58a6ff;background:#0c2d6b}.cat:hover:not(.on){color:#c9d1d9;border-color:#30363d}
+input[type=checkbox]{accent-color:#1f6feb}
+.ritem{transition:background .1s;cursor:pointer}.ritem:hover{background:#0d1117}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:#0d1117;border:1px solid #30363d;border-radius:8px;padding:22px 24px;width:380px;max-width:90vw}
+.modal h2{font-family:'Syne',sans-serif;font-size:14px;color:#f0f6fc;margin-bottom:6px}
+.modal p{font-size:10px;color:#6e7681;line-height:1.6;margin-bottom:14px}
+.modal input{width:100%;background:#010409;border:1px solid #30363d;border-radius:4px;color:#c9d1d9;font-family:inherit;font-size:11px;padding:7px 10px;outline:none;margin-bottom:10px}
+.modal input:focus{border-color:#1f6feb}
+.modal-err{font-size:10px;color:#f85149;margin-bottom:8px;display:none}
+.modal-row{display:flex;gap:7px;justify-content:flex-end}
+</style>
+</head>
+<body>
+<div id="root" style="display:flex;flex-direction:column;height:100vh;overflow:hidden"></div>
+<input id="importfile" type="file" accept=".json" style="display:none" onchange="importProfile(this.files[0]);this.value=''">
+<div id="keymodal" class="modal-overlay" style="display:none">
+  <div class="modal">
+    <h2>Claude API Key</h2>
+    <p>Enter your Anthropic API key to use ContactScout. The key is stored only in your browser session and never sent anywhere except the Anthropic API.</p>
+    <input id="keyinput" type="password" placeholder="sk-ant-..." autocomplete="off" onkeydown="if(event.key==='Enter')saveKey()">
+    <div id="keyerr" class="modal-err">Invalid key format — must start with sk-ant-</div>
+    <div class="modal-row">
+      <button class="btn sm" onclick="closeKeyModal()">Cancel</button>
+      <button class="btn sm pri" onclick="saveKey()">Save</button>
+    </div>
+  </div>
+</div>
+<script>
+// Start with an empty list — populate via the Scan tab or manual add
+const OFFICIALS_BASE = [];
+
+const SCAN_TARGETS = [
+  {id:"us-congress",  label:"US Congress — all seats",          desc:"All current US reps + senators for your state"},
+  {id:"state-exec",   label:"State Executive Branch",           desc:"Governor, Lt. Gov, AG, Treasurer, Auditor, commissioners"},
+  {id:"state-senate", label:"State Senate — all seats",         desc:"Full current state senate roster"},
+  {id:"state-house",  label:"State House — tracked counties",   desc:"House members for your tracked counties"},
+  {id:"city-1",       label:"City Council (City 1)",            desc:"Current mayor and all council members"},
+  {id:"city-2",       label:"City Council (City 2)",            desc:"Current mayor and all council members"},
+  {id:"city-3",       label:"City Council (City 3)",            desc:"Current mayor and all council members"},
+];
+
+const SCAN_PROMPTS = {
+  "us-congress":  "Search for every current US Congress member for [YOUR STATE] (119th Congress 2025-2026): all House reps + 2 senators. For each: full name, title, district, official scheduler/contact email.",
+  "state-exec":   "Search for all current [YOUR STATE] statewide executive elected officials as of 2025: Governor, Lt. Governor, AG, Treasurer, Auditor, Superintendent of Public Instruction, and other commissioners. Full name, title, email.",
+  "state-senate": "Search for all current [YOUR STATE] State Senate members as of 2025. Full name, district, official email.",
+  "state-house":  "Search for all current [YOUR STATE] House members for [YOUR COUNTIES] as of 2025. Full name, district, county, official email.",
+  "city-1":       "Search for current [CITY 1] City Council as of 2025. Mayor + every council member: full name, title, official email.",
+  "city-2":       "Search for current [CITY 2] City Council as of 2025. Mayor + every council member: full name, title, official email.",
+  "city-3":       "Search for current [CITY 3] City Council as of 2025. Mayor + every council member: full name, title, official email.",
+};
+
+const VERIFY_SYS = `Verify this elected official for 2025-2026 using web search. Respond ONLY with valid JSON no markdown:
+{"stillInOffice":true,"currentTitle":"","directEmail":"","officeEmail":"","officePhone":"","changes":"No changes detected","flags":"","replacedBy":"","confidence":"high"}`;
+const SCAN_SYS = `Find all current elected officials for 2025-2026 using web search. Respond ONLY with valid JSON no markdown:
+{"officials":[{"name":"","title":"","district":"","county":"","category":"US Senate|US House|Executive|State Senate|House|City Council","directEmail":"","officeEmail":"","officePhone":""}],"confidence":"high","notes":""}`;
+
+const CATS = ["All","US Senate","US House","Executive","State Senate","House","City Council"];
+const TAG={pending:'#30363d:#6e7681',checking:'#f59e0b:#f59e0b',done:'#238636:#3fb950',changed:'#1f6feb:#58a6ff',left_office:'#da3633:#f85149',error:'#bb8009:#e3b341'};
+const SL={pending:'PENDING',checking:'CHECKING',done:'VERIFIED',changed:'CHANGED',left_office:'LEFT OFFICE',error:'ERROR'};
+function ts(k){const[b,c]=(TAG[k]||TAG.pending).split(':');return `border-color:${b};color:${c}`;}
+
+// STATE
+const S = {
+  tab:0,
+  officials: OFFICIALS_BASE.map(o=>({...o,status:'pending',result:null})),
+  newOfficials:[],
+  scanStatus:{},scanMeta:{},
+  activeCat:'All',
+  selected:new Set(),
+  running:false,progress:{done:0,total:0},
+  log:[],
+  apiKey: sessionStorage.getItem('cs_api_key')||'',
+  unsaved:false,
+};
+let abortFlag=false;
+let _pendingAction=null;
+
+// ── PERSISTENCE ──────────────────────────────────────────────────────────────
+const LS_KEY='contactscout_state';
+
+function saveState(){
+  try{
+    localStorage.setItem(LS_KEY,JSON.stringify({
+      officials:S.officials,
+      newOfficials:S.newOfficials,
+      scanStatus:S.scanStatus,
+      scanMeta:S.scanMeta,
+    }));
+  }catch(e){}
+}
+
+function loadState(){
+  try{
+    const raw=localStorage.getItem(LS_KEY);
+    if(!raw)return;
+    const d=JSON.parse(raw);
+    if(d.officials)    S.officials    =d.officials.map(o=>({...o,result:o.result||null}));
+    if(d.newOfficials) S.newOfficials =d.newOfficials;
+    if(d.scanStatus)   S.scanStatus   =d.scanStatus;
+    if(d.scanMeta)     S.scanMeta     =d.scanMeta;
+    S.unsaved=false;
+  }catch(e){/* corrupt data — start fresh */}
+}
+
+function clearSavedState(){
+  if(!confirm('Clear all saved officials and scan data? This cannot be undone.'))return;
+  localStorage.removeItem(LS_KEY);
+  S.officials=[];S.newOfficials=[];S.scanStatus={};S.scanMeta={};
+  S.unsaved=false;
+  log('✓ Saved data cleared.');render();
+}
+
+function exportProfile(){
+  const blob=new Blob([JSON.stringify({
+    exportedAt:new Date().toISOString(),
+    source:'ContactScout',
+    officials:S.officials,
+    newOfficials:S.newOfficials,
+    scanStatus:S.scanStatus,
+    scanMeta:S.scanMeta,
+  },null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`contactscout-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  S.unsaved=false;
+  log(`✓ Backup saved (${S.officials.length} officials).`);render();
+}
+
+function importProfile(file){
+  if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(d.officials)    S.officials    =d.officials.map(o=>({...o,result:o.result||null}));
+      if(d.newOfficials) S.newOfficials =d.newOfficials||[];
+      if(d.scanStatus)   S.scanStatus   =d.scanStatus||{};
+      if(d.scanMeta)     S.scanMeta     =d.scanMeta||{};
+      S.unsaved=false;
+      log(`✓ Backup loaded: ${S.officials.length} officials.`);render();
+    }catch(err){log(`✗ Import failed: ${err.message}`);}
+  };
+  r.readAsText(file);
+}
+
+loadState();
+
+// HELPERS
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function log(m){S.log=[`[${new Date().toLocaleTimeString()}] ${m}`,...S.log.slice(0,99)];renderLog();}
+function upd(name,p){S.officials=S.officials.map(o=>o.name===name?{...o,...p}:o);S.unsaved=true;render();}
+function filtered(){return S.officials.filter(o=>S.activeCat==='All'||o.category===S.activeCat);}
+
+// API KEY MODAL
+function openKeyModal(onSave){
+  _pendingAction=onSave||null;
+  document.getElementById('keyinput').value=S.apiKey||'';
+  document.getElementById('keyerr').style.display='none';
+  document.getElementById('keymodal').style.display='flex';
+  setTimeout(()=>document.getElementById('keyinput').focus(),50);
+}
+function closeKeyModal(){document.getElementById('keymodal').style.display='none';}
+function saveKey(){
+  const k=document.getElementById('keyinput').value.trim();
+  if(!k.startsWith('sk-ant-')){document.getElementById('keyerr').style.display='block';return;}
+  S.apiKey=k;sessionStorage.setItem('cs_api_key',k);
+  closeKeyModal();
+  render();
+  if(_pendingAction){const fn=_pendingAction;_pendingAction=null;fn();}
+}
+
+// API
+async function callClaude(sys,user){
+  if(!S.apiKey){
+    return new Promise((_,reject)=>{
+      openKeyModal(()=>callClaude(sys,user).then(_).catch(reject));
+    });
+  }
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'x-api-key':S.apiKey,
+      'anthropic-version':'2023-06-01',
+      'anthropic-dangerous-direct-browser-access':'true',
+    },
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:sys,
+      tools:[{type:'web_search_20250305',name:'web_search'}],
+      messages:[{role:'user',content:user}]}),
+  });
+  if(res.status===401){S.apiKey='';sessionStorage.removeItem('cs_api_key');render();throw new Error('Invalid API key');}
+  const d=await res.json();
+  if(d.error) throw new Error(d.error.message||'API error');
+  const t=d.content?.find(b=>b.type==='text')?.text||'';
+  if(!t) throw new Error('No text response');
+  return JSON.parse(t.replace(/```json|```/g,'').trim());
+}
+
+// VERIFY
+async function runVerify(names){
+  if(!S.apiKey){openKeyModal(()=>runVerify(names));return;}
+  abortFlag=false;S.running=true;S.progress={done:0,total:names.length};render();
+  for(let i=0;i<names.length;i++){
+    if(abortFlag) break;
+    const name=names[i],o=S.officials.find(x=>x.name===name);
+    log(`Verifying ${name}…`);upd(name,{status:'checking'});
+    try{
+      const r=await callClaude(VERIFY_SYS,`Verify for 2025-2026:
+Name: ${o.name}
+Title: ${o.title}
+Category: ${o.category}
+District: ${o.district||'N/A'}
+Email: ${o.directEmail||o.officeEmail||'none'}`);
+      const ch=!r.stillInOffice||r.changes!=='No changes detected'||r.flags;
+      upd(name,{status:!r.stillInOffice?'left_office':ch?'changed':'done',result:r,
+        directEmail:r.directEmail||o.directEmail,officeEmail:r.officeEmail||o.officeEmail,
+        officePhone:r.officePhone||o.officePhone,title:r.currentTitle||o.title});
+      log(`✓ ${name}: ${r.stillInOffice?'In office':'⚠ LEFT OFFICE'} — ${r.changes}`);
+    }catch(e){upd(name,{status:'error',result:{error:e.message}});log(`✗ ${name}: ${e.message}`);}
+    S.progress.done=i+1;render();
+    if(i<names.length-1) await sleep(700);
+  }
+  S.running=false;render();log(`Done — ${names.length} checked.`);
+}
+
+// SCAN
+async function runScan(id){
+  if(S.running) return;
+  if(!S.apiKey){openKeyModal(()=>runScan(id));return;}
+  abortFlag=false;S.running=true;S.scanStatus[id]='scanning';render();
+  log(`Scanning: ${SCAN_TARGETS.find(t=>t.id===id).label}…`);
+  try{
+    const r=await callClaude(SCAN_SYS,SCAN_PROMPTS[id]);
+    const cur=new Set(S.officials.map(o=>o.name.toLowerCase().trim()));
+    const fresh=(r.officials||[]).filter(o=>!cur.has(o.name.toLowerCase().trim()));
+    S.scanStatus[id]='done';
+    S.scanMeta[id]={total:r.officials?.length||0,confidence:r.confidence,notes:r.notes};
+    if(fresh.length>0){
+      const ex=new Set(S.newOfficials.map(x=>x.name.toLowerCase()));
+      S.newOfficials=[...S.newOfficials,...fresh.filter(x=>!ex.has(x.name.toLowerCase())).map(x=>({...x,_scanId:id}))];
+      S.unsaved=true;log(`✓ ${fresh.length} new found.`);
+    } else log(`✓ All ${r.officials?.length||0} already in list.`);
+    if(r.notes) log(`ℹ ${r.notes}`);
+  }catch(e){S.scanStatus[id]='error';log(`✗ Scan: ${e.message}`);}
+  S.running=false;render();
+}
+
+function addNew(o){
+  S.officials=[...S.officials,{...o,status:'pending',result:null}];
+  S.newOfficials=S.newOfficials.filter(x=>x.name!==o.name);
+  S.unsaved=true;log(`+ Added ${o.name}`);render();
+}
+function dismissNew(name){S.newOfficials=S.newOfficials.filter(x=>x.name!==name);render();}
+function toggleSel(name){S.selected.has(name)?S.selected.delete(name):S.selected.add(name);render();}
+function toggleExpand(id){
+  const d=document.getElementById('det_'+id),a=document.getElementById('arr_'+id);
+  if(d)d.style.display=d.style.display==='none'?'block':'none';
+  if(a)a.textContent=a.textContent==='▼'?'▲':'▼';
+}
+
+// EXPORT — standardized format for InviteFlow connector
+function exportForMailer(){
+  const out=S.officials
+    .filter(o=>o.status!=='left_office')
+    .map(o=>({
+      name:o.name,title:o.title,district:o.district,county:o.county,
+      category:o.category,email:o.officeEmail||o.directEmail||'',
+      directEmail:o.directEmail,officeEmail:o.officeEmail,officePhone:o.officePhone,
+      verifyStatus:o.status,changes:o.result?.changes||'',flags:o.result?.flags||'',
+    }));
+  const blob=new Blob([JSON.stringify({
+    exportedAt:new Date().toISOString(),
+    source:'ContactScout',
+    count:out.length,
+    invitees:out,
+  },null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=`contactscout-invitees-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  log(`✓ Exported ${out.length} invitees for InviteFlow.`);
+}
+
+function exportCSV(){
+  const h=['Name','Title','District','County','Category','Direct Email','Office Email','Phone','Status','Changes','Flags','Replaced By','Confidence'];
+  const rows=S.officials.map(o=>[o.name,o.title,o.district,o.county,o.category,o.directEmail,o.officeEmail,o.officePhone,o.status,o.result?.changes||'',o.result?.flags||'',o.result?.replacedBy||'',o.result?.confidence||'']);
+  const csv=[h,...rows].map(r=>r.map(c=>`"${(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  a.download=`contactscout-officials-${new Date().toISOString().slice(0,10)}.csv`;a.click();
+  log('✓ CSV exported.');
+}
+
+// RENDER
+function render(){
+  const c={
+    total:S.officials.length,
+    done:S.officials.filter(o=>o.status==='done').length,
+    changed:S.officials.filter(o=>o.status==='changed').length,
+    left:S.officials.filter(o=>o.status==='left_office').length,
+    ready:S.officials.filter(o=>o.status!=='left_office'&&(o.officeEmail||o.directEmail)).length,
+  };
+  const pct=S.progress.total?Math.round(S.progress.done/S.progress.total*100):0;
+  const filt=filtered();
+  const keySet=!!S.apiKey;
+
+  document.getElementById('root').innerHTML=`
+  <div style="border-bottom:1px solid #21262d;padding:11px 20px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:#080c10">
+    <div>
+      <div style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:#f0f6fc;letter-spacing:-.02em">CONTACT SCOUT</div>
+      <div style="font-size:9px;color:#6e7681;margin-top:2px;letter-spacing:.1em">ELECTED OFFICIALS · VERIFY + DISCOVER</div>
+    </div>
+    <div style="display:flex;gap:7px;align-items:center">
+      ${S.newOfficials.length>0?`<span style="background:#0c1a2e;color:#58a6ff;border:1px solid #1f6feb;border-radius:4px;padding:3px 9px;font-size:10px">${S.newOfficials.length} NEW</span>`:''}
+      ${S.unsaved&&S.officials.length>0?`<span style="background:#2a1a00;color:#C8A84B;border:1px solid #C8A84B;border-radius:4px;padding:2px 8px;font-size:9px">● UNSAVED</span>`:''}
+      <button class="btn sm" onclick="openKeyModal()" title="${keySet?'API key set — click to change':'No API key set'}" style="${keySet?'border-color:#238636;color:#3fb950':'border-color:#da3633;color:#f85149'}">⚙ Key${keySet?' ✓':''}</button>
+      <button class="btn sm" onclick="document.getElementById('importfile').click()" title="Load a .json backup">↑ Import</button>
+      <button class="btn sm" onclick="exportProfile()" title="Save full backup as .json">↓ Backup</button>
+      <button class="btn sm" onclick="exportCSV()">↓ CSV</button>
+      <button class="btn sm grn" onclick="exportForMailer()" title="Export invitee list for InviteFlow">⬡ Export → InviteFlow</button>
+      <button class="btn sm stop" onclick="abortFlag=true" ${!S.running?'disabled':''}>■ Stop</button>
+    </div>
+  </div>
+
+  <div style="padding:6px 20px;border-bottom:1px solid #161b22;display:flex;gap:14px;flex-wrap:wrap;align-items:center;flex-shrink:0">
+    ${[['TOTAL',c.total,'#8b949e'],['VERIFIED',c.done,'#3fb950'],['CHANGED',c.changed,'#58a6ff'],['LEFT OFFICE',c.left,'#f85149'],['READY TO INVITE',c.ready,'#a371f7']].map(([l,n,col])=>`
+    <div style="display:flex;align-items:center;gap:5px">
+      <span style="width:5px;height:5px;border-radius:50%;background:${col};display:inline-block"></span>
+      <span style="font-size:9px;color:#6e7681;letter-spacing:.1em">${l}</span>
+      <span style="font-size:12px;font-weight:500;color:${col}">${n}</span>
+    </div>`).join('')}
+    ${S.running?`<div style="margin-left:auto;display:flex;align-items:center;gap:7px">
+      <div style="width:90px;height:3px;background:#21262d;border-radius:2px"><div style="width:${pct}%;height:100%;background:#1f6feb;border-radius:2px"></div></div>
+      <span style="font-size:10px;color:#58a6ff">${S.progress.done}/${S.progress.total}</span></div>`:''}
+  </div>
+
+  <div style="border-bottom:1px solid #21262d;display:flex;flex-shrink:0">
+    ${['✓ Verify Existing','＋ Scan for New'].map((t,i)=>`
+    <button onclick="S.tab=${i};render()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:.04em;padding:8px 16px;color:${S.tab===i?'#f0f6fc':'#6e7681'};border-bottom:${S.tab===i?'2px solid #1f6feb':'2px solid transparent'}">
+      ${t}${i===1&&S.newOfficials.length>0?` (${S.newOfficials.length})`:''}</button>`).join('')}
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 220px;flex:1;overflow:hidden;min-height:0">
+    <div style="overflow-y:auto;min-height:0">${S.tab===0?renderVerify(filt):renderScan()}</div>
+    <div style="overflow-y:auto;padding:11px 13px;background:#050709;border-left:1px solid #161b22;min-height:0" id="logpanel">
+      <div style="font-size:9px;color:#6e7681;letter-spacing:.14em;margin-bottom:7px">ACTIVITY LOG</div>
+      <div style="font-size:10px;color:#21262d;font-style:italic;margin-bottom:6px">⬡ Export → InviteFlow sends verified list to InviteFlow app.</div>
+      ${S.log.map((e,i)=>`<div style="font-size:10px;color:${i===0?'#8b949e':'#2d3340'};margin-bottom:3px;line-height:1.5;border-left:${i===0?'2px solid #1f6feb':'2px solid transparent'};padding-left:6px">${e}</div>`).join('')}
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid #161b22">
+        <div style="font-size:9px;color:#6e7681;letter-spacing:.1em;margin-bottom:6px">DATA</div>
+        <button class="btn sm" style="width:100%;margin-bottom:4px;text-align:left" onclick="exportProfile()">↓ Backup (.json)</button>
+        <button class="btn sm" style="width:100%;margin-bottom:4px;text-align:left" onclick="document.getElementById('importfile').click()">↑ Import backup</button>
+        <button class="btn sm stop" style="width:100%;text-align:left" onclick="clearSavedState()">✕ Clear all data</button>
+      </div>
+    </div>
+  </div>
+  `;
+  saveState();
+}
+
+function renderLog(){
+  const el=document.getElementById('logpanel');if(!el)return;
+  el.innerHTML=`<div style="font-size:9px;color:#6e7681;letter-spacing:.14em;margin-bottom:7px">ACTIVITY LOG</div>
+  <div style="font-size:10px;color:#21262d;font-style:italic;margin-bottom:6px">⬡ Export → InviteFlow sends verified list to InviteFlow app.</div>
+  ${S.log.map((e,i)=>`<div style="font-size:10px;color:${i===0?'#8b949e':'#2d3340'};margin-bottom:3px;line-height:1.5;border-left:${i===0?'2px solid #1f6feb':'2px solid transparent'};padding-left:6px">${e}</div>`).join('')}`;
+}
+
+function renderVerify(filt){
+  const names=filt.map(o=>o.name);
+  return `
+  <div style="padding:7px 18px;border-bottom:1px solid #161b22;display:flex;gap:5px;align-items:center;flex-wrap:wrap;position:sticky;top:0;background:#080c10;z-index:2">
+    <div style="display:flex;gap:4px;flex-wrap:wrap;flex:1">
+      ${CATS.map(c=>`<button class="cat${S.activeCat===c?' on':''}" onclick="S.activeCat='${c}';render()">${c.toUpperCase()}</button>`).join('')}
+    </div>
+    <div style="display:flex;gap:4px">
+      <button class="btn sm" onclick="S.selected=new Set(${JSON.stringify(names)});render()" ${S.running?'disabled':''}>Sel All</button>
+      <button class="btn sm" onclick="S.selected=new Set();render()" ${S.running?'disabled':''}>Clear</button>
+      <button class="btn sm pri" onclick="runVerify([...S.selected])" ${S.running||S.selected.size===0?'disabled':''}>▶ (${S.selected.size})</button>
+      <button class="btn sm pri" onclick="runVerify(${JSON.stringify(names)})" ${S.running?'disabled':''}>▶ All</button>
+    </div>
+  </div>
+  ${filt.length===0?`<div style="padding:40px 20px;text-align:center;color:#6e7681;font-size:11px">No officials yet. Use the <strong style="color:#c9d1d9">＋ Scan for New</strong> tab to discover officials,<br>or add them manually with the button below.<br><br><button class="btn sm" onclick="promptAddManual()">+ Add Manually</button></div>`:''}
+  ${filt.map(o=>{
+    const id=o.name.replace(/[^a-z0-9]/gi,'_');
+    const det=o.result?(o.result.error?
+      `<div style="color:#e3b341">Error: ${o.result.error}</div>`:
+      `${o.result.stillInOffice!==undefined?`<div><span style="color:#6e7681">IN OFFICE </span>${o.result.stillInOffice?'<span style="color:#3fb950">Yes</span>':`<span style="color:#f85149">No${o.result.replacedBy?' → '+o.result.replacedBy:''}</span>`}</div>`:''}`+
+      `${o.result.currentTitle?`<div><span style="color:#6e7681">TITLE </span>${o.result.currentTitle}</div>`:''}`+
+      `${o.result.directEmail?`<div><span style="color:#6e7681">DIRECT </span>${o.result.directEmail}</div>`:''}`+
+      `${o.result.officeEmail?`<div><span style="color:#6e7681">OFFICE </span>${o.result.officeEmail}</div>`:''}`+
+      `${o.result.changes&&o.result.changes!=='No changes detected'?`<div style="color:#58a6ff"><span style="color:#6e7681">CHANGES </span>${o.result.changes}</div>`:''}`+
+      `${o.result.flags?`<div style="color:#e3b341"><span style="color:#6e7681">FLAGS </span>${o.result.flags}</div>`:''}`+
+      `<div><span style="color:#6e7681">CONF </span><span style="color:${o.result.confidence==='high'?'#3fb950':o.result.confidence==='medium'?'#e3b341':'#f85149'}">${(o.result.confidence||'').toUpperCase()}</span></div>`
+    ):'<span style="color:#6e7681;font-style:italic">Not yet verified.</span>';
+    return `
+    <div style="border-bottom:1px solid #0d1117">
+      <div class="ritem" style="display:grid;grid-template-columns:20px 1fr 105px 82px 14px;gap:7px;padding:8px 18px" onclick="toggleExpand('${id}')">
+        <input type="checkbox" ${S.selected.has(o.name)?'checked':''} onclick="event.stopPropagation();toggleSel('${o.name.replace(/'/g,"\'")}')">
+        <div>
+          <div style="font-size:11px;font-weight:500;color:#f0f6fc">${o.name}</div>
+          <div style="font-size:9px;color:#8b949e">${o.title}${o.district?' · D'+o.district:''}${o.county?' · '+o.county:''}</div>
+          <div style="font-size:9px;color:#6e7681;font-style:italic">${o.directEmail||o.officeEmail||'no email'}</div>
+        </div>
+        <div style="font-size:9px;color:#6e7681;padding-top:1px">${o.category}</div>
+        <div><span class="tag${o.status==='checking'?' pulse':''}" style="${ts(o.status)};font-size:8px">${SL[o.status]||'PENDING'}</span></div>
+        <div style="font-size:10px;color:#30363d" id="arr_${id}">▼</div>
+      </div>
+      <div id="det_${id}" style="display:none;padding:0 18px 9px 45px">
+        <div style="background:#0d1117;border:1px solid #21262d;border-radius:5px;padding:8px 12px;font-size:10px;line-height:1.8">${det}</div>
+      </div>
+    </div>`;
+  }).join('')}`;
+}
+
+function promptAddManual(){
+  const name=prompt('Full name:');if(!name)return;
+  const title=prompt('Title:','');
+  const email=prompt('Email:','');
+  const cat=prompt('Category (US Senate/US House/Executive/State Senate/House/City Council):','City Council');
+  S.officials=[...S.officials,{name,title:title||'',directEmail:email||'',officeEmail:'',officePhone:'',district:'',county:'',category:cat||'City Council',status:'pending',result:null}];
+  log(`+ Added ${name}`);render();
+}
+
+function renderScan(){
+  return `<div style="padding:14px 20px">
+    <div style="font-size:11px;color:#8b949e;line-height:1.6;margin-bottom:14px">Each scan searches the live web for all officials in that category. New officials not in your list surface as add candidates. Customize the scan prompts in the source file for your jurisdiction. Run after each election cycle, then <strong style="color:#f0f6fc">Export → InviteFlow</strong> to send the updated list.</div>
+    ${SCAN_TARGETS.map(t=>{
+      const st=S.scanStatus[t.id],meta=S.scanMeta[t.id];
+      const fresh=S.newOfficials.filter(o=>o._scanId===t.id);
+      return `
+      <div style="margin-bottom:11px">
+        <div style="background:#0d1117;border:1px solid #21262d;border-radius:7px;padding:12px 15px">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+            <div style="flex:1">
+              <div style="font-size:12px;color:#f0f6fc;font-weight:500">${t.label}</div>
+              <div style="font-size:10px;color:#6e7681;margin-top:2px">${t.desc}</div>
+              ${meta?`<div style="margin-top:3px;font-size:10px;color:#8b949e">Found ${meta.total} · <span style="color:${meta.confidence==='high'?'#3fb950':meta.confidence==='medium'?'#e3b341':'#f85149'}">${meta.confidence}</span>${meta.notes?` · <span style="color:#e3b341">${meta.notes}</span>`:''}</div>`:''}
+            </div>
+            <div style="display:flex;gap:5px;align-items:center;flex-shrink:0">
+              ${st==='scanning'?'<span class="tag pulse" style="border-color:#f59e0b;color:#f59e0b">SCANNING</span>':''}
+              ${st==='done'?'<span class="tag" style="border-color:#238636;color:#3fb950">DONE</span>':''}
+              ${st==='error'?'<span class="tag" style="border-color:#da3633;color:#f85149">ERROR</span>':''}
+              <button class="btn sm pri" onclick="runScan('${t.id}')" ${S.running?'disabled':''}>${st==='done'?'↻ Re-scan':'▶ Scan'}</button>
+            </div>
+          </div>
+        </div>
+        ${fresh.length>0?`
+        <div style="margin:3px 0 0 11px;padding-left:11px;border-left:2px solid #1f6feb">
+          <div style="font-size:9px;color:#58a6ff;letter-spacing:.1em;margin:6px 0 4px">NEW (${fresh.length})</div>
+          ${fresh.map(o=>`
+          <div style="background:#0c1a2e;border:1px solid #1f4f99;border-radius:5px;padding:8px 11px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div style="font-size:11px;color:#f0f6fc;font-weight:500">${o.name}</div>
+              <div style="font-size:9px;color:#8b949e">${o.title}${o.district?' · D'+o.district:''}${o.county?' · '+o.county:''}</div>
+              ${(o.directEmail||o.officeEmail)?`<div style="font-size:9px;color:#6e7681">${o.directEmail||o.officeEmail}</div>`:''}
+            </div>
+            <div style="display:flex;gap:4px;margin-left:8px">
+              <button class="btn sm grn" onclick='addNew(${JSON.stringify(o)})'>+ Add</button>
+              <button class="btn sm" onclick="dismissNew('${o.name.replace(/'/g,"\'")}')">✕</button>
+            </div>
+          </div>`).join('')}
+        </div>`:''}
+        ${st==='done'&&fresh.length===0&&meta?`<div style="margin:3px 0 0 11px;padding:4px 0 4px 11px;border-left:2px solid #238636;font-size:10px;color:#3fb950">✓ All ${meta.total} already in list.</div>`:''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+window.addEventListener('beforeunload',e=>{
+  if(S.unsaved&&S.officials.length>0){e.preventDefault();e.returnValue='You have unsaved changes. Export a backup before leaving?';}
+});
+
+render();
+</script>
+</body>
+</html>
