@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(awk 'NR>=41 && NR<=46 {print NR\": \"substr\\($0,1,80\\)}' inviteflow.html)",
+      "Bash(node -e ' *)",
+      "Bash(sed -n '77,95p' inviteflow.html)",
+      "Bash(sed -n '185,197p' inviteflow.html)",
+      "Bash(node -e \"require\\('http'\\)\")",
+      "Bash(npx --yes serve --version)",
+      "mcp__Claude_Preview__preview_start",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "Read(//c/Users/lycha/.claude/**)",
+      "Read",
+      "Grep",
+      "Glob",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(node -e *)"
+    ]
+  }
+}
