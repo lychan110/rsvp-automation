@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invite Automation Suite</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080c10;color:#c9d1d9;font-family:'DM Mono','Courier New',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.wrap{max-width:680px;width:100%}
+h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#f0f6fc;letter-spacing:-.03em;margin-bottom:6px}
+.sub{font-size:10px;color:#6e7681;letter-spacing:.14em;margin-bottom:48px}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px}
+@media(max-width:480px){.cards{grid-template-columns:1fr}}
+.card{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:22px;text-decoration:none;color:inherit;transition:border-color .15s,transform .1s;display:block}
+.card:hover{border-color:#1f6feb;transform:translateY(-2px)}
+.card-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#f0f6fc;letter-spacing:-.02em;margin-bottom:4px}
+.card-file{font-size:9px;color:#1f6feb;letter-spacing:.08em;margin-bottom:12px}
+.card-desc{font-size:11px;color:#8b949e;line-height:1.7}
+.flow{display:flex;align-items:center;gap:10px;margin-bottom:40px;padding:14px 18px;background:#0a0e14;border:1px solid #161b22;border-radius:6px;font-size:10px;color:#6e7681;flex-wrap:wrap}
+.flow-step{color:#c9d1d9}.flow-arrow{color:#30363d}
+.footer{font-size:9px;color:#30363d;letter-spacing:.08em;text-align:center}
+.badge{display:inline-block;font-size:8px;padding:2px 6px;border-radius:3px;border:1px solid;letter-spacing:.07em;vertical-align:middle;margin-left:6px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>INVITE AUTOMATION SUITE</h1>
+  <div class="sub">CONTACT RESEARCH · INVITE WORKFLOW · RSVP TRACKING</div>
+
+  <div class="flow">
+    <span class="flow-step">1. ContactScout</span>
+    <span class="flow-arrow">→</span>
+    <span style="color:#6e7681">scan &amp; verify officials</span>
+    <span class="flow-arrow">→</span>
+    <span style="color:#6e7681">export JSON</span>
+    <span class="flow-arrow">→</span>
+    <span class="flow-step">2. InviteFlow</span>
+    <span class="flow-arrow">→</span>
+    <span style="color:#6e7681">import · send · track</span>
+  </div>
+
+  <div class="cards">
+    <a class="card" href="contactscout.html">
+      <div class="card-name">ContactScout <span class="badge" style="border-color:#1f6feb;color:#58a6ff">CLAUDE API</span></div>
+      <div class="card-file">contactscout.html</div>
+      <div class="card-desc">
+        Research, verify, and discover elected officials using live web search.
+        Scan by category (Congress, state legislature, city councils).
+        Export a verified contact list for InviteFlow.
+      </div>
+    </a>
+    <a class="card" href="inviteflow.html">
+      <div class="card-name">InviteFlow <span class="badge" style="border-color:#238636;color:#3fb950">AUTO-SAVE</span></div>
+      <div class="card-file">inviteflow.html</div>
+      <div class="card-desc">
+        Compose and send personalized invite emails via Gmail.
+        Import from ContactScout JSON or CSV.
+        Track sent / RSVP status. Auto-saves to browser storage.
+      </div>
+    </a>
+  </div>
+
+  <div class="footer">OPEN IN BROWSER · NO INSTALL · NO SERVER REQUIRED</div>
+</div>
+</body>
+</html>
