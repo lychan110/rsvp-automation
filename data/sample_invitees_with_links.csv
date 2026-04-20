@@ -1,4 +1,0 @@
-FirstName,LastName,Email,Mailing_Address,Number_of_Attendees,InviteSent,RSVP_Status,RSVP_Timestamp,RSVP_Link
-Alice,Lee,alice.lee@example.com,123 Main St,2,FALSE,,,https://docs.google.com/forms/d/e/1FAIpQLSduqfkdAeGzhJHwCdI2ARfDWiXqzyvTVh6BiqW2CXqu2BXuuQ/viewform?usp=pp_url&entry.1346187975=Alice&entry.1234567890=alice.lee%40example.com
-Brian,Chen,brian.chen@example.com,456 Market Ave,1,FALSE,,,https://docs.google.com/forms/d/e/1FAIpQLSduqfkdAeGzhJHwCdI2ARfDWiXqzyvTVh6BiqW2CXqu2BXuuQ/viewform?usp=pp_url&entry.1346187975=Brian&entry.1234567890=brian.chen%40example.com
-Chloe,Wang,chloe.wang@example.com,789 Elm Dr,3,FALSE,,,https://docs.google.com/forms/d/e/1FAIpQLSduqfkdAeGzhJHwCdI2ARfDWiXqzyvTVh6BiqW2CXqu2BXuuQ/viewform?usp=pp_url&entry.1346187975=Chloe&entry.1234567890=chloe.wang%40example.com
