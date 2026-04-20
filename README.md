@@ -110,10 +110,16 @@ See `docs/GOOGLE_SHEETS_SETUP.md` for setup instructions.
 
 ## Deployment
 
-Both apps are static HTML files. To host publicly:
+Both apps are static HTML files hosted via GitHub Pages.
 
-1. Enable **GitHub Pages** on the `main` branch (root `/`)
-2. Add an `index.html` landing page linking to both apps
-3. Access via `https://your-username.github.io/repo-name/contactscout.html`
+**Live URLs** (once Pages is enabled):
+- Landing page: `https://lychan110.github.io/automate-invite-emails/`
+- ContactScout: `https://lychan110.github.io/automate-invite-emails/contactscout.html`
+- InviteFlow: `https://lychan110.github.io/automate-invite-emails/inviteflow.html`
+
+**Enable GitHub Pages:**
+1. Go to repo Settings → Pages
+2. Source: **Deploy from a branch** → branch `main`, folder `/ (root)`
+3. Save — the site goes live in ~1 minute
 
 > **CORS note**: The Claude API requires the header `anthropic-dangerous-direct-browser-access: true` for direct browser calls. This is already set in `contactscout.html`. Some browsers or corporate proxies may block this.
