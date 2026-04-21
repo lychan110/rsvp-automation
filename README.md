@@ -113,9 +113,9 @@ See `docs/GOOGLE_SHEETS_SETUP.md` for setup instructions.
 Both apps are static HTML files hosted via GitHub Pages.
 
 **Live URLs** (once Pages is enabled):
-- Landing page: `https://lychan110.github.io/automate-invite-emails/`
-- ContactScout: `https://lychan110.github.io/automate-invite-emails/contactscout.html`
-- InviteFlow: `https://lychan110.github.io/automate-invite-emails/inviteflow.html`
+- Landing page: `https://lychan110.github.io/rsvp-automation/`
+- ContactScout: `https://lychan110.github.io/rsvp-automation/contactscout.html`
+- InviteFlow: `https://lychan110.github.io/rsvp-automation/inviteflow.html`
 
 **Enable GitHub Pages:**
 1. Go to repo Settings → Pages

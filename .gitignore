@@ -1,4 +1,5 @@
 img/
+.remember/
 
 # Python-generated files
 __pycache__/
