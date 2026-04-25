@@ -1,6 +1,10 @@
 img/
 .remember/
 
+# Node / Vite
+node_modules/
+dist/
+
 # Python-generated files
 __pycache__/
 *.py[oc]
