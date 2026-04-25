@@ -80,26 +80,26 @@ export default function SendTab() {
     ? Math.round((state.sendProgress.current / state.sendProgress.total) * 100)
     : 0;
 
-  const btn = (active = false, color = '#8b949e', bg = 'transparent'): React.CSSProperties => ({
-    border: `1px solid ${active ? '#1f6feb' : color}`,
-    background: active ? '#1f6feb' : bg,
+  const btn = (active = false, color = 'var(--text-secondary)', bg = 'transparent'): React.CSSProperties => ({
+    border: `1px solid ${active ? 'var(--accent)' : color}`,
+    background: active ? 'var(--accent)' : bg,
     color: active ? '#fff' : color,
     padding: '4px 10px', borderRadius: 4, cursor: 'pointer', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.05em',
   });
 
   return (
     <div style={{ padding: 24, maxWidth: 800, margin: '0 auto' }}>
-      <div style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 16 }}>SEND</div>
+      <div style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 16 }}>SEND</div>
 
       {/* Filter + Send controls */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 10, color: '#6e7681' }}>FILTER</span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>FILTER</span>
         {(['all', 'pending', 'failed'] as Filter[]).map(f => (
           <button key={f} style={btn(filter === f)} onClick={() => setFilter(f)}>{f.toUpperCase()}</button>
         ))}
-        <span style={{ fontSize: 10, color: '#6e7681', marginLeft: 8 }}>{filtered.length} invitees</span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)', marginLeft: 8 }}>{filtered.length} invitees</span>
         <button
-          style={{ ...btn(false, '#fff', '#238636'), border: '1px solid #238636', marginLeft: 'auto' }}
+          style={{ ...btn(false, '#fff', 'var(--success-bg)'), border: '1px solid var(--success-bg)', marginLeft: 'auto' }}
           onClick={sendBulk}
           disabled={state.sending}
         >
@@ -107,16 +107,16 @@ export default function SendTab() {
         </button>
       </div>
 
-      {err && <div style={{ fontSize: 11, color: '#f85149', marginBottom: 12 }}>{err}</div>}
+      {err && <div style={{ fontSize: 11, color: 'var(--danger)', marginBottom: 12 }}>{err}</div>}
 
       {/* Progress bar */}
       {state.sending && (
         <div style={{ marginBottom: 16 }}>
-          <div style={{ fontSize: 10, color: '#6e7681', marginBottom: 6 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 6 }}>
             {state.sendProgress.current} / {state.sendProgress.total} sent ({progress}%)
           </div>
-          <div style={{ height: 4, background: '#161b22', borderRadius: 2, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${progress}%`, background: '#C8A84B', borderRadius: 2, transition: 'width .3s' }} />
+          <div style={{ height: 4, background: 'var(--bg-subtle)', borderRadius: 2, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${progress}%`, background: 'var(--gold)', borderRadius: 2, transition: 'width .3s' }} />
           </div>
         </div>
       )}
@@ -124,16 +124,16 @@ export default function SendTab() {
       {/* Send log */}
       {state.sendLog.length > 0 && (
         <div>
-          <div style={{ fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', marginBottom: 8 }}>SEND LOG</div>
-          <div style={{ maxHeight: 400, overflowY: 'auto', border: '1px solid #21262d', borderRadius: 6 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: 8 }}>SEND LOG</div>
+          <div style={{ maxHeight: 400, overflowY: 'auto', border: '1px solid var(--border)', borderRadius: 6 }}>
             {state.sendLog.map(entry => (
-              <div key={entry.id} style={{ display: 'flex', gap: 10, alignItems: 'baseline', padding: '6px 12px', borderBottom: '1px solid #161b22', fontSize: 11 }}>
-                <span style={{ color: entry.status === 'sent' ? '#3fb950' : '#f85149', minWidth: 40, fontSize: 10, letterSpacing: '0.07em' }}>
+              <div key={entry.id} style={{ display: 'flex', gap: 10, alignItems: 'baseline', padding: '6px 12px', borderBottom: '1px solid var(--bg-subtle)', fontSize: 11 }}>
+                <span style={{ color: entry.status === 'sent' ? 'var(--success)' : 'var(--danger)', minWidth: 40, fontSize: 10, letterSpacing: '0.07em' }}>
                   {entry.status.toUpperCase()}
                 </span>
-                <span style={{ color: '#c9d1d9', minWidth: 160 }}>{entry.name}</span>
-                <span style={{ color: '#6e7681', flex: 1 }}>{entry.email}</span>
-                {entry.error && <span style={{ color: '#f85149', fontSize: 10 }}>{entry.error}</span>}
+                <span style={{ color: 'var(--text-base)', minWidth: 160 }}>{entry.name}</span>
+                <span style={{ color: 'var(--text-muted)', flex: 1 }}>{entry.email}</span>
+                {entry.error && <span style={{ color: 'var(--danger)', fontSize: 10 }}>{entry.error}</span>}
               </div>
             ))}
           </div>
@@ -141,7 +141,7 @@ export default function SendTab() {
       )}
 
       {state.sendLog.length === 0 && !state.sending && (
-        <div style={{ color: '#6e7681', fontSize: 12, textAlign: 'center', padding: 40 }}>
+        <div style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'center', padding: 40 }}>
           No sends yet. Choose a filter and click Send.
         </div>
       )}

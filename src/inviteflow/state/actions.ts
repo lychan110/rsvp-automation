@@ -17,4 +17,5 @@ export type Action =
   | { type: 'LOG_SEND'; entry: SendLogEntry }
   | { type: 'STOP_SEND' }
   | { type: 'SET_UNSAVED'; unsaved: boolean }
-  | { type: 'LOAD_STATE'; partial: Partial<AppState> };
+  | { type: 'LOAD_STATE'; partial: Partial<AppState> }
+  | { type: 'TOGGLE_THEME' };

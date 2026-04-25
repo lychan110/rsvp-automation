@@ -25,14 +25,14 @@ function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: '#6e7681',
-  sent: '#3fb950',
-  failed: '#f85149',
+  pending: 'var(--text-muted)',
+  sent: 'var(--success)',
+  failed: 'var(--danger)',
 };
 const RSVP_COLORS: Record<string, string> = {
-  'No Response': '#6e7681',
-  Attending: '#3fb950',
-  Declined: '#f85149',
+  'No Response': 'var(--text-muted)',
+  Attending: 'var(--success)',
+  Declined: 'var(--danger)',
 };
 
 export default function InviteesTab() {
@@ -170,10 +170,10 @@ export default function InviteesTab() {
   }
 
   const iStyle: React.CSSProperties = {
-    background: '#0d1117', border: '1px solid #21262d', color: '#c9d1d9',
+    background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-base)',
     padding: '5px 8px', borderRadius: 4, fontFamily: 'monospace', fontSize: 11, width: '100%',
   };
-  const btn = (color = '#8b949e', bg = 'transparent'): React.CSSProperties => ({
+  const btn = (color = 'var(--text-secondary)', bg = 'transparent'): React.CSSProperties => ({
     border: `1px solid ${color}`, background: bg, color, padding: '4px 10px',
     borderRadius: 4, cursor: 'pointer', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.05em',
   });
@@ -182,10 +182,10 @@ export default function InviteesTab() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '16px 20px', gap: 12 }}>
       {/* Toolbar */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 700, letterSpacing: '0.08em', marginRight: 8 }}>
-          INVITEES <span style={{ fontSize: 10, color: '#6e7681' }}>({state.invitees.length})</span>
+        <span style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, letterSpacing: '0.08em', marginRight: 8 }}>
+          INVITEES <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>({state.invitees.length})</span>
         </span>
-        <button style={btn('#3fb950', '#238636')} onClick={() => setShowAdd(true)}>+ Add</button>
+        <button style={btn('var(--success)', 'var(--success-bg)')} onClick={() => setShowAdd(true)}>+ Add</button>
         <button style={btn()} onClick={exportCSV}>Export CSV</button>
         <button style={btn()} onClick={generateAllRsvpLinks}>Gen RSVP Links</button>
         <input ref={fileRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => e.target.files?.[0] && importJSON(e.target.files[0])} />
@@ -200,23 +200,23 @@ export default function InviteesTab() {
           value={sheetsUrl}
           onChange={e => setSheetsUrl(e.target.value)}
         />
-        <button style={btn('#58a6ff')} onClick={importFromSheets} disabled={importing}>
+        <button style={btn('var(--blue)')} onClick={importFromSheets} disabled={importing}>
           {importing ? 'Importing…' : 'Import Sheets'}
         </button>
-        {importStatus && <span style={{ fontSize: 10, color: importStatus.startsWith('Error') ? '#f85149' : '#3fb950' }}>{importStatus}</span>}
+        {importStatus && <span style={{ fontSize: 10, color: importStatus.startsWith('Error') ? 'var(--danger)' : 'var(--success)' }}>{importStatus}</span>}
       </div>
 
       {/* Bulk actions — visible when rows selected */}
       {selected.length > 0 && (
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: '#0d1117', border: '1px solid #21262d', borderRadius: 6, padding: '8px 12px' }}>
-          <span style={{ fontSize: 10, color: '#C8A84B' }}>{selected.length} selected</span>
-          <button style={btn('#3fb950')} onClick={bulkMarkSent}>Mark Sent</button>
-          <button style={btn('#6e7681')} onClick={bulkReset}>Reset Status</button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '8px 12px' }}>
+          <span style={{ fontSize: 10, color: 'var(--gold)' }}>{selected.length} selected</span>
+          <button style={btn('var(--success)')} onClick={bulkMarkSent}>Mark Sent</button>
+          <button style={btn('var(--text-muted)')} onClick={bulkReset}>Reset Status</button>
           <button
-            style={btn('#3fb950')}
+            style={btn('var(--success)')}
             onClick={() => { dispatch({ type: 'SET_TAB', tab: 'send' }); }}
           >Send Selected →</button>
-          <button style={btn('#f85149')} onClick={bulkDelete}>Delete</button>
+          <button style={btn('var(--danger)')} onClick={bulkDelete}>Delete</button>
         </div>
       )}
 
@@ -251,7 +251,7 @@ export default function InviteesTab() {
             filter
             filterPlaceholder="Filter"
             style={{ minWidth: 90 }}
-            body={(r: Invitee) => <span style={{ color: STATUS_COLORS[r.inviteStatus] ?? '#6e7681', fontSize: 10, letterSpacing: '0.07em' }}>{r.inviteStatus.toUpperCase()}</span>}
+            body={(r: Invitee) => <span style={{ color: STATUS_COLORS[r.inviteStatus] ?? 'var(--text-muted)', fontSize: 10, letterSpacing: '0.07em' }}>{r.inviteStatus.toUpperCase()}</span>}
           />
           <Column field="sentAt" header="Sent At" sortable style={{ minWidth: 110 }} body={(r: Invitee) => r.sentAt ? new Date(r.sentAt).toLocaleDateString() : '—'} />
           <Column
@@ -261,7 +261,7 @@ export default function InviteesTab() {
             filter
             filterPlaceholder="Filter"
             style={{ minWidth: 110 }}
-            body={(r: Invitee) => <span style={{ color: RSVP_COLORS[r.rsvpStatus] ?? '#6e7681', fontSize: 10 }}>{r.rsvpStatus}</span>}
+            body={(r: Invitee) => <span style={{ color: RSVP_COLORS[r.rsvpStatus] ?? 'var(--text-muted)', fontSize: 10 }}>{r.rsvpStatus}</span>}
           />
           <Column field="notes" header="Notes" style={{ minWidth: 140 }} editor={(opts) => (
             <input style={iStyle} value={opts.value} onChange={e => opts.editorCallback?.(e.target.value)} />
@@ -273,16 +273,16 @@ export default function InviteesTab() {
       {/* Add manually modal */}
       {showAdd && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: 8, padding: '24px 28px', width: 400 }}>
-            <div style={{ fontSize: 12, color: '#f0f6fc', fontWeight: 700, marginBottom: 16 }}>ADD INVITEE</div>
+          <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 8, padding: '24px 28px', width: 400 }}>
+            <div style={{ fontSize: 12, color: 'var(--text-heading)', fontWeight: 700, marginBottom: 16 }}>ADD INVITEE</div>
             {(['firstName', 'lastName', 'title', 'category', 'email'] as const).map(k => (
               <div key={k} style={{ marginBottom: 10 }}>
-                <label style={{ fontSize: 10, color: '#6e7681', display: 'block', marginBottom: 4 }}>{k.toUpperCase()}</label>
+                <label style={{ fontSize: 10, color: 'var(--text-muted)', display: 'block', marginBottom: 4 }}>{k.toUpperCase()}</label>
                 <input style={iStyle} value={String(draft[k] ?? '')} onChange={e => setDraft(d => ({ ...d, [k]: e.target.value }))} />
               </div>
             ))}
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button style={btn('#3fb950', '#238636')} onClick={addManually}>Add</button>
+              <button style={btn('var(--success)', 'var(--success-bg)')} onClick={addManually}>Add</button>
               <button style={btn()} onClick={() => { setShowAdd(false); setDraft({}); }}>Cancel</button>
             </div>
           </div>

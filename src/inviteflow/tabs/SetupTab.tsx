@@ -31,9 +31,9 @@ export default function SetupTab() {
 
   if (!ev) {
     return (
-      <div style={{ padding: 40, color: '#6e7681', fontSize: 12, textAlign: 'center' }}>
+      <div style={{ padding: 40, color: 'var(--text-muted)', fontSize: 12, textAlign: 'center' }}>
         No active event. Go to <button
-          style={{ background: 'none', border: 'none', color: '#58a6ff', cursor: 'pointer', fontFamily: 'monospace', fontSize: 12 }}
+          style={{ background: 'none', border: 'none', color: 'var(--blue)', cursor: 'pointer', fontFamily: 'monospace', fontSize: 12 }}
           onClick={() => dispatch({ type: 'SET_TAB', tab: 'events' })}
         >Events</button> to create or activate one.
       </div>
@@ -71,9 +71,9 @@ export default function SetupTab() {
   }
 
   const inputStyle: React.CSSProperties = {
-    background: '#0d1117',
-    border: '1px solid #21262d',
-    color: '#c9d1d9',
+    background: 'var(--bg-surface)',
+    border: '1px solid var(--border)',
+    color: 'var(--text-base)',
     padding: '6px 10px',
     borderRadius: 5,
     fontFamily: 'monospace',
@@ -81,8 +81,8 @@ export default function SetupTab() {
     width: '100%',
     outline: 'none',
   };
-  const labelStyle: React.CSSProperties = { fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', marginBottom: 4, display: 'block' };
-  const sectionStyle: React.CSSProperties = { fontSize: 10, color: '#6e7681', letterSpacing: '0.12em', marginTop: 20, marginBottom: 10, borderBottom: '1px solid #21262d', paddingBottom: 6 };
+  const labelStyle: React.CSSProperties = { fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: 4, display: 'block' };
+  const sectionStyle: React.CSSProperties = { fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.12em', marginTop: 20, marginBottom: 10, borderBottom: '1px solid var(--border)', paddingBottom: 6 };
   const btnStyle = (color: string): React.CSSProperties => ({
     border: `1px solid ${color}`,
     background: 'transparent',
@@ -98,9 +98,9 @@ export default function SetupTab() {
   return (
     <div style={{ padding: 24, maxWidth: 640, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <span style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 700, letterSpacing: '0.08em' }}>SETUP</span>
+        <span style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, letterSpacing: '0.08em' }}>SETUP</span>
         <button
-          style={{ ...btnStyle('#3fb950'), background: '#238636', color: '#fff', border: '1px solid #238636' }}
+          style={{ ...btnStyle('var(--success)'), background: 'var(--success-bg)', color: '#fff', border: '1px solid var(--success-bg)' }}
           onClick={save}
           disabled={saving}
         >
@@ -108,7 +108,7 @@ export default function SetupTab() {
         </button>
       </div>
 
-      {status && <div style={{ fontSize: 11, color: status.startsWith('Error') ? '#f85149' : '#3fb950', marginBottom: 12 }}>{status}</div>}
+      {status && <div style={{ fontSize: 11, color: status.startsWith('Error') ? 'var(--danger)' : 'var(--success)', marginBottom: 12 }}>{status}</div>}
 
       <div style={sectionStyle}>GOOGLE OAUTH</div>
       <div style={{ marginBottom: 12 }}>
@@ -121,9 +121,9 @@ export default function SetupTab() {
         />
       </div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-        <button style={btnStyle('#58a6ff')} onClick={() => authorize('spreadsheets')}>Authorize Sheets</button>
-        <button style={btnStyle('#58a6ff')} onClick={() => authorize('gmail.send')}>Authorize Gmail</button>
-        <button style={btnStyle('#58a6ff')} onClick={() => authorize('drive.appdata')}>Authorize Drive</button>
+        <button style={btnStyle('var(--blue)')} onClick={() => authorize('spreadsheets')}>Authorize Sheets</button>
+        <button style={btnStyle('var(--blue)')} onClick={() => authorize('gmail.send')}>Authorize Gmail</button>
+        <button style={btnStyle('var(--blue)')} onClick={() => authorize('drive.appdata')}>Authorize Drive</button>
       </div>
 
       <div style={sectionStyle}>EVENT DETAILS</div>

@@ -12,6 +12,7 @@ export const INITIAL_STATE: AppState = {
   sending: false,
   sendProgress: { current: 0, total: 0 },
   unsaved: false,
+  theme: 'dark',
 };
 
 export function reducer(state: AppState, action: Action): AppState {
@@ -53,6 +54,8 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, unsaved: action.unsaved };
     case 'LOAD_STATE':
       return { ...state, ...action.partial };
+    case 'TOGGLE_THEME':
+      return { ...state, theme: state.theme === 'dark' ? 'light' : 'dark' };
     default:
       return state;
   }

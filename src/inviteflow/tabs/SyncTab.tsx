@@ -115,62 +115,62 @@ export default function SyncTab() {
     }
   }
 
-  const btn = (color = '#8b949e', bg = 'transparent', disabled = false): React.CSSProperties => ({
+  const btn = (color = 'var(--text-secondary)', bg = 'transparent', disabled = false): React.CSSProperties => ({
     border: `1px solid ${color}`, background: bg, color, padding: '6px 14px',
     borderRadius: 4, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
     fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.05em',
   });
 
-  const sectionLabel: React.CSSProperties = { fontSize: 10, color: '#6e7681', letterSpacing: '0.12em', marginBottom: 10, marginTop: 20 };
+  const sectionLabel: React.CSSProperties = { fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: 10, marginTop: 20 };
 
   return (
     <div style={{ padding: 24, maxWidth: 760, margin: '0 auto' }}>
-      <div style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 16 }}>SYNC</div>
+      <div style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 16 }}>SYNC</div>
 
       {status && (
-        <div style={{ fontSize: 11, color: status.startsWith('Error') ? '#f85149' : '#3fb950', marginBottom: 14 }}>{status}</div>
+        <div style={{ fontSize: 11, color: status.startsWith('Error') ? 'var(--danger)' : 'var(--success)', marginBottom: 14 }}>{status}</div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
-        <div style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: 7, padding: '18px 20px' }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 7, padding: '18px 20px' }}>
           <div style={sectionLabel}>PUSH TO MASTER SHEET</div>
-          <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 14, lineHeight: 1.7 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14, lineHeight: 1.7 }}>
             Clears and rewrites all {state.invitees.length} invitees to your master Google Sheet.
             {ev?.masterSheetUrl
-              ? <><br /><a href={ev.masterSheetUrl} target="_blank" rel="noreferrer" style={{ color: '#58a6ff', fontSize: 10 }}>Open sheet ↗</a></>
-              : <><br /><span style={{ color: '#f85149', fontSize: 10 }}>Master Sheet URL not set in Setup.</span></>
+              ? <><br /><a href={ev.masterSheetUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--blue)', fontSize: 10 }}>Open sheet ↗</a></>
+              : <><br /><span style={{ color: 'var(--danger)', fontSize: 10 }}>Master Sheet URL not set in Setup.</span></>
             }
           </div>
-          <button style={btn('#3fb950', '#238636', pushing)} onClick={pushToSheets} disabled={pushing}>
+          <button style={btn('var(--success)', 'var(--success-bg)', pushing)} onClick={pushToSheets} disabled={pushing}>
             {pushing ? 'Pushing…' : `Push ${state.invitees.length} rows`}
           </button>
         </div>
 
-        <div style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: 7, padding: '18px 20px' }}>
+        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 7, padding: '18px 20px' }}>
           <div style={sectionLabel}>PULL RSVP RESPONSES</div>
-          <div style={{ fontSize: 11, color: '#6e7681', marginBottom: 14, lineHeight: 1.7 }}>
+          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14, lineHeight: 1.7 }}>
             Reads RSVP statuses from your response sheet and updates invitee records.
             {ev?.rsvpResponseUrl
-              ? <><br /><a href={ev.rsvpResponseUrl} target="_blank" rel="noreferrer" style={{ color: '#58a6ff', fontSize: 10 }}>Open sheet ↗</a></>
-              : <><br /><span style={{ color: '#f85149', fontSize: 10 }}>RSVP Response Sheet URL not set in Setup.</span></>
+              ? <><br /><a href={ev.rsvpResponseUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--blue)', fontSize: 10 }}>Open sheet ↗</a></>
+              : <><br /><span style={{ color: 'var(--danger)', fontSize: 10 }}>RSVP Response Sheet URL not set in Setup.</span></>
             }
           </div>
-          <button style={btn('#58a6ff', 'transparent', pulling)} onClick={pullRsvp} disabled={pulling}>
+          <button style={btn('var(--blue)', 'transparent', pulling)} onClick={pullRsvp} disabled={pulling}>
             {pulling ? 'Pulling…' : 'Pull RSVP Responses'}
           </button>
         </div>
       </div>
 
       <div style={sectionLabel}>GAS RSVP INGEST TRIGGER</div>
-      <div style={{ fontSize: 11, color: '#6e7681', lineHeight: 1.8, marginBottom: 12 }}>
-        Paste this script into your Google Form's Apps Script project. Add a trigger on <code style={{ background: '#161b22', padding: '1px 4px', borderRadius: 3 }}>onFormSubmit</code> (Form Submit event). Set script property <code style={{ background: '#161b22', padding: '1px 4px', borderRadius: 3 }}>MASTER_SHEET_URL</code> to your master sheet URL.
+      <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.8, marginBottom: 12 }}>
+        Paste this script into your Google Form's Apps Script project. Add a trigger on <code style={{ background: 'var(--bg-subtle)', padding: '1px 4px', borderRadius: 3 }}>onFormSubmit</code> (Form Submit event). Set script property <code style={{ background: 'var(--bg-subtle)', padding: '1px 4px', borderRadius: 3 }}>MASTER_SHEET_URL</code> to your master sheet URL.
       </div>
       <div style={{ position: 'relative' }}>
-        <pre style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: 6, padding: '14px 16px', fontSize: 10, color: '#c9d1d9', overflowX: 'auto', lineHeight: 1.7 }}>
+        <pre style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '14px 16px', fontSize: 10, color: 'var(--text-base)', overflowX: 'auto', lineHeight: 1.7 }}>
           {GAS_CODE}
         </pre>
         <button
-          style={{ position: 'absolute', top: 8, right: 8, ...btn('#6e7681') }}
+          style={{ position: 'absolute', top: 8, right: 8, ...btn('var(--text-muted)') }}
           onClick={() => { navigator.clipboard.writeText(GAS_CODE); setStatus('Copied GAS code to clipboard.'); }}
         >
           Copy

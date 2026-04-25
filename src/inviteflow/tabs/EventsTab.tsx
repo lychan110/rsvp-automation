@@ -26,8 +26,8 @@ function blankEvent(id: string): AppEvent {
 
 function cardStyle(active: boolean): React.CSSProperties {
   return {
-    background: '#0d1117',
-    border: `1px solid ${active ? '#C8A84B' : '#21262d'}`,
+    background: 'var(--bg-surface)',
+    border: `1px solid ${active ? 'var(--gold)' : 'var(--border)'}`,
     borderRadius: 7,
     padding: '16px 18px',
     cursor: 'pointer',
@@ -37,9 +37,9 @@ function cardStyle(active: boolean): React.CSSProperties {
 
 function btnStyle(variant: 'pri' | 'del' | 'def'): React.CSSProperties {
   return {
-    border: `1px solid ${variant === 'pri' ? '#1f6feb' : variant === 'del' ? '#da3633' : '#21262d'}`,
-    background: variant === 'pri' ? '#1f6feb' : 'transparent',
-    color: variant === 'pri' ? '#fff' : variant === 'del' ? '#f85149' : '#8b949e',
+    border: `1px solid ${variant === 'pri' ? 'var(--accent)' : variant === 'del' ? 'var(--danger-dark)' : 'var(--border)'}`,
+    background: variant === 'pri' ? 'var(--accent)' : 'transparent',
+    color: variant === 'pri' ? '#fff' : variant === 'del' ? 'var(--danger)' : 'var(--text-secondary)',
     padding: '4px 10px',
     borderRadius: 4,
     cursor: 'pointer',
@@ -110,7 +110,7 @@ export default function EventsTab() {
   return (
     <div style={{ padding: 24, maxWidth: 860, margin: '0 auto' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <span style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 700, letterSpacing: '0.08em' }}>EVENTS</span>
+        <span style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, letterSpacing: '0.08em' }}>EVENTS</span>
         <div style={{ display: 'flex', gap: 8 }}>
           <button style={btnStyle('def')} onClick={loadEvents} disabled={loading}>
             {loading ? 'Loading…' : 'Refresh'}
@@ -119,10 +119,10 @@ export default function EventsTab() {
         </div>
       </div>
 
-      {err && <div style={{ color: '#f85149', fontSize: 11, marginBottom: 12 }}>{err}</div>}
+      {err && <div style={{ color: 'var(--danger)', fontSize: 11, marginBottom: 12 }}>{err}</div>}
 
       {state.events.length === 0 && !loading && (
-        <div style={{ color: '#6e7681', fontSize: 12, textAlign: 'center', padding: 40 }}>
+        <div style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'center', padding: 40 }}>
           No events yet. Click "+ New Event" to create one.
         </div>
       )}
@@ -134,8 +134,8 @@ export default function EventsTab() {
             style={cardStyle(state.activeEventId === ev.id)}
             onClick={() => { dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id }); dispatch({ type: 'SET_TAB', tab: 'setup' }); }}
           >
-            <div style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 700, marginBottom: 4 }}>{ev.name || 'Unnamed Event'}</div>
-            <div style={{ fontSize: 10, color: '#6e7681', marginBottom: 12 }}>
+            <div style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, marginBottom: 4 }}>{ev.name || 'Unnamed Event'}</div>
+            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 12 }}>
               {ev.date || 'No date'} · {ev.venue || 'No venue'}
             </div>
             <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>

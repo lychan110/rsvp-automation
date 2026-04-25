@@ -44,9 +44,9 @@ export default function ComposeTab() {
     : state.htmlBody;
 
   const btn = (active = false): React.CSSProperties => ({
-    border: `1px solid ${active ? '#C8A84B' : '#21262d'}`,
-    background: active ? '#2a1a00' : 'transparent',
-    color: active ? '#C8A84B' : '#8b949e',
+    border: `1px solid ${active ? 'var(--gold)' : 'var(--border)'}`,
+    background: active ? 'var(--gold-bg)' : 'transparent',
+    color: active ? 'var(--gold)' : 'var(--text-secondary)',
     padding: '3px 8px',
     borderRadius: 3,
     cursor: 'pointer',
@@ -58,18 +58,18 @@ export default function ComposeTab() {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {/* Top bar */}
-      <div style={{ padding: '12px 20px', borderBottom: '1px solid #21262d', display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ padding: '12px 20px', borderBottom: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', minWidth: 60 }}>SUBJECT</span>
+          <span style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.1em', minWidth: 60 }}>SUBJECT</span>
           <input
-            style={{ flex: 1, background: '#0d1117', border: '1px solid #21262d', color: '#c9d1d9', padding: '5px 10px', borderRadius: 4, fontFamily: 'monospace', fontSize: 11, outline: 'none' }}
+            style={{ flex: 1, background: 'var(--bg-surface)', border: '1px solid var(--border)', color: 'var(--text-base)', padding: '5px 10px', borderRadius: 4, fontFamily: 'monospace', fontSize: 11, outline: 'none' }}
             value={state.textSubject}
             onChange={e => updateSubject(e.target.value)}
             placeholder="You are cordially invited to {{EventName}}"
           />
         </div>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span style={{ fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', marginRight: 4 }}>INSERT</span>
+          <span style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.1em', marginRight: 4 }}>INSERT</span>
           {TOKENS.map(t => (
             <button key={t} style={btn()} onClick={() => insertToken(t)}>{`{{${t}}}`}</button>
           ))}
@@ -85,15 +85,15 @@ export default function ComposeTab() {
 
       {/* Editor + Preview split */}
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', overflow: 'hidden' }}>
-        <div style={{ borderRight: '1px solid #21262d', overflow: 'auto', padding: 16 }}>
-          <div style={{ fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', marginBottom: 8 }}>EDITOR</div>
+        <div style={{ borderRight: '1px solid var(--border)', overflow: 'auto', padding: 16 }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: 8 }}>EDITOR</div>
           <EditorContent
             editor={editor}
-            style={{ color: '#c9d1d9', fontSize: 13, lineHeight: 1.8, minHeight: 200 }}
+            style={{ color: 'var(--text-base)', fontSize: 13, lineHeight: 1.8, minHeight: 200 }}
           />
         </div>
-        <div style={{ overflow: 'auto', padding: 16, background: '#080c10' }}>
-          <div style={{ fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', marginBottom: 8 }}>
+        <div style={{ overflow: 'auto', padding: 16, background: 'var(--bg-root)' }}>
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: 8 }}>
             PREVIEW {sample ? `(${sample.firstName} ${sample.lastName})` : '(no invitees)'}
           </div>
           <div
