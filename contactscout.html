@@ -37,7 +37,7 @@ input[type=checkbox]{accent-color:#1f6feb}
 <div id="keymodal" class="modal-overlay" style="display:none">
   <div class="modal">
     <h2>Claude API Key</h2>
-    <p>Enter your Anthropic API key to use ContactScout. The key is stored only in your browser session and never sent anywhere except the Anthropic API.</p>
+    <p>Enter your Anthropic API key to enable web-search powered official lookup. The key is stored only in your browser session — never saved to disk or sent anywhere except the Anthropic API directly.<br><br>Get a key at <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:#58a6ff">console.anthropic.com →</a></p>
     <input id="keyinput" type="password" placeholder="sk-ant-..." autocomplete="off" onkeydown="if(event.key==='Enter')saveKey()">
     <div id="keyerr" class="modal-err">Invalid key format — must start with sk-ant-</div>
     <div class="modal-row">
@@ -172,6 +172,7 @@ const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 function log(m){S.log=[`[${new Date().toLocaleTimeString()}] ${m}`,...S.log.slice(0,99)];renderLog();}
 function upd(name,p){S.officials=S.officials.map(o=>o.name===name?{...o,...p}:o);S.unsaved=true;render();}
 function filtered(){return S.officials.filter(o=>S.activeCat==='All'||o.category===S.activeCat);}
+function needsCustomization(){return Object.values(SCAN_PROMPTS).some(p=>p.includes('[YOUR STATE]')||p.includes('[YOUR COUNTIES]')||p.includes('[CITY'));}
 
 // API KEY MODAL
 function openKeyModal(onSave){
@@ -206,7 +207,9 @@ async function callClaude(sys,user){
       'anthropic-version':'2023-06-01',
       'anthropic-dangerous-direct-browser-access':'true',
     },
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1500,system:sys,
+    body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:12000,
+      thinking:{type:'enabled',budget_tokens:8000},
+      system:sys,
       tools:[{type:'web_search_20250305',name:'web_search'}],
       messages:[{role:'user',content:user}]}),
   });
@@ -401,7 +404,19 @@ function renderVerify(filt){
       <button class="btn sm pri" onclick="runVerify(${JSON.stringify(names)})" ${S.running?'disabled':''}>▶ All</button>
     </div>
   </div>
-  ${filt.length===0?`<div style="padding:40px 20px;text-align:center;color:#6e7681;font-size:11px">No officials yet. Use the <strong style="color:#c9d1d9">＋ Scan for New</strong> tab to discover officials,<br>or add them manually with the button below.<br><br><button class="btn sm" onclick="promptAddManual()">+ Add Manually</button></div>`:''}
+  ${!S.apiKey&&S.officials.length===0?`
+  <div style="margin:20px;padding:18px 22px;background:#0c1a2e;border:1px solid #1f6feb;border-radius:8px">
+    <div style="font-size:13px;font-weight:500;color:#58a6ff;margin-bottom:8px">Get started with ContactScout</div>
+    <div style="font-size:11px;color:#8b949e;line-height:1.7;margin-bottom:14px">ContactScout uses Claude AI + live web search to find and verify elected officials. You need a free Anthropic API key to use it.</div>
+    <div style="display:flex;flex-direction:column;gap:8px;font-size:11px;color:#c9d1d9;margin-bottom:16px">
+      <div><span style="color:#58a6ff;margin-right:8px">1.</span>Get an API key at <a href="https://console.anthropic.com/settings/keys" target="_blank" style="color:#58a6ff">console.anthropic.com</a></div>
+      <div><span style="color:#58a6ff;margin-right:8px">2.</span>Click <strong>⚙ Key</strong> in the header and paste your key</div>
+      <div><span style="color:#58a6ff;margin-right:8px">3.</span>Go to <strong>＋ Scan for New</strong> to discover officials for your jurisdiction</div>
+      <div><span style="color:#58a6ff;margin-right:8px">4.</span>Verify, then <strong>Export → InviteFlow</strong> to send invitations</div>
+    </div>
+    <button class="btn sm pri" onclick="openKeyModal()">⚙ Enter API Key</button>
+  </div>`:''}
+  ${filt.length===0&&S.apiKey?`<div style="padding:40px 20px;text-align:center;color:#6e7681;font-size:11px">No officials yet. Use the <strong style="color:#c9d1d9">＋ Scan for New</strong> tab to discover officials,<br>or add them manually with the button below.<br><br><button class="btn sm" onclick="promptAddManual()">+ Add Manually</button></div>`:''}
   ${filt.map(o=>{
     const id=o.name.replace(/[^a-z0-9]/gi,'_');
     const det=o.result?(o.result.error?
@@ -445,6 +460,9 @@ function promptAddManual(){
 
 function renderScan(){
   return `<div style="padding:14px 20px">
+    ${needsCustomization()?`<div style="margin-bottom:14px;padding:12px 16px;background:#1a1200;border:1px solid #C8A84B;border-radius:6px;font-size:10px;color:#e3b341;line-height:1.7">
+      <strong>Setup required:</strong> The scan prompts still contain placeholders like <code>[YOUR STATE]</code>, <code>[YOUR COUNTIES]</code>, and <code>[CITY 1]</code>. Edit <code>SCAN_PROMPTS</code> in the source file to set your jurisdiction before scanning.
+    </div>`:''}
     <div style="font-size:11px;color:#8b949e;line-height:1.6;margin-bottom:14px">Each scan searches the live web for all officials in that category. New officials not in your list surface as add candidates. Customize the scan prompts in the source file for your jurisdiction. Run after each election cycle, then <strong style="color:#f0f6fc">Export → InviteFlow</strong> to send the updated list.</div>
     ${SCAN_TARGETS.map(t=>{
       const st=S.scanStatus[t.id],meta=S.scanMeta[t.id];
