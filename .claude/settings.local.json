@@ -15,7 +15,9 @@
       "Glob",
       "Bash(ls:*)",
       "Bash(cat:*)",
-      "Bash(node -e *)"
+      "Bash(node -e *)",
+      "Skill(commit-commands:commit-push-pr)",
+      "Skill(commit-commands:commit-push-pr:*)"
     ]
   }
 }
