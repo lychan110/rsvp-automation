@@ -141,7 +141,7 @@ Two-zone flex bar (`justify-between`):
 
 | File | Change |
 |---|---|
-| `package.json` | Add `tailwindcss`, `@tailwindcss/vite` |
+| `package.json` | Bump `version` to `3.1.0`, `name` to `inviteflow-v3.1`, add `tailwindcss`, `@tailwindcss/vite` |
 | `vite.config.ts` | Add `tailwindcss()` Vite plugin |
 | `src/index.css` | Add `@import "tailwindcss"` |
 | `src/main.tsx` | Import tiptap.css, primereact-reset.css |
@@ -159,3 +159,4 @@ Two-zone flex bar (`justify-between`):
 | `src/inviteflow/tabs/TrackerTab.tsx` | Tailwind classes, responsive grid, overflow-x-auto |
 | `src/inviteflow/tabs/SyncTab.tsx` | Tailwind classes, flex-wrap, overflow-x-auto |
 | `src/inviteflow/components/ContactScoutPanel.tsx` | Tailwind classes, full-width on mobile |
+| Git tag | Create annotated tag `v3.1.0` after all changes land |
