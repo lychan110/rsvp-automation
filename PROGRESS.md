@@ -1,54 +1,42 @@
-# InviteFlow Suite — Progress Log
-**Lenya Chan**
+# Progress — InviteFlow v3
+
+> by Lenya Chan · last updated 2026-04-25
 
 ---
 
-## 2026-04-24 — v02 Redesign
+## Current status
 
-**Scope**: Full visual and UX overhaul of all three HTML files + docs.
-
-### Completed this session
-
-**index.html**
-- Complete rewrite: light warm palette, Fraunces + Outfit fonts, responsive 2-column card grid
-- Generic naming ("contacts", not event/org-specific terms)
-- Workflow visualization with numbered steps
-- Scales cleanly from 375px mobile to wide desktop
-
-**contactscout.html**
-- Complete CSS rewrite: light theme, CSS custom properties, shared palette
-- Renamed "officials" → "contacts" throughout UI text
-- Status tags: "Left Office" → "Inactive"
-- Responsive layout: fixed-height desktop panel layout / natural-scroll mobile layout
-- Log sidebar: always visible on desktop (≥768px), toggleable on mobile
-- SCAN_TARGETS, SCAN_PROMPTS, CATS generalized with placeholder text
-
-**inviteflow.html**
-- Complete CSS + render function rewrite: light theme
-- Tabs reduced from 7 → 5: Settings, Contacts, Email, Send, Track
-  - Settings = former Events + Setup tabs
-  - Track = former Tracker + Sync tabs
-- Mobile bottom navigation bar (fixed, icon + label per tab)
-- Desktop top tab bar (hidden on mobile)
-- Naming: "VIP MAILER" → "InviteFlow", "VIP Researcher" → "ContactScout"
-- Labels: "VIP Start/End" → "Guest Program Start/End"
-- Default email template: removed event-specific boilerplate (dragon boat, attendance numbers, specific org references)
-- Export filename: `vip-mailer-*` → `inviteflow-*`
-- Schema identifier: `vip-mailer-profile-v1` → `inviteflow-profile-v1`
-- `loadSchema()` redirects to tab 0 (Settings) instead of tab 1
-
-**Docs**
-- README.md: rewritten, generic, accurate tab count, correct filenames, Lenya Chan credit
-- ROADMAP.md: created with v01/v02 history and near/medium/long-term backlog
-- PROGRESS.md: created (this file)
-- TASKS.md: created with current open items
+**All phases complete.** Build verified clean (zero TS errors, 215 modules, 3.6s). All tasks marked done. Merged to `v3`.
 
 ---
 
-## 2026-04-23 — v01 Initial build
+## Log
 
-- ContactScout: Claude API + web_search tool, verify/scan loop, export JSON/CSV
-- InviteFlow: 7-tab UI, Gmail OAuth send, Google Sheets import/sync, RSVP form prefill, schema management
-- GitHub Pages deployment via `.nojekyll`
-- Google Apps Script integration removed (legacy)
-- Git history scrubbed of real credentials
+| Date | Phase | What happened |
+|---|---|---|
+| 2026-04-24 | 0 | Branch `v3` created; legacy files archived to `old-library/`; docs stubbed |
+| 2026-04-25 | 0 | Stack critique + UX critique synthesized; README, ROADMAP, TASKS written |
+| 2026-04-25 | 1 | Scaffold committed: `package.json`, Vite, React 18, TypeScript, PrimeReact, TipTap |
+| 2026-04-25 | 2–3 | Types, state (Context + reducer), API clients (auth/sheets/drive/gmail) committed |
+| 2026-04-25 | 4–7 | All 7 tabs + App routing + `gas/Code.gs` committed; build clean (215 modules, 3.6s) |
+
+---
+
+## Commits on this branch
+
+| Hash | Message |
+|---|---|
+| `1220a2b` | docs(v3): stack/UX synthesis — README, ROADMAP, PROGRESS, TASKS |
+| `bd451c7` | feat(v3): scaffold — Vite + React 18 + TypeScript + PrimeReact + TipTap |
+| `fc6fa8f` | feat(v3): types, state, Google API clients (Sheets/Drive/Gmail/Auth) |
+| `013733a` | feat(v3): implement all 7 tabs + GAS RSVP trigger |
+| `afea773` | chore(v3): update .gitignore, update PROGRESS.md |
+| *(this)* | docs(v3): mark all tasks done, verify build |
+
+---
+
+## Next
+
+- Browser test with real Google OAuth credentials
+- Deploy to GitHub Pages: `npm run deploy`
+- Open PR `v3` → `master`

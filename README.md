@@ -1,136 +1,121 @@
-# InviteFlow Suite
-**Lenya Chan** · v02
+# InviteFlow v3
 
-Two standalone browser apps for researching event contacts and sending personalized invitations. No installation, no build step, no server — open either file directly in a browser.
+> Event invitation management for Google Workspace — by Lenya Chan
 
-| App | File | Purpose |
-|-----|------|---------|
-| **ContactScout** | `contactscout.html` | Research, verify, and discover contacts using the Claude API + live web search. Export a verified contact list. |
-| **InviteFlow** | `inviteflow.html` | Compose and send personalized invite emails via Gmail. Track RSVP status. |
+InviteFlow v3 is a **serverless**, single-page application for managing VIP event invitations. It runs entirely in the browser against Google APIs — no backend server, no database to maintain. Guest data lives in Google Sheets; event configs live in Google Drive's `appDataFolder`.
 
 ---
 
-## Workflow
+## Stack
 
-```
-ContactScout → Export JSON → InviteFlow → Gmail → Track RSVPs
-```
+| Layer | Technology | Rationale |
+|---|---|---|
+| Frontend | React 18 + TypeScript + Vite | Component model handles 200+ guest DataTable; Vite gives fast HMR; TS catches errors early |
+| UI | PrimeReact | Production-grade DataTable with virtual scroll, filter, sort, export |
+| Rich text | TipTap (starter kit only) | Headless, React-native, `{{placeholder}}` merging |
+| Auth | OAuth 2.0 PKCE via Google Identity Services | Browser-only, no server-side secret |
+| Persistence | Google Sheets | Primary key = Email; non-tech users already live here |
+| Config storage | Google Drive `appDataFolder` | Per-event JSON configs, hidden from user's Drive UI |
+| Email | Gmail API | 100 quota units/send; exponential backoff on 429 |
+| RSVP ingest | Google Apps Script `onFormSubmit` | Lightweight trigger writes one row; no complex logic |
+| Deployment | GitHub Pages | Static, no server |
 
-1. **ContactScout**: Scan for contacts by category using the Claude API + web search. Verify existing contacts are still active. Export as JSON.
-2. **InviteFlow**: Import the JSON from ContactScout (or a CSV). Configure your event details, compose your email, and send via Gmail. Track RSVP responses.
+### Stack decisions challenged
+
+**Web Workers (template merge):** Omitted. Merging 200 templates takes <50 ms on the main thread — Web Workers add build complexity and message-passing overhead with zero user-visible benefit at this scale.
+
+**GAS scope:** Limited to RSVP ingest only (one trigger function, one Sheets row write). All send/sync logic stays browser-side where it is debuggable and fast to iterate.
+
+**TipTap extensions:** Starter kit only. No additional extensions unless a specific feature demands them — each extension adds ~30 KB and a maintenance surface.
+
+**Gmail rate limiting:** Sends are capped at 80/min (conservative below the 100-unit/send × 15k-unit/min quota). Between batches the UI shows estimated time remaining.
 
 ---
 
-## ContactScout
+## Quick Start (local dev)
 
-**Open `contactscout.html` in a browser.**
-
-### Setup
-- Click **⚙ Key** in the top-right to enter your Anthropic API key. It is stored only in your browser session (`sessionStorage`) and never sent anywhere except the Anthropic API.
-- The app starts with an empty contact list. Use the **Discover New** tab to scan for contacts, or add manually.
-
-### Customizing for your use case
-Edit the `SCAN_TARGETS`, `SCAN_PROMPTS`, and `CATS` arrays near the top of the `<script>` block to describe your contact groups and search queries:
-
-```js
-const SCAN_TARGETS = [
-  {id:'group-a', label:'Group A — Category 1', desc:'Describe the contacts here'},
-  // ...
-];
-
-const SCAN_PROMPTS = {
-  'group-a': 'Search for all current contacts in [GROUP] for [YOUR ORG] as of 2025...',
-  // ...
-};
-
-const CATS = ['All', 'Category A', 'Category B', ...];
+```bash
+npm install
+npm run dev        # Vite dev server → http://localhost:5173/inviteflow.html
 ```
 
-### Export
-- **↓ CSV** — spreadsheet-friendly export of all contacts
-- **Export → InviteFlow** — exports `contactscout-invitees-YYYY-MM-DD.json` for import into InviteFlow
+## Deploy to GitHub Pages
+
+```bash
+npm run deploy     # vite build → copy static files → gh-pages publish
+```
+
+`index.html` and `contactscout.html` are copied into `dist/` alongside the built `inviteflow.html` before publishing to the `gh-pages` branch.
 
 ---
 
-## InviteFlow
+## Project Structure
 
-**Open `inviteflow.html` in a browser.**
-
-### Tabs (5)
-
-| Tab | What it does |
-|-----|-------------|
-| **⚙ Settings** | Configure event details, email settings, Google OAuth, Google Sheets URLs, RSVP form prefill, images, and saved configs. |
-| **👥 Contacts** | Import from Google Sheets, ContactScout JSON, or CSV. Add manually. View send/RSVP status. |
-| **✉ Email** | Edit the HTML or plain-text email template. Live preview per invitee. |
-| **▶ Send** | Send via Gmail API (bulk or one-by-one). Progress tracking. Manual Gmail fallback. |
-| **📊 Track** | RSVP stats, response breakdown chart, sync from Google Form response sheet, sync to master sheet. |
-
-### Importing contacts
-- **From ContactScout**: Contacts tab → "From ContactScout" → select the `.json` file
-- **From CSV**: Contacts tab → "↑ CSV" — auto-maps common field names (`email`, `name`, `title`, `category`)
-- **From Google Sheets**: Contacts tab → "From Sheet" (requires Google OAuth)
-
-### Email template tokens
-
-| Token | Source |
-|-------|--------|
-| `{{FirstName}}`, `{{LastName}}` | Invitee name |
-| `{{RSVP_Link}}` | Auto-generated prefilled form URL (or Settings → RSVP Link) |
-| `{{EventName}}`, `{{FullTitle}}` | Settings → Event fields |
-| `{{EventDate}}`, `{{Venue}}` | Settings → Event fields |
-| `{{VIPStart}}`, `{{VIPEnd}}` | Settings → Guest program time window |
-| `{{OrgName}}`, `{{ContactName}}` | Settings → Org / contact fields |
-| `{{ContactEmail}}`, `{{ContactTitle}}` | Settings → Contact fields |
-| `{{Date_Sent}}` | Auto-generated (today's date) |
-
-### Profile save/load
-- **↓ Profile** (header) — saves full event config + invitee list as `inviteflow-YYYY-MM-DD.json`
-- **↑ Load** (header) — restores a previously exported profile
-- **Saved Configs** (Settings tab) — save/load named event configuration presets (without invitee data)
+```
+src/
+  inviteflow/
+    main.tsx          # React entry
+    App.tsx           # Root: tab router, global state provider
+    types.ts          # All TypeScript types (Event, Invitee, AppState…)
+    state/
+      AppContext.tsx   # React context + useReducer
+      reducer.ts       # State reducer
+      actions.ts       # Action type definitions
+    api/
+      auth.ts          # OAuth 2.0 PKCE helpers
+      sheets.ts        # Google Sheets API client
+      drive.ts         # Google Drive appDataFolder client
+      gmail.ts         # Gmail send + exponential backoff
+    tabs/
+      EventsTab.tsx    # List/switch/create events
+      SetupTab.tsx     # Event config form, OAuth client ID
+      InviteesTab.tsx  # PrimeReact DataTable, import, bulk actions
+      ComposeTab.tsx   # TipTap editor, token toolbar, preview
+      SendTab.tsx      # Bulk send, progress bar, send log
+      TrackerTab.tsx   # Status summary cards
+      SyncTab.tsx      # Sheets push/pull, RSVP sync
+    components/
+      TabBar.tsx       # Navigation tabs
+      TokenButton.tsx  # Insert template token button
+      ProgressBar.tsx  # Send progress indicator
+gas/
+  Code.gs              # GAS RSVP ingest trigger
+old-library/
+  inviteflow_v2.html   # Archived v2 (reference only — do not import)
+```
 
 ---
 
-## Google Integration (optional)
+## Template Tokens
 
-Required for Gmail send and Google Sheets sync.
-
-### Setup
-1. Go to [Google Cloud Console → Credentials](https://console.cloud.google.com/apis/credentials)
-2. Create an **OAuth 2.0 Client ID** (Web application type)
-3. Add your deployment URL (e.g. `https://your-username.github.io`) and `http://localhost` as authorized JavaScript origins
-4. Enable the **Gmail API** and **Google Sheets API** in the project
-5. Paste the Client ID in InviteFlow → Settings → Google Integration
-
-### What it enables
-- **Import from Sheet**: pull invitees from a Google Sheets spreadsheet
-- **Sync to Master Sheet**: write all invite/RSVP status back to a tracking sheet
-- **Sync RSVP Responses**: read a Google Form response sheet and match by email
-- **Send via Gmail**: send personalized emails through your Gmail account
+`{{FirstName}}` `{{LastName}}` `{{FullName}}` `{{EventName}}` `{{EventDate}}` `{{Venue}}` `{{RSVP_Link}}` `{{FullTitle}}` `{{OrgName}}` `{{ContactName}}` `{{ContactEmail}}` `{{VIPStart}}` `{{VIPEnd}}` `{{Date_Sent}}`
 
 ---
 
-## Deployment
+## Google Sheets Schema
 
-Both apps are static HTML files. Serve them from any static host.
+Master sheet columns (in order):
 
-**GitHub Pages** (recommended):
-1. Repo Settings → Pages → Source: branch `master`, folder `/ (root)`
-2. Save — the site goes live in ~1 minute
-
-**Live URLs** (once Pages is enabled):
-- `https://YOUR-USERNAME.github.io/REPO-NAME/`
-- `https://YOUR-USERNAME.github.io/REPO-NAME/contactscout.html`
-- `https://YOUR-USERNAME.github.io/REPO-NAME/inviteflow.html`
-
-> **CORS note**: The Claude API requires the header `anthropic-dangerous-direct-browser-access: true` for direct browser calls. This is already set in `contactscout.html`. Some corporate proxies may block this.
+| Column | Description |
+|---|---|
+| FirstName | Guest first name |
+| LastName | Guest last name |
+| Title | Official title |
+| Category | e.g. Congress, State Senate, City Council |
+| Email | Primary key |
+| RSVP_Link | Pre-filled Google Form URL |
+| InviteSent | TRUE / FALSE |
+| InviteSentDate | ISO date string |
+| RSVP_Status | Attending / Declined / No Response |
+| RSVP_Date | ISO date string |
+| Notes | Free text |
 
 ---
 
-## Design
+## OAuth Scopes
 
-- **Theme**: Light, warm neutral palette (Fraunces display font + Outfit body font)
-- **Layout**: Mobile-first adaptive — works on 375px phones, scales to desktop
-- **Mobile**: Bottom navigation bar; scrollable content; no horizontal scroll
-- **Desktop**: Top tab bar; fixed-height panel layout with log sidebar
-- **No frameworks, no build step** — vanilla HTML/CSS/JS, single `<script>` block per file
+| Scope | Purpose |
+|---|---|
+| `https://www.googleapis.com/auth/spreadsheets` | Read/write guest Sheets |
+| `https://www.googleapis.com/auth/gmail.send` | Send invite emails |
+| `https://www.googleapis.com/auth/drive.appdata` | Store event configs |
