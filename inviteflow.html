@@ -220,6 +220,9 @@ function generateAllRsvpLinks() {
 // One token client per scope (cached until page reload)
 const _tokenClients = {};
 let _tokens = {};
+// Queue of [resolve, reject] pairs waiting on the same scope — prevents race where
+// concurrent callers overwrite each other's _res/_rej before the callback fires.
+const _tokenPending = {};
 
 function getGoogleToken(scope) {
   return new Promise((resolve, reject) => {
@@ -228,19 +231,22 @@ function getGoogleToken(scope) {
     if (!window.google) return reject(new Error('Google Identity Services not loaded yet — try again in a moment.'));
     const cached = _tokens[scope];
     if (cached && cached.expires > Date.now()) return resolve(cached.token);
+    if (!_tokenPending[scope]) _tokenPending[scope] = [];
+    _tokenPending[scope].push([resolve, reject]);
+    if (_tokenPending[scope].length > 1) return; // already waiting on this scope
     if (!_tokenClients[scope]) {
       _tokenClients[scope] = window.google.accounts.oauth2.initTokenClient({
         client_id: clientId,
         scope: 'https://www.googleapis.com/auth/' + scope,
         callback: resp => {
-          if (resp.error) { _tokenClients[scope]._rej(new Error(resp.error)); return; }
+          const queue = _tokenPending[scope] || [];
+          _tokenPending[scope] = [];
+          if (resp.error) { queue.forEach(([,rej]) => rej(new Error(resp.error))); return; }
           _tokens[scope] = { token: resp.access_token, expires: Date.now() + (resp.expires_in||3500)*1000 };
-          _tokenClients[scope]._res(resp.access_token);
+          queue.forEach(([res]) => res(resp.access_token));
         },
       });
     }
-    _tokenClients[scope]._res = resolve;
-    _tokenClients[scope]._rej = reject;
     _tokenClients[scope].requestAccessToken({ prompt: '' });
   });
 }
@@ -334,17 +340,18 @@ async function syncToMasterSheet() {
     ];
   })];
   try {
-    // Clear then write
-    await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A:Z:clear`, {
+    // Clear first — check response before proceeding; a failed clear must not silently destroy data
+    const clearRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A:Z:clear`, {
       method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: '{}',
     });
-    const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A1?valueInputOption=RAW`, {
+    if (!clearRes.ok) throw new Error(`Clear failed (HTTP ${clearRes.status}) — aborting to protect existing sheet data`);
+    const writeRes = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A1?valueInputOption=RAW`, {
       method: 'PUT',
       headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
       body: JSON.stringify({ values }),
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
+    if (!writeRes.ok) throw new Error('Write failed: HTTP ' + writeRes.status);
     log(`✓ Master Sheet synced — ${S.invitees.length} rows written.`);
   } catch(e) { log('✗ Sync failed: ' + e.message); }
 }
@@ -373,6 +380,7 @@ async function syncRsvpResponses() {
     const rsvpCol  = hdr.findIndex(h => h.includes('rsvp') || h.includes('attend') || h.includes('status'));
     const tsCol    = hdr.findIndex(h => h.includes('timestamp'));
     if (emailCol < 0) { log('✗ No email column found in response sheet.'); return; }
+    if (rsvpCol < 0) { log('✗ No RSVP status column found — headers must contain "rsvp", "attend", or "status".'); return; }
     // Build response map: email → {status, date}
     const map = {};
     rows.slice(1).forEach(row => {
@@ -405,7 +413,12 @@ async function syncRsvpResponses() {
 // ═══════════════════════════════════════════════════════════════════════════════
 function toBase64Url(str) {
   const bytes = new TextEncoder().encode(str);
-  return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  // Chunk to avoid call stack overflow when spreading large Uint8Arrays into btoa()
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 8192) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
+  }
+  return btoa(binary).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 }
 
 function buildMimeRaw(toEmail, toName, subject, body, isHtml) {
@@ -506,7 +519,9 @@ function saveState() {
       schemaNameDraft: S.schemaNameDraft,
       googleClientId: S.googleClientId||'',
     }));
-  } catch(e) {}
+  } catch(e) {
+    if (e.name === 'QuotaExceededError') log('⚠ Auto-save failed: browser storage full. Export a backup to avoid data loss.');
+  }
 }
 
 function loadState() {
