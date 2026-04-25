@@ -2,52 +2,180 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>InviteFlow</title>
-<!-- Google Identity Services for OAuth2 (Gmail + Sheets) -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+:root{
+  --bg:#faf9f6;--surface:#fff;--surface-2:#f5f3ef;--surface-3:#edebe6;
+  --border:#e2dfd8;--border-2:#cac6bc;
+  --text-1:#1c1a17;--text-2:#5c5852;--text-3:#9c9890;
+  --accent:#2455c2;--accent-dim:#eaeffc;
+  --success:#1a7a46;--success-dim:#e8f5ee;
+  --warning:#c47009;--warning-dim:#fdf4e3;
+  --danger:#c42828;--danger-dim:#fdeaea;
+  --r:10px;--r-sm:6px;
+  --ff-d:'Fraunces',Georgia,serif;
+  --ff-b:'Outfit',system-ui,sans-serif;
+}
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#080c10;color:#c9d1d9;font-family:'DM Mono','Courier New',monospace;height:100vh;overflow:hidden;display:flex;flex-direction:column}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#21262d;border-radius:3px}
-.btn{border:1px solid #21262d;background:#0d1117;color:#8b949e;padding:6px 13px;border-radius:5px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:.05em;transition:all .15s}
-.btn:hover{border-color:#58a6ff;color:#58a6ff}
-.btn.pri{background:#1f6feb;border-color:#1f6feb;color:#fff}.btn.pri:hover{background:#388bfd}
-.btn.grn{background:#238636;border-color:#238636;color:#fff}.btn.grn:hover{background:#2ea043}
-.btn.gold{background:#3d2800;border-color:#C8A84B;color:#C8A84B}.btn.gold:hover{background:#C8A84B;color:#000}
-.btn.sm{padding:4px 9px;font-size:10px}
-.btn.stop{border-color:#da3633;color:#f85149}.btn.stop:hover{background:#da3633;color:#fff}
-.btn:disabled{opacity:.35;cursor:not-allowed}
-.tag{display:inline-block;font-size:9px;padding:2px 6px;border-radius:3px;letter-spacing:.07em;border:1px solid}
-.cat{border:1px solid #21262d;background:transparent;color:#6e7681;padding:4px 10px;border-radius:20px;cursor:pointer;font-family:inherit;font-size:10px;transition:all .15s}
-.cat.on{border-color:#C8A84B;color:#C8A84B;background:#2a1a00}.cat:hover:not(.on){color:#c9d1d9;border-color:#30363d}
-input[type=checkbox]{accent-color:#C8A84B}
-.ifield{background:#0d1117;border:1px solid #21262d;color:#c9d1d9;padding:6px 10px;border-radius:5px;font-family:inherit;font-size:11px;outline:none;width:100%;transition:border-color .15s}
-.ifield:focus{border-color:#C8A84B}
-.ritem{transition:background .1s;cursor:pointer}.ritem:hover{background:#0d1117}
-.card{background:#0d1117;border:1px solid #21262d;border-radius:7px;padding:14px 16px;margin-bottom:10px}
-.sl{font-size:9px;color:#6e7681;letter-spacing:.12em;margin-bottom:7px;margin-top:14px}
-.modal-bg{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.88);z-index:200;display:flex;align-items:center;justify-content:center}
-.modal{background:#0d1117;border:1px solid #21262d;border-radius:8px;width:560px;max-height:82vh;overflow-y:auto;padding:22px 26px}
-.pbar-wrap{height:4px;background:#161b22;border-radius:2px;overflow:hidden;margin-top:8px}
-.pbar{height:100%;background:#C8A84B;border-radius:2px;transition:width .3s}
-/* pie chart pure CSS */
-.pie-seg{display:inline-block;width:14px;height:14px;border-radius:50%;vertical-align:middle;margin-right:5px}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text-1);font-family:var(--ff-b);font-size:14px;display:flex;flex-direction:column}
+input,button,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:var(--border-2);border-radius:3px}
+
+/* ── Buttons ── */
+.btn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);padding:6px 13px;border-radius:var(--r-sm);cursor:pointer;font-size:12px;font-weight:500;transition:all .15s;white-space:nowrap;line-height:1}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-xs{padding:3px 8px;font-size:10px}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn-primary:hover{background:#1d46a8;border-color:#1d46a8;color:#fff}
+.btn-success{background:var(--success);border-color:var(--success);color:#fff}.btn-success:hover{background:#136338;border-color:#136338;color:#fff}
+.btn-warning{background:var(--warning);border-color:var(--warning);color:#fff}.btn-warning:hover{background:#a55e07;border-color:#a55e07;color:#fff}
+.btn-danger{border-color:var(--danger);color:var(--danger)}.btn-danger:hover{background:var(--danger);color:#fff}
+
+/* ── Tags ── */
+.tag{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:500;border:1px solid;white-space:nowrap}
+.tag-ns{border-color:var(--border-2);color:var(--text-3);background:var(--surface-3)}
+.tag-sent{border-color:var(--success);color:var(--success);background:var(--success-dim)}
+.tag-skip{border-color:var(--warning);color:var(--warning);background:var(--warning-dim)}
+.tag-bounce{border-color:var(--danger);color:var(--danger);background:var(--danger-dim)}
+.tag-confirmed{border-color:var(--success);color:var(--success);background:var(--success-dim)}
+.tag-declined{border-color:var(--danger);color:var(--danger);background:var(--danger-dim)}
+.tag-pending{border-color:var(--warning);color:var(--warning);background:var(--warning-dim)}
+.tag-noresp{border-color:var(--border-2);color:var(--text-3);background:var(--surface-3)}
+
+/* ── Fields ── */
+.ifield{background:var(--surface);border:1px solid var(--border);color:var(--text-1);padding:7px 11px;border-radius:var(--r-sm);font-size:13px;outline:none;width:100%;transition:border-color .15s}
+.ifield:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim)}
+input[type=checkbox]{accent-color:var(--accent)}
+
+/* ── Cards ── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:10px}
+
+/* ── Section label ── */
+.sl{font-size:10px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;margin:14px 0 6px}
+.sl:first-child{margin-top:0}
+
+/* ── Progress bar ── */
+.pbar-wrap{height:4px;background:var(--surface-3);border-radius:2px;overflow:hidden;margin-top:8px}
+.pbar{height:100%;background:var(--accent);border-radius:2px;transition:width .3s}
+
+/* ── Modal ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);width:560px;max-width:100%;max-height:88vh;overflow-y:auto;padding:22px 26px;box-shadow:0 16px 40px rgba(0,0,0,.12)}
+
+/* ── Layout ── */
+#root{display:flex;flex-direction:column;height:100%}
+
+/* Header */
+.app-header{
+  border-bottom:1px solid var(--border);
+  padding:9px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+  background:var(--surface);
+  flex-shrink:0;
+  flex-wrap:wrap;
+  position:sticky;
+  top:0;
+  z-index:50;
+}
+.hd-left{display:flex;align-items:center;gap:10px;min-width:0}
+.hd-brand{font-family:var(--ff-d);font-size:18px;font-weight:700;color:var(--text-1);white-space:nowrap}
+.hd-profile{font-size:11px;color:var(--text-3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:200px}
+.hd-right{display:flex;gap:5px;align-items:center;flex-wrap:wrap;flex-shrink:0}
+
+/* Stats bar */
+.stats-bar{padding:5px 16px;border-bottom:1px solid var(--border);display:flex;gap:12px;flex-wrap:wrap;align-items:center;background:var(--surface-2);flex-shrink:0}
+.stat-item{display:flex;align-items:center;gap:4px}
+.stat-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.stat-lbl{font-size:10px;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase}
+.stat-val{font-size:12px;font-weight:600}
+
+/* Desktop top tab bar */
+.tab-bar{border-bottom:1px solid var(--border);display:none;background:var(--surface);padding:0 12px;flex-shrink:0}
+.tab-btn{background:none;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:500;padding:9px 15px;color:var(--text-3);border-bottom:2px solid transparent;transition:color .15s;white-space:nowrap}
+.tab-btn.active{color:var(--text-1);border-bottom-color:var(--accent)}
+.tab-btn:hover:not(.active){color:var(--text-2)}
+
+/* App body */
+.app-body{display:flex;flex:1;min-height:0;overflow:hidden}
+.app-main{flex:1;overflow-y:auto;min-width:0;padding-bottom:72px}
+.app-sidebar{width:190px;flex-shrink:0;border-left:1px solid var(--border);overflow-y:auto;background:var(--surface-2);padding:11px 12px;display:none}
+
+/* Log entries */
+.log-entry{font-size:11px;margin-bottom:4px;line-height:1.55;padding-left:7px;border-left:2px solid transparent;color:var(--text-3)}
+.log-entry.latest{border-left-color:var(--accent);color:var(--text-2)}
+
+/* Bottom nav (mobile) */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);display:flex;z-index:100;padding:4px 0 max(4px,env(safe-area-inset-bottom))}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:5px 2px;cursor:pointer;border:none;background:none;color:var(--text-3);font-family:inherit;font-size:10px;font-weight:500;transition:color .15s}
+.nav-item.active{color:var(--accent)}
+.nav-icon{font-size:17px;line-height:1}
+
+/* Desktop overrides */
+@media(min-width:768px){
+  body,html{height:100dvh;overflow:hidden}
+  #root{height:100%;overflow:hidden}
+  .app-body{overflow:hidden}
+  .app-main{padding-bottom:0}
+  .app-sidebar{display:block}
+  .tab-bar{display:flex}
+  .bottom-nav{display:none}
+}
+
+/* Compose layout */
+.compose-layout{display:flex;flex-direction:column}
+.compose-editor{padding:14px 16px}
+.compose-preview-wrap{height:380px;display:flex;flex-direction:column;border-top:1px solid var(--border)}
+@media(min-width:768px){
+  .compose-layout{display:grid;grid-template-columns:1fr 1fr;height:100%;overflow:hidden;min-height:0}
+  .compose-editor{overflow-y:auto;border-right:1px solid var(--border);border-top:none}
+  .compose-preview-wrap{height:auto;flex:1;border-top:none}
+}
+.compose-preview-hd{padding:8px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;flex-shrink:0;background:var(--surface-2)}
+
+/* Invitees table */
+.inv-row{display:grid;grid-template-columns:1fr 150px 75px 75px 26px;gap:6px;padding:7px 16px;border-bottom:1px solid var(--surface-3);align-items:center}
+@media(max-width:600px){
+  .inv-row{grid-template-columns:1fr auto auto;gap:4px;padding:8px 12px}
+  .inv-email-col,.inv-rsvp-col{display:none}
+}
+
+/* Tracker stat cards */
+.rsvp-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px}
+@media(max-width:600px){.rsvp-cards{grid-template-columns:repeat(3,1fr)}}
+.rsvp-card{border:1px solid var(--border);border-radius:var(--r);padding:12px;background:var(--surface)}
+.rsvp-num{font-size:24px;font-weight:600;line-height:1}
+.rsvp-lbl{font-size:10px;letter-spacing:.06em;text-transform:uppercase;margin-top:3px}
+
+/* Empty state */
+.empty{text-align:center;padding:56px 20px;color:var(--text-3)}
+.empty-icon{font-size:32px;margin-bottom:12px}
+.empty-text{font-size:13px;line-height:1.7;color:var(--text-2)}
 </style>
 </head>
 <body>
-<div id="root" style="display:flex;flex-direction:column;height:100vh;overflow:hidden"></div>
+<div id="root"></div>
 <script>
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 // IMAGES
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 const IMAGES = { EMBLEM:'', LOGO:'', SIGNATURE:'' };
 let IMAGE_OVERRIDES = { EMBLEM:'', LOGO:'', SIGNATURE:'' };
+
 function img(key) {
   const ov = IMAGE_OVERRIDES[key];
   if (ov) {
-    if (IMAGE_OVERRIDES[key+'_mode']==='gdrive')
-      return 'https://drive.google.com/uc?export=view&id='+ov.trim();
+    if (IMAGE_OVERRIDES[key+'_mode'] === 'gdrive')
+      return 'https://drive.google.com/uc?export=view&id=' + ov.trim();
     return ov.trim();
   }
   return IMAGES[key];
@@ -55,78 +183,64 @@ function img(key) {
 function syncImageOverrides() {
   IMAGE_OVERRIDES = {
     EMBLEM: S.event.imgEmblemUrl||'', LOGO: S.event.imgLogoUrl||'', SIGNATURE: S.event.imgSigUrl||'',
-    EMBLEM_mode: S.event.imgEmblemMode||'embedded',
-    LOGO_mode:   S.event.imgLogoMode||'embedded',
+    EMBLEM_mode:    S.event.imgEmblemMode||'embedded',
+    LOGO_mode:      S.event.imgLogoMode||'embedded',
     SIGNATURE_mode: S.event.imgSigMode||'embedded',
   };
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// EMAIL TEMPLATE
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// EMAIL TEMPLATE (generic — edit in the Email tab or customize here)
+// ═══════════════════════════════════════════════════════════════════
 const EMAIL_TEMPLATE = `
 <div style="width:100%;max-width:680px;min-width:280px;margin:0 auto;font-family:Georgia,'Times New Roman',serif;color:#1a1a1a;background:#ffffff">
-  <div style="background:#8B1A1A;height:5px"></div>
-  <div style="background:linear-gradient(90deg,#8B1A1A 0%,#C8A84B 50%,#8B1A1A 100%);height:1px"></div>
-  <div style="background:#0d0d0d;padding:32px 44px 26px;text-align:center">
-    <img src="__IMG_EMBLEM__" alt="Event Emblem" style="width:180px;max-width:180px;height:auto;display:inline-block;margin-bottom:18px">
-    <div style="color:#C8A84B;font-size:9px;letter-spacing:5px;font-family:Arial,sans-serif;text-transform:uppercase;margin-bottom:10px">{{OrgName}}</div>
-    <div style="background:linear-gradient(90deg,transparent,#C8A84B,transparent);height:1px;margin:0 40px 14px"></div>
-    <div style="color:#f5ede0;font-size:22px;font-weight:normal;line-height:1.35;letter-spacing:.5px">{{FullTitle}}</div>
-    <div style="color:#C8A84B;font-size:10px;letter-spacing:4px;font-family:Arial,sans-serif;margin-top:10px;text-transform:uppercase">{{EventName}} &nbsp;&middot;&nbsp; {{EventDate}}</div>
-    <div style="background:linear-gradient(90deg,transparent,#C8A84B,transparent);height:1px;margin:14px 40px 0"></div>
+  <div style="background:#2455c2;padding:36px 44px;text-align:center">
+    <img src="__IMG_EMBLEM__" alt="Emblem" style="width:120px;max-width:120px;height:auto;display:inline-block;margin-bottom:18px">
+    <div style="color:rgba(255,255,255,.7);font-size:10px;letter-spacing:4px;font-family:Arial,sans-serif;text-transform:uppercase;margin-bottom:8px">{{OrgName}}</div>
+    <div style="color:#fff;font-size:23px;font-weight:normal;line-height:1.3;letter-spacing:.3px">{{FullTitle}}</div>
+    <div style="color:rgba(255,255,255,.75);font-size:11px;letter-spacing:2px;font-family:Arial,sans-serif;margin-top:10px;text-transform:uppercase">{{EventName}} &nbsp;·&nbsp; {{EventDate}}</div>
   </div>
-  <div style="background:#8B1A1A;height:3px"></div>
   <div style="padding:40px 48px 32px;background:#fffdf8">
     <p style="font-size:13px;color:#777;font-family:Arial,sans-serif;margin:0 0 22px">{{Date_Sent}}</p>
-    <p style="font-size:15px;margin:0 0 22px;color:#1a1a1a;line-height:1.5">Dear Honorable {{FirstName}} {{LastName}},</p>
+    <p style="font-size:15px;margin:0 0 22px;color:#1a1a1a;line-height:1.5">Dear {{FirstName}} {{LastName}},</p>
     <p style="font-size:14px;line-height:1.9;margin:0 0 18px;color:#2c2c2c">
-      On behalf of <strong>{{OrgName}}</strong>, we respectfully invite you to <strong>{{EventName}}</strong> — <strong>{{FullTitle}}</strong> — on <strong>{{EventDate}}</strong>, at <strong>{{Venue}}</strong>.
+      On behalf of <strong>{{OrgName}}</strong>, we cordially invite you to <strong>{{EventName}}</strong> — <strong>{{FullTitle}}</strong> — on <strong>{{EventDate}}</strong>, at <strong>{{Venue}}</strong>.
     </p>
     <p style="font-size:14px;line-height:1.9;margin:0 0 18px;color:#2c2c2c">
-      We would be deeply honored to welcome you as our distinguished guest. The VIP program — including the Opening Ceremony and Reception — is scheduled from <strong>{{VIPStart}} until {{VIPEnd}}</strong>, featuring cultural stage performances and community festivities.
+      We would be honored to welcome you as our distinguished guest. The guest program is scheduled from <strong>{{VIPStart}}</strong> until <strong>{{VIPEnd}}</strong>.
     </p>
-    <div style="border-left:2px solid #C8A84B;margin:24px 0;padding:12px 20px;background:#fff8ee">
-      <p style="font-size:13px;color:#8B1A1A;font-style:italic;line-height:1.8;margin:0">
-        Dragon boat festivals draw hundreds of thousands of spectators worldwide. The Greater Triangle festival has grown to an estimated attendance of <strong>10,000</strong>, reflecting the region's vibrant and engaged Asian community.
-      </p>
-    </div>
     <p style="font-size:14px;line-height:1.9;margin:0 0 28px;color:#2c2c2c">
-      To assist us in preparing the Opening Ceremony, we respectfully request your RSVP at your earliest convenience. Should you be unable to attend in person, you are most welcome to send a representative.
+      To assist us in preparations, we kindly request your RSVP at your earliest convenience. Should you be unable to attend in person, you are welcome to send a representative.
     </p>
     <div style="text-align:center;margin:30px 0 22px">
-      <a href="{{RSVP_Link}}" style="display:inline-block;background:#8B1A1A;color:#f5ede0;text-decoration:none;padding:15px 48px;font-family:Arial,sans-serif;font-size:12px;letter-spacing:3px;text-transform:uppercase;border:1px solid #C8A84B">RSVP &nbsp;&middot;&nbsp; Reserve Your Place</a>
+      <a href="{{RSVP_Link}}" style="display:inline-block;background:#2455c2;color:#fff;text-decoration:none;padding:14px 44px;font-family:Arial,sans-serif;font-size:12px;letter-spacing:2px;text-transform:uppercase;border-radius:4px">RSVP — Reserve Your Place</a>
       <div style="margin-top:10px;font-size:11px;color:#aaa;font-family:Arial,sans-serif">or reply directly to this email</div>
     </div>
     <p style="font-size:13px;line-height:1.8;color:#555;font-family:Arial,sans-serif;margin:24px 0 0">
-      For inquiries, please contact <strong>{{ContactName}}</strong>, {{ContactTitle}}, at <a href="mailto:{{ContactEmail}}" style="color:#8B1A1A;text-decoration:underline">{{ContactEmail}}</a>.
+      For inquiries, please contact <strong>{{ContactName}}</strong>, {{ContactTitle}}, at <a href="mailto:{{ContactEmail}}" style="color:#2455c2;text-decoration:underline">{{ContactEmail}}</a>.
     </p>
   </div>
-  <div style="background:linear-gradient(90deg,transparent,#C8A84B,transparent);height:1px;margin:0 48px"></div>
-  <div style="padding:28px 48px 32px;background:#fffdf8">
-    <p style="font-size:14px;line-height:1.7;margin:0 0 16px;color:#2c2c2c">We look forward to your presence at this important cultural celebration.</p>
+  <div style="padding:24px 48px 28px;background:#f8f8f8;border-top:1px solid #e8e8e8">
+    <p style="font-size:14px;line-height:1.7;margin:0 0 14px;color:#2c2c2c">We look forward to your presence at this event.</p>
     <p style="font-size:14px;margin:0 0 10px;color:#2c2c2c">Respectfully yours,</p>
-    <img src="__IMG_LOGO__" alt="Signature" style="width:180px;max-width:180px;height:auto;display:block;margin:8px 0 0">
+    <img src="__IMG_LOGO__" alt="Signature" style="width:160px;max-width:160px;height:auto;display:block;margin:8px 0">
   </div>
-  <div style="background:linear-gradient(90deg,transparent,#C8A84B,transparent);height:1px"></div>
-  <div style="background:#0d0d0d;padding:20px 36px">
+  <div style="background:#1c1c1c;padding:20px 36px">
     <table style="width:100%;border-collapse:collapse"><tr>
-      <td style="vertical-align:middle;width:140px;padding:0">
-        <img src="__IMG_SIGNATURE__" alt="{{OrgName}}" style="width:120px;height:auto;display:block">
+      <td style="vertical-align:middle;width:120px;padding:0">
+        <img src="__IMG_SIGNATURE__" alt="{{OrgName}}" style="width:100px;height:auto;display:block">
       </td>
       <td style="vertical-align:middle;padding:0 0 0 16px">
-        <div style="color:#C8A84B;font-size:10px;font-family:Arial,sans-serif;letter-spacing:2px;text-transform:uppercase">{{OrgName}}</div>
-        <div style="color:#666;font-size:10px;font-family:Arial,sans-serif;margin-top:4px;line-height:1.6">{{OrgLocation}}</div>
+        <div style="color:rgba(255,255,255,.9);font-size:11px;font-family:Arial,sans-serif;letter-spacing:1px;text-transform:uppercase">{{OrgName}}</div>
+        <div style="color:rgba(255,255,255,.5);font-size:10px;font-family:Arial,sans-serif;margin-top:4px;line-height:1.6">{{OrgLocation}}</div>
       </td>
     </tr></table>
   </div>
-  <div style="background:linear-gradient(90deg,#8B1A1A 0%,#C8A84B 50%,#8B1A1A 100%);height:1px"></div>
-  <div style="background:#8B1A1A;height:4px"></div>
 </div>`;
 
 function buildEmail(firstName, lastName, event) {
   const E = event || S.event;
-  const inv = {name: (firstName||'') + ' ' + (lastName||'')};
+  const inv = {name:(firstName||'')+' '+(lastName||'')};
   return EMAIL_TEMPLATE
     .replace(/__IMG_EMBLEM__/g,    img('EMBLEM'))
     .replace(/__IMG_LOGO__/g,      img('LOGO'))
@@ -148,18 +262,16 @@ function buildEmail(firstName, lastName, event) {
     .replace(/\{\{RSVP_Link\}\}/g,    buildRsvpLink(inv) || E.rsvpLink || '#');
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// DEFAULTS & STATE
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════
 const DEFAULT_EVENT = {
   profileName:'', eventName:'', fullTitle:'', eventDate:'', venue:'',
   vipStart:'', vipEnd:'', rsvpLink:'', org:'', contactName:'', contactTitle:'',
   contactEmail:'', emailSubject:'', orgLocation:'', sheetId:'',
   sentDate: new Date().toLocaleDateString('en-US',{year:'numeric',month:'long',day:'numeric'}),
-  // Google integration
   inviteeSheetUrl:'', masterSheetUrl:'', rsvpResponseUrl:'',
   formUrl:'', entryName:'', entryEmail:'',
-  // Images
   imgEmblemMode:'embedded', imgEmblemUrl:'',
   imgLogoMode:'embedded',   imgLogoUrl:'',
   imgSigMode:'embedded',    imgSigUrl:'',
@@ -169,38 +281,31 @@ const S = {
   tab: 0, modal: null,
   event: {...DEFAULT_EVENT},
   invitees: [],
-  inviteFilter: 'all',
-  rsvpFilter: 'all',
   previewName: null,
   unsaved: false,
   log: [],
-  // Email template
   tplMode: 'html',
-  textSubject: "You're cordially invited: {{EventName}}",
-  textBody: "Dear Honorable {{FirstName}} {{LastName}},\n\nWe respectfully invite you to {{EventName}} on {{EventDate}} at {{Venue}}.\n\nPlease RSVP: {{RSVP_Link}}\n\nRespectfully,\n{{ContactName}}",
+  textSubject: "You're cordially invited to {{EventName}}",
+  textBody: "Dear {{FirstName}} {{LastName}},\n\nWe cordially invite you to {{EventName}} on {{EventDate}} at {{Venue}}.\n\nPlease RSVP: {{RSVP_Link}}\n\nRespectfully,\n{{ContactName}}",
   htmlBody: '',
-  // Send state
   sending: false,
   sendProgress: {sent:0, failed:0, total:0, current:''},
   sendLog: [],
-  // Schemas
   schemas: [],
   schemaNameDraft: '',
   activeSchemaId: null,
+  googleClientId: '',
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// RSVP LINK BUILDER (client-side, no API needed)
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// RSVP LINKS
+// ═══════════════════════════════════════════════════════════════════
 function buildRsvpLink(inv) {
   const e = S.event;
   if (!e.formUrl) return e.rsvpLink || '';
   const base = e.formUrl.replace(/\?.*$/, '');
   const parts = [];
-  const nameParts = (inv.name||'').trim().split(/\s+/);
-  const firstName = nameParts[0]||'';
-  const lastName  = nameParts.slice(1).join(' ')||'';
-  const fullName  = inv.name||'';
+  const fullName = inv.name || '';
   if (e.entryName)  parts.push('entry.' + e.entryName  + '=' + encodeURIComponent(fullName));
   if (e.entryEmail) parts.push('entry.' + e.entryEmail + '=' + encodeURIComponent(inv.email||''));
   parts.push('usp=pp_url');
@@ -214,18 +319,17 @@ function generateAllRsvpLinks() {
   render();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 // GOOGLE OAUTH2
-// ═══════════════════════════════════════════════════════════════════════════════
-// One token client per scope (cached until page reload)
+// ═══════════════════════════════════════════════════════════════════
 const _tokenClients = {};
 let _tokens = {};
 
 function getGoogleToken(scope) {
   return new Promise((resolve, reject) => {
     const clientId = S.googleClientId;
-    if (!clientId) return reject(new Error('No Google OAuth Client ID configured. Go to Setup → Google API Keys.'));
-    if (!window.google) return reject(new Error('Google Identity Services not loaded yet — try again in a moment.'));
+    if (!clientId) return reject(new Error('No Google OAuth Client ID configured. Go to Settings → Google Integration.'));
+    if (!window.google) return reject(new Error('Google Identity Services not loaded — try again in a moment.'));
     const cached = _tokens[scope];
     if (cached && cached.expires > Date.now()) return resolve(cached.token);
     if (!_tokenClients[scope]) {
@@ -234,14 +338,14 @@ function getGoogleToken(scope) {
         scope: 'https://www.googleapis.com/auth/' + scope,
         callback: resp => {
           if (resp.error) { _tokenClients[scope]._rej(new Error(resp.error)); return; }
-          _tokens[scope] = { token: resp.access_token, expires: Date.now() + (resp.expires_in||3500)*1000 };
+          _tokens[scope] = {token: resp.access_token, expires: Date.now() + (resp.expires_in||3500)*1000};
           _tokenClients[scope]._res(resp.access_token);
         },
       });
     }
     _tokenClients[scope]._res = resolve;
     _tokenClients[scope]._rej = reject;
-    _tokenClients[scope].requestAccessToken({ prompt: '' });
+    _tokenClients[scope].requestAccessToken({prompt:''});
   });
 }
 
@@ -251,12 +355,12 @@ function sheetIdFromUrl(url) {
   return m ? m[1] : url.trim();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// GOOGLE SHEETS: IMPORT INVITEES
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// GOOGLE SHEETS: IMPORT
+// ═══════════════════════════════════════════════════════════════════
 async function importFromSheet() {
   const url = S.event.inviteeSheetUrl;
-  if (!url) { log('✗ Set Invitee Sheet URL in Setup first.'); return; }
+  if (!url) { log('✗ Set Invitee Sheet URL in Settings first.'); return; }
   log('Connecting to Google Sheets…');
   let token;
   try { token = await getGoogleToken('spreadsheets'); }
@@ -264,15 +368,15 @@ async function importFromSheet() {
   const sid = sheetIdFromUrl(url);
   try {
     const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A:Z`, {
-      headers: { Authorization: 'Bearer ' + token }
+      headers: {Authorization: 'Bearer ' + token}
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status + ' — check Sheet is shared or URL is correct');
+    if (!res.ok) throw new Error('HTTP ' + res.status + ' — check Sheet is shared');
     const data = await res.json();
     const rows = data.values || [];
-    if (rows.length < 2) { log('✗ Sheet appears empty or has no data rows.'); return; }
+    if (rows.length < 2) { log('✗ Sheet appears empty.'); return; }
     const hdr = rows[0].map(h => h.toString().trim().toLowerCase().replace(/\s+/g,'_'));
     const col = k => hdr.indexOf(k);
-    let added=0, updated=0;
+    let added = 0, updated = 0;
     rows.slice(1).forEach(row => {
       const get = (k, ...alts) => {
         const idx = col(k) >= 0 ? col(k) : alts.map(a=>col(a)).find(i=>i>=0) ?? -1;
@@ -290,15 +394,9 @@ async function importFromSheet() {
         existing.category = get('category') || existing.category;
         updated++;
       } else {
-        S.invitees.push({
-          name, email,
-          title:    get('title'),
-          category: get('category'),
-          rsvpLink: '',
-          inviteStatus: 'not_sent', sentAt: '',
-          rsvpStatus: 'no_response', rsvpDate: '',
-          notes: get('notes'),
-        });
+        S.invitees.push({name, email, title:get('title'), category:get('category'),
+          rsvpLink:'', inviteStatus:'not_sent', sentAt:'',
+          rsvpStatus:'no_response', rsvpDate:'', notes:get('notes')});
         added++;
       }
     });
@@ -308,12 +406,12 @@ async function importFromSheet() {
   } catch(e) { log('✗ Import failed: ' + e.message); }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 // GOOGLE SHEETS: SYNC TO MASTER
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 async function syncToMasterSheet() {
   const url = S.event.masterSheetUrl;
-  if (!url) { log('✗ Set Master Sheet URL in Setup first.'); return; }
+  if (!url) { log('✗ Set Master Sheet URL in Settings first.'); return; }
   log('Syncing to Master Sheet…');
   let token;
   try { token = await getGoogleToken('spreadsheets'); }
@@ -326,35 +424,31 @@ async function syncToMasterSheet() {
       parts[0]||'', parts.slice(1).join(' ')||'',
       inv.title||'', inv.category||'', inv.email||'',
       inv.rsvpLink || buildRsvpLink(inv),
-      inv.inviteStatus==='sent'?'TRUE':'FALSE',
+      inv.inviteStatus==='sent' ? 'TRUE' : 'FALSE',
       inv.sentAt ? new Date(inv.sentAt).toLocaleDateString() : '',
-      inv.rsvpStatus||'no_response',
-      inv.rsvpDate||'',
-      inv.notes||'',
+      inv.rsvpStatus||'no_response', inv.rsvpDate||'', inv.notes||'',
     ];
   })];
   try {
-    // Clear then write
     await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A:Z:clear`, {
-      method: 'POST', headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: '{}',
+      method:'POST', headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'}, body:'{}',
     });
     const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A1?valueInputOption=RAW`, {
-      method: 'PUT',
-      headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values }),
+      method:'PUT',
+      headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+      body: JSON.stringify({values}),
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     log(`✓ Master Sheet synced — ${S.invitees.length} rows written.`);
   } catch(e) { log('✗ Sync failed: ' + e.message); }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 // GOOGLE SHEETS: SYNC RSVP RESPONSES
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 async function syncRsvpResponses() {
   const url = S.event.rsvpResponseUrl;
-  if (!url) { log('✗ Set RSVP Response Sheet URL in Setup first.'); return; }
+  if (!url) { log('✗ Set RSVP Response Sheet URL in Settings first.'); return; }
   log('Reading RSVP responses…');
   let token;
   try { token = await getGoogleToken('spreadsheets'); }
@@ -362,47 +456,40 @@ async function syncRsvpResponses() {
   const sid = sheetIdFromUrl(url);
   try {
     const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${sid}/values/A:Z`, {
-      headers: { Authorization: 'Bearer ' + token }
+      headers:{Authorization:'Bearer '+token}
     });
     if (!res.ok) throw new Error('HTTP ' + res.status);
     const data = await res.json();
     const rows = data.values || [];
-    if (rows.length < 2) { log('No responses found in sheet.'); return; }
+    if (rows.length < 2) { log('No responses found.'); return; }
     const hdr = rows[0].map(h => h.toString().trim().toLowerCase().replace(/\s+/g,'_'));
     const emailCol = hdr.findIndex(h => h.includes('email'));
-    const rsvpCol  = hdr.findIndex(h => h.includes('rsvp') || h.includes('attend') || h.includes('status'));
+    const rsvpCol  = hdr.findIndex(h => h.includes('rsvp')||h.includes('attend')||h.includes('status'));
     const tsCol    = hdr.findIndex(h => h.includes('timestamp'));
-    if (emailCol < 0) { log('✗ No email column found in response sheet.'); return; }
-    // Build response map: email → {status, date}
+    if (emailCol < 0) { log('✗ No email column in response sheet.'); return; }
     const map = {};
     rows.slice(1).forEach(row => {
       const email = (row[emailCol]||'').trim().toLowerCase();
       if (!email) return;
-      const rawStatus = (row[rsvpCol]||'').trim().toLowerCase();
-      const status = rawStatus.includes('yes')||rawStatus.includes('attend')||rawStatus.includes('confirm') ? 'confirmed'
-                   : rawStatus.includes('no')||rawStatus.includes('declin') ? 'declined' : 'pending';
+      const raw = (row[rsvpCol]||'').trim().toLowerCase();
+      const status = raw.includes('yes')||raw.includes('attend')||raw.includes('confirm') ? 'confirmed'
+                   : raw.includes('no')||raw.includes('declin') ? 'declined' : 'pending';
       const ts = tsCol >= 0 ? (row[tsCol]||'') : '';
-      const dateStr = ts ? new Date(ts).toLocaleDateString() : new Date().toLocaleDateString();
-      map[email] = { status, date: dateStr };
+      map[email] = {status, date: ts ? new Date(ts).toLocaleDateString() : new Date().toLocaleDateString()};
     });
     let updated = 0;
     S.invitees.forEach(inv => {
       const key = (inv.email||'').toLowerCase();
-      if (map[key]) {
-        inv.rsvpStatus = map[key].status;
-        inv.rsvpDate   = map[key].date;
-        updated++;
-      }
+      if (map[key]) { inv.rsvpStatus = map[key].status; inv.rsvpDate = map[key].date; updated++; }
     });
     S.unsaved = true;
-    log(`✓ RSVP sync: ${updated} responses matched.`);
-    render();
+    log(`✓ RSVP sync: ${updated} responses matched.`); render();
   } catch(e) { log('✗ RSVP sync failed: ' + e.message); }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// GMAIL OAUTH2 SEND
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// GMAIL SEND
+// ═══════════════════════════════════════════════════════════════════
 function toBase64Url(str) {
   const bytes = new TextEncoder().encode(str);
   return btoa(String.fromCharCode(...bytes)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
@@ -414,8 +501,7 @@ function buildMimeRaw(toEmail, toName, subject, body, isHtml) {
     `Subject: ${subject}`,
     'MIME-Version: 1.0',
     `Content-Type: ${isHtml?'text/html':'text/plain'}; charset=utf-8`,
-    '',
-    body,
+    '', body,
   ].join('\r\n'));
 }
 
@@ -444,56 +530,47 @@ let _sendAbort = false;
 
 async function sendBulkEmails(filter) {
   if (S.sending) return;
-  const targets = filter==='unsent'
-    ? S.invitees.filter(i=>i.email && i.inviteStatus!=='sent' && i.inviteStatus!=='skipped')
-    : S.invitees.filter(i=>i.email && i.inviteStatus!=='skipped');
+  const targets = filter === 'unsent'
+    ? S.invitees.filter(i => i.email && i.inviteStatus !== 'sent' && i.inviteStatus !== 'skipped')
+    : S.invitees.filter(i => i.email && i.inviteStatus !== 'skipped');
   if (!targets.length) { log('No eligible invitees to send to.'); return; }
-
   let token;
   try { token = await getGoogleToken('gmail.send'); }
   catch(e) { log('✗ Gmail auth failed: ' + e.message); return; }
-
   _sendAbort = false;
   S.sending = true;
   S.sendProgress = {sent:0, failed:0, total:targets.length, current:''};
-  S.sendLog = [];
-  render();
-
+  S.sendLog = []; render();
   for (const inv of targets) {
     if (_sendAbort) break;
-    S.sendProgress.current = inv.name;
-    render();
+    S.sendProgress.current = inv.name; render();
     const subject = personalize(S.event.emailSubject || S.textSubject, inv);
-    const body    = S.tplMode==='html' ? buildEmail(inv.name.split(' ')[0], inv.name.split(' ').slice(1).join(' ')) : personalize(S.textBody, inv);
-    const isHtml  = S.tplMode==='html';
-    let status = 'sent';
+    const body    = S.tplMode === 'html' ? buildEmail(inv.name.split(' ')[0], inv.name.split(' ').slice(1).join(' ')) : personalize(S.textBody, inv);
+    const isHtml  = S.tplMode === 'html';
     try {
       const res = await fetch('https://gmail.googleapis.com/gmail/v1/users/me/messages/send', {
-        method: 'POST',
-        headers: { Authorization: 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ raw: buildMimeRaw(inv.email, inv.name, subject, body, isHtml) }),
+        method:'POST',
+        headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},
+        body: JSON.stringify({raw: buildMimeRaw(inv.email, inv.name, subject, body, isHtml)}),
       });
       if (!res.ok) { const err = await res.json(); throw new Error(err.error?.message||'Send failed'); }
-      inv.inviteStatus = 'sent';
-      inv.sentAt = new Date().toISOString();
+      inv.inviteStatus = 'sent'; inv.sentAt = new Date().toISOString();
       S.sendProgress.sent++;
+      S.sendLog.push({name:inv.name, email:inv.email, status:'sent', ts:new Date().toLocaleTimeString()});
     } catch(e) {
-      status = 'failed: ' + e.message;
       S.sendProgress.failed++;
+      S.sendLog.push({name:inv.name, email:inv.email, status:'failed: '+e.message, ts:new Date().toLocaleTimeString()});
     }
-    S.sendLog.push({name:inv.name, email:inv.email, status, ts: new Date().toLocaleTimeString()});
-    await new Promise(r=>setTimeout(r,350));
+    await new Promise(r => setTimeout(r, 350));
   }
-  S.sending = false;
-  S.sendProgress.current = '';
+  S.sending = false; S.sendProgress.current = '';
   S.unsaved = true;
-  log(`✓ Done: ${S.sendProgress.sent} sent, ${S.sendProgress.failed} failed.`);
-  render();
+  log(`✓ Done: ${S.sendProgress.sent} sent, ${S.sendProgress.failed} failed.`); render();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 // LOCAL STORAGE
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 const LS_KEY = 'inviteflow_state';
 
 function saveState() {
@@ -514,30 +591,33 @@ function loadState() {
     const raw = localStorage.getItem(LS_KEY);
     if (!raw) return;
     const d = JSON.parse(raw);
-    if (d.event)     { S.event = {...DEFAULT_EVENT, ...d.event}; syncImageOverrides(); }
-    if (d.invitees)  S.invitees = d.invitees.map(i=>({rsvpLink:'',inviteStatus:'not_sent',rsvpStatus:'no_response',rsvpDate:'',sentAt:'',notes:'',...i}));
-    if (d.tplMode)   S.tplMode = d.tplMode;
-    if (d.textSubject) S.textSubject = d.textSubject;
-    if (d.textBody)  S.textBody = d.textBody;
-    if (d.htmlBody)  S.htmlBody = d.htmlBody;
-    if (d.schemas)   S.schemas = d.schemas;
+    if (d.event)          { S.event = {...DEFAULT_EVENT, ...d.event}; syncImageOverrides(); }
+    if (d.invitees)       S.invitees = d.invitees.map(i => ({rsvpLink:'',inviteStatus:'not_sent',rsvpStatus:'no_response',rsvpDate:'',sentAt:'',notes:'',...i}));
+    if (d.tplMode)        S.tplMode = d.tplMode;
+    if (d.textSubject)    S.textSubject = d.textSubject;
+    if (d.textBody)       S.textBody = d.textBody;
+    if (d.htmlBody)       S.htmlBody = d.htmlBody;
+    if (d.schemas)        S.schemas = d.schemas;
     if (d.activeSchemaId) S.activeSchemaId = d.activeSchemaId;
     if (d.schemaNameDraft) S.schemaNameDraft = d.schemaNameDraft;
     if (d.googleClientId) S.googleClientId = d.googleClientId;
+    if (S.tab > 4) S.tab = 0;
     S.unsaved = false;
   } catch(e) {}
 }
 
 function clearSavedState() {
   localStorage.removeItem(LS_KEY);
-  Object.assign(S, {event:{...DEFAULT_EVENT},invitees:[],tplMode:'html',textSubject:"You're cordially invited: {{EventName}}",textBody:'',htmlBody:'',sendLog:[],schemas:[],activeSchemaId:null,schemaNameDraft:'',unsaved:false,modal:null});
+  Object.assign(S, {event:{...DEFAULT_EVENT},invitees:[],tplMode:'html',
+    textSubject:"You're cordially invited to {{EventName}}",textBody:'',htmlBody:'',
+    sendLog:[],schemas:[],activeSchemaId:null,schemaNameDraft:'',unsaved:false,modal:null,googleClientId:''});
   syncImageOverrides();
   log('✓ Saved data cleared.'); render();
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// SCHEMA MANAGEMENT (saved event configs)
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// SCHEMA MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════
 function currentSchema() {
   return {
     id: S.activeSchemaId || 'schema_' + Date.now(),
@@ -550,11 +630,11 @@ function currentSchema() {
 }
 
 function saveSchema() {
-  if (!S.schemaNameDraft.trim()) { log('Enter a schema name first.'); return; }
+  if (!S.schemaNameDraft.trim()) { log('Enter a config name first.'); return; }
   const sc = currentSchema();
-  S.schemas = [sc, ...S.schemas.filter(s=>s.id!==sc.id)];
+  S.schemas = [sc, ...S.schemas.filter(s => s.id !== sc.id)];
   S.activeSchemaId = sc.id;
-  log('✓ Schema saved: ' + sc.name); render();
+  log('✓ Config saved: ' + sc.name); render();
 }
 
 function loadSchema(sc) {
@@ -566,42 +646,42 @@ function loadSchema(sc) {
   S.activeSchemaId = sc.id;
   S.schemaNameDraft = sc.name||'';
   syncImageOverrides();
-  S.tab = 1; // go to Setup
-  log('✓ Loaded schema: ' + sc.name); render();
+  S.tab = 0;
+  log('✓ Loaded config: ' + sc.name); render();
 }
 
 function deleteSchema(id) {
-  S.schemas = S.schemas.filter(s=>s.id!==id);
-  if (S.activeSchemaId===id) S.activeSchemaId=null;
-  log('Schema deleted.'); render();
+  S.schemas = S.schemas.filter(s => s.id !== id);
+  if (S.activeSchemaId === id) S.activeSchemaId = null;
+  log('Config deleted.'); render();
 }
 
 function exportSchema() {
   const sc = currentSchema();
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(sc,null,2)],{type:'application/json'}));
-  a.download = 'inviteflow-schema-' + sc.name.replace(/[^a-z0-9]/gi,'-').toLowerCase() + '.json';
-  a.click(); log('✓ Schema exported.');
+  a.download = 'inviteflow-config-' + sc.name.replace(/[^a-z0-9]/gi,'-').toLowerCase() + '.json';
+  a.click(); log('✓ Config exported.');
 }
 
 function importSchemaFile(file) {
   const r = new FileReader();
   r.onload = e => {
     try { loadSchema(JSON.parse(e.target.result)); }
-    catch(err) { log('✗ Invalid schema file: ' + err.message); }
+    catch(err) { log('✗ Invalid config file: ' + err.message); }
   };
   r.readAsText(file);
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// PROFILE / CSV  (existing functionality kept)
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
+// PROFILE / CSV
+// ═══════════════════════════════════════════════════════════════════
 function exportProfile() {
-  const out = {schema:'vip-mailer-profile-v1',exportedAt:new Date().toISOString(),event:{...S.event},invitees:S.invitees.map(i=>({...i}))};
+  const out = {schema:'inviteflow-profile-v1',exportedAt:new Date().toISOString(),event:{...S.event},invitees:S.invitees.map(i=>({...i}))};
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(out,null,2)],{type:'application/json'}));
-  a.download = 'vip-mailer-' + (S.event.profileName||'profile').replace(/[^a-z0-9]/gi,'-') + '-' + new Date().toISOString().slice(0,10) + '.json';
-  a.click(); S.unsaved=false; log('✓ Profile exported.'); render();
+  a.download = 'inviteflow-' + (S.event.profileName||'profile').replace(/[^a-z0-9]/gi,'-') + '-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); S.unsaved = false; log('✓ Profile exported.'); render();
 }
 
 function importProfile(file) {
@@ -610,8 +690,8 @@ function importProfile(file) {
     try {
       const d = JSON.parse(e.target.result);
       if (d.event)    S.event = {...DEFAULT_EVENT,...d.event};
-      if (d.invitees) S.invitees = d.invitees.map(i=>({rsvpLink:'',inviteStatus:'not_sent',rsvpStatus:'no_response',rsvpDate:'',sentAt:'',notes:'',...i}));
-      syncImageOverrides(); S.unsaved=false; S.modal=null;
+      if (d.invitees) S.invitees = d.invitees.map(i => ({rsvpLink:'',inviteStatus:'not_sent',rsvpStatus:'no_response',rsvpDate:'',sentAt:'',notes:'',...i}));
+      syncImageOverrides(); S.unsaved = false; S.modal = null;
       log('✓ Profile loaded: '+(S.event.profileName||'?')+' ('+S.invitees.length+' invitees)'); render();
     } catch(err) { log('✗ Import failed: '+err.message); }
   };
@@ -623,16 +703,16 @@ function importResearcher(file) {
   r.onload = e => {
     try {
       const d = JSON.parse(e.target.result);
-      const list = (d.invitees||d).filter(x=>x.name && x.verifyStatus!=='left_office');
-      let added=0,updated=0;
+      const list = (d.invitees||d).filter(x => x.name && x.verifyStatus !== 'left_office');
+      let added = 0, updated = 0;
       list.forEach(x => {
         const email = x.email||x.officeEmail||x.directEmail||'';
-        const ex = S.invitees.find(i=>i.name===x.name);
+        const ex = S.invitees.find(i => i.name === x.name);
         if (ex) { ex.email=email||ex.email; ex.title=x.title||ex.title; ex.category=x.category||ex.category; updated++; }
         else { S.invitees.push({name:x.name,title:x.title||'',category:x.category||'',email,rsvpLink:'',inviteStatus:'not_sent',sentAt:'',rsvpStatus:'no_response',rsvpDate:'',notes:''}); added++; }
       });
-      S.unsaved=true; S.modal=null;
-      log('✓ Researcher: +'+added+' new, '+updated+' updated. Total: '+S.invitees.length); render();
+      S.unsaved = true; S.modal = null;
+      log('✓ From ContactScout: +'+added+' new, '+updated+' updated. Total: '+S.invitees.length); render();
     } catch(err) { log('✗ Import failed: '+err.message); }
   };
   r.readAsText(file);
@@ -641,21 +721,21 @@ function importResearcher(file) {
 function importCSV(file) {
   const r = new FileReader();
   r.onload = e => {
-    const lines = e.target.result.split('\n').filter(l=>l.trim());
-    const hdr = lines[0].split(',').map(h=>h.replace(/"/g,'').trim().toLowerCase().replace(/\s+/g,'_'));
-    let added=0;
+    const lines = e.target.result.split('\n').filter(l => l.trim());
+    const hdr = lines[0].split(',').map(h => h.replace(/"/g,'').trim().toLowerCase().replace(/\s+/g,'_'));
+    let added = 0;
     lines.slice(1).forEach(line => {
       const cols = line.match(/(".*?"|[^,]+)(?=,|$)/g)||[];
-      const row = {}; hdr.forEach((h,i)=>row[h]=(cols[i]||'').replace(/"/g,'').trim());
-      const name = row.name||row.full_name||((row.first_name||row.firstname||'') + ' ' + (row.last_name||row.lastname||'')).trim();
+      const row = {}; hdr.forEach((h,i) => row[h]=(cols[i]||'').replace(/"/g,'').trim());
+      const name = row.name||row.full_name||((row.first_name||row.firstname||'')+' '+(row.last_name||row.lastname||'')).trim();
       if (!name) return;
       const email = row.email||row.office_email||row.direct_email||'';
-      if (!S.invitees.find(i=>i.name===name)) {
+      if (!S.invitees.find(i => i.name === name)) {
         S.invitees.push({name,title:row.title||'',category:row.category||'',email,rsvpLink:'',inviteStatus:'not_sent',sentAt:'',rsvpStatus:'no_response',rsvpDate:'',notes:''});
         added++;
       }
     });
-    S.unsaved=true; S.modal=null;
+    S.unsaved = true; S.modal = null;
     log('✓ CSV: +'+added+' added. Total: '+S.invitees.length); render();
   };
   r.readAsText(file);
@@ -671,52 +751,39 @@ function exportCSV() {
       inv.sentAt?new Date(inv.sentAt).toLocaleDateString():'',
       inv.rsvpStatus||'no_response', inv.rsvpDate||''];
   });
-  const csv = [h,...rows].map(r=>r.map(c=>'"'+(c||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const csv = [h,...rows].map(r => r.map(c => '"'+(c||'').replace(/"/g,'""')+'"').join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
   a.download = 'inviteflow-' + new Date().toISOString().slice(0,10) + '.csv'; a.click();
-  log('✓ CSV exported (10 columns).');
+  log('✓ CSV exported.');
 }
 
-// Misc helpers
+// ═══════════════════════════════════════════════════════════════════
+// MISC HELPERS
+// ═══════════════════════════════════════════════════════════════════
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function log(m) { S.log = ['['+new Date().toLocaleTimeString()+'] '+m, ...S.log.slice(0,99)]; renderLog(); }
+function updInvitee(name, patch) { const i = S.invitees.findIndex(x => x.name===name); if(i>=0) Object.assign(S.invitees[i],patch); S.unsaved=true; render(); }
+function triggerFile(handler, accept) { const f = document.createElement('input'); f.type='file'; f.accept=accept||'*'; f.onchange=e=>handler(e.target.files[0]); f.click(); }
+function testImg(key) {
+  const src = img(key);
+  if (!src||src.startsWith('data:')) { log('✓ '+key+': embedded'); return; }
+  const el = new Image(); el.onload=()=>log('✓ '+key+': loaded OK'); el.onerror=()=>log('✗ '+key+': FAILED'); el.src=src; log('Testing '+key+'…');
+}
 function openGmailFallback(inv) {
   const to = encodeURIComponent(inv.email||'');
-  const sub = encodeURIComponent(S.event.emailSubject||'VIP Invitation');
-  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+to+'&su='+sub, '_blank');
-  const idx = S.invitees.findIndex(i=>i.name===inv.name);
+  const sub = encodeURIComponent(S.event.emailSubject||'Invitation');
+  window.open('https://mail.google.com/mail/?view=cm&fs=1&to='+to+'&su='+sub,'_blank');
+  const idx = S.invitees.findIndex(i => i.name===inv.name);
   if (idx>=0) { S.invitees[idx].inviteStatus='sent'; S.invitees[idx].sentAt=new Date().toISOString(); }
   S.unsaved=true; log('✉ Gmail compose opened for '+inv.name); render();
 }
 
-function updInvitee(name, patch) {
-  const i = S.invitees.findIndex(x=>x.name===name);
-  if (i>=0) Object.assign(S.invitees[i], patch);
-  S.unsaved=true; render();
-}
-
-function log(m) { S.log = ['['+new Date().toLocaleTimeString()+'] '+m, ...S.log.slice(0,99)]; renderLog(); }
-
-function triggerFile(handler, accept) {
-  const f = document.createElement('input'); f.type='file'; f.accept=accept||'*';
-  f.onchange = e => handler(e.target.files[0]); f.click();
-}
-
-function testImg(key) {
-  const src = img(key);
-  if (!src||src.startsWith('data:')) { log('✓ '+key+': embedded'); return; }
-  const el = new Image();
-  el.onload  = () => log('✓ '+key+': loaded OK');
-  el.onerror = () => log('✗ '+key+': FAILED — check URL/sharing');
-  el.src = src; log('Testing '+key+'…');
-}
-
-const ITAG = {not_sent:'#30363d:#6e7681',sent:'#238636:#3fb950',skipped:'#bb8009:#e3b341',bounced:'#da3633:#f85149'};
-const IL   = {not_sent:'NOT SENT',sent:'SENT',skipped:'SKIPPED',bounced:'BOUNCED'};
-function its(k) { const[b,c]=(ITAG[k]||ITAG.not_sent).split(':'); return 'border-color:'+b+';color:'+c; }
-
-const RTAG = {confirmed:'#238636:#3fb950',declined:'#da3633:#f85149',pending:'#bb8009:#e3b341',no_response:'#30363d:#6e7681'};
-const RL   = {confirmed:'CONFIRMED',declined:'DECLINED',pending:'PENDING',no_response:'NO RESP'};
-function rts(k) { const[b,c]=(RTAG[k]||RTAG.no_response).split(':'); return 'border-color:'+b+';color:'+c; }
+// Status tag helpers
+const ITAG = {not_sent:'tag-ns',sent:'tag-sent',skipped:'tag-skip',bounced:'tag-bounce'};
+const IL   = {not_sent:'Not sent',sent:'Sent',skipped:'Skipped',bounced:'Bounced'};
+const RTAG = {confirmed:'tag-confirmed',declined:'tag-declined',pending:'tag-pending',no_response:'tag-noresp'};
+const RL   = {confirmed:'Confirmed',declined:'Declined',pending:'Pending',no_response:'No RSVP'};
 
 function writePreview(html, frameId) {
   const frame = document.getElementById(frameId||'preview-frame'); if (!frame) return;
@@ -727,234 +794,246 @@ function writePreview(html, frameId) {
   } catch(e) {}
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// RENDER ROOT
-// ═══════════════════════════════════════════════════════════════════════════════
-const TABS = ['⬡ Events','⚙ Setup','👥 Invitees','✉ Compose','▶ Send','📊 Tracker','⬡ Sync'];
-
-function render() {
-  const sent       = S.invitees.filter(i=>i.inviteStatus==='sent').length;
-  const confirmed  = S.invitees.filter(i=>i.rsvpStatus==='confirmed').length;
-  const hasGoogle  = !!S.googleClientId;
-
-  document.getElementById('root').innerHTML = `
-  <!-- HEADER -->
-  <div style="border-bottom:1px solid #21262d;padding:8px 18px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;background:#080c10">
-    <div style="display:flex;align-items:center;gap:10px">
-      <div>
-        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#f0f6fc;letter-spacing:-.02em">VIP MAILER</div>
-        <div style="font-size:9px;color:#6e7681;letter-spacing:.1em">${S.event.profileName||'Untitled'}</div>
-      </div>
-      ${S.unsaved?'<span style="background:#2a1a00;border:1px solid #C8A84B;border-radius:4px;padding:2px 8px;font-size:9px;color:#C8A84B">● UNSAVED</span>':''}
-    </div>
-    <div style="display:flex;gap:5px;align-items:center">
-      ${!hasGoogle?'<span style="font-size:9px;padding:2px 7px;border-radius:4px;background:#1a0a00;color:#e3b341;border:1px solid #bb8009">🔒 Add Google OAuth Client ID in Setup</span>':''}
-      <span style="font-size:10px;color:#6e7681">${S.invitees.length} invitees · ${sent} sent · ${confirmed} confirmed</span>
-      <button class="btn sm" onclick="exportCSV()">↓ CSV</button>
-      <button class="btn sm gold" onclick="exportProfile()">↓ Profile</button>
-      <button class="btn sm" onclick="triggerFile(importProfile,'.json')">↑ Load</button>
-      <button class="btn sm" onclick="S.modal='new';render()">＋ New</button>
-    </div>
-  </div>
-
-  <!-- STAT BAR -->
-  <div style="padding:4px 18px;border-bottom:1px solid #161b22;display:flex;gap:12px;flex-wrap:wrap;align-items:center;flex-shrink:0">
-    ${[['TOTAL',S.invitees.length,'#8b949e'],['SENT',sent,'#3fb950'],['CONFIRMED',confirmed,'#3fb950'],['DECLINED',S.invitees.filter(i=>i.rsvpStatus==='declined').length,'#f85149'],['PENDING',S.invitees.filter(i=>i.rsvpStatus==='pending').length,'#e3b341'],['NO RSVP',S.invitees.filter(i=>i.rsvpStatus==='no_response').length,'#6e7681']].map(([l,n,c])=>`
-    <div style="display:flex;align-items:center;gap:4px">
-      <span style="width:5px;height:5px;border-radius:50%;background:${c};display:inline-block"></span>
-      <span style="font-size:9px;color:#6e7681;letter-spacing:.08em">${l}</span>
-      <span style="font-size:12px;font-weight:500;color:${c}">${n}</span>
-    </div>`).join('')}
-  </div>
-
-  <!-- TABS -->
-  <div style="border-bottom:1px solid #21262d;display:flex;flex-shrink:0;overflow-x:auto">
-    ${TABS.map((t,i)=>`<button onclick="S.tab=${i};render()" style="background:none;border:none;cursor:pointer;font-family:inherit;font-size:10px;letter-spacing:.04em;padding:7px 13px;white-space:nowrap;color:${S.tab===i?'#f0f6fc':'#6e7681'};border-bottom:${S.tab===i?'2px solid #C8A84B':'2px solid transparent'}">${t}</button>`).join('')}
-  </div>
-
-  <!-- CONTENT + LOG PANEL -->
-  <div style="display:grid;grid-template-columns:1fr 200px;flex:1;overflow:hidden;min-height:0">
-    <div style="overflow-y:auto;min-height:0" id="main-content">
-      ${S.tab===0?renderEvents():S.tab===1?renderSetup():S.tab===2?renderInvitees():S.tab===3?renderCompose():S.tab===4?renderSend():S.tab===5?renderTracker():renderSync()}
-    </div>
-    <div style="overflow-y:auto;padding:10px 11px;background:#050709;border-left:1px solid #161b22;min-height:0" id="logpanel">
-      <div style="font-size:9px;color:#6e7681;letter-spacing:.14em;margin-bottom:6px">ACTIVITY LOG</div>
-      ${S.log.length===0?'<div style="font-size:10px;color:#21262d;font-style:italic">No activity…</div>':''}
-      ${S.log.map((e,i)=>`<div style="font-size:10px;color:${i===0?'#8b949e':'#2d3340'};margin-bottom:3px;line-height:1.5;border-left:${i===0?'2px solid #C8A84B':'2px solid transparent'};padding-left:6px">${e}</div>`).join('')}
-    </div>
-  </div>
-  ${renderModal()}`;
-
-  if (S.tab===3 && S.previewName) requestAnimationFrame(refreshComposePreview);
-  saveState();
+// ═══════════════════════════════════════════════════════════════════
+// LOG
+// ═══════════════════════════════════════════════════════════════════
+function logHTML() {
+  return `
+  <div style="font-size:10px;color:var(--text-3);letter-spacing:.12em;text-transform:uppercase;margin-bottom:7px">Activity Log</div>
+  ${S.log.length===0?'<div style="font-size:11px;color:var(--text-3);font-style:italic">No activity yet…</div>':''}
+  ${S.log.map((e,i)=>`<div class="log-entry${i===0?' latest':''}">${e}</div>`).join('')}`;
 }
 
 function renderLog() {
   const el = document.getElementById('logpanel'); if (!el) return;
-  el.innerHTML = '<div style="font-size:9px;color:#6e7681;letter-spacing:.14em;margin-bottom:6px">ACTIVITY LOG</div>' +
-    (S.log.length===0?'<div style="font-size:10px;color:#21262d;font-style:italic">No activity…</div>':'') +
-    S.log.map((e,i)=>`<div style="font-size:10px;color:${i===0?'#8b949e':'#2d3340'};margin-bottom:3px;line-height:1.5;border-left:${i===0?'2px solid #C8A84B':'2px solid transparent'};padding-left:6px">${e}</div>`).join('');
+  el.innerHTML = logHTML();
 }
 
-// ─── Tab 0: Events (schema management) ───────────────────────────────────────
-function renderEvents() {
-  return `<div style="padding:16px 20px;max-width:640px">
-    <div class="card">
-      <div style="font-size:11px;color:#f0f6fc;margin-bottom:10px">Save current config as a named schema</div>
-      <div style="display:flex;gap:7px;align-items:flex-end;flex-wrap:wrap">
-        <div style="flex:1;min-width:160px">
-          <div style="font-size:9px;color:#6e7681;margin-bottom:3px">SCHEMA NAME</div>
-          <input class="ifield" type="text" placeholder="${S.event.profileName||'My Event 2025'}" value="${(S.schemaNameDraft||'').replace(/"/g,'&quot;')}"
-            oninput="S.schemaNameDraft=this.value">
-        </div>
-        <button class="btn gold" onclick="saveSchema()">Save</button>
-        <button class="btn sm" onclick="exportSchema()">↓ Export</button>
-        <button class="btn sm" onclick="triggerFile(importSchemaFile,'.json')">↑ Import</button>
-      </div>
-      <div style="font-size:9px;color:#6e7681;margin-top:7px;line-height:1.5">Schemas include event config and email templates. They never include invitee data or API keys — safe to share and version-control.</div>
+// ═══════════════════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════════════════
+const TABS = [
+  {label:'Settings', icon:'⚙'},
+  {label:'Contacts', icon:'👥'},
+  {label:'Email',    icon:'✉'},
+  {label:'Send',     icon:'▶'},
+  {label:'Track',    icon:'📊'},
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER ROOT
+// ═══════════════════════════════════════════════════════════════════
+function render() {
+  const sent      = S.invitees.filter(i => i.inviteStatus==='sent').length;
+  const confirmed = S.invitees.filter(i => i.rsvpStatus==='confirmed').length;
+  const hasGoogle = !!S.googleClientId;
+
+  document.getElementById('root').innerHTML = `
+  <div class="app-header">
+    <div class="hd-left">
+      <div class="hd-brand">InviteFlow</div>
+      ${S.event.profileName ? `<div class="hd-profile">${esc(S.event.profileName)}</div>` : ''}
+      ${S.unsaved ? '<span class="tag" style="background:var(--warning-dim);border-color:var(--warning);color:var(--warning)">● Unsaved</span>' : ''}
     </div>
-    ${S.schemas.length===0?`<div style="text-align:center;padding:32px;color:#30363d;font-size:11px">No saved schemas yet — save your current config above.</div>`:''}
-    ${S.schemas.map(sc=>`
-    <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
-      <div>
-        <div style="font-size:12px;color:#f0f6fc;font-weight:500;display:flex;align-items:center;gap:6px">
-          ${esc(sc.name)} ${sc.id===S.activeSchemaId?'<span style="font-size:9px;background:#0c2d0c;border:1px solid #238636;color:#3fb950;border-radius:3px;padding:1px 5px">active</span>':''}
-        </div>
-        <div style="font-size:9px;color:#6e7681;margin-top:3px">${sc.event?.eventDate||''} · ${sc.event?.venue||''}</div>
-        <div style="font-size:9px;color:#6e7681">Saved ${new Date(sc.savedAt).toLocaleString()}</div>
-      </div>
-      <div style="display:flex;gap:5px;flex-shrink:0">
-        <button class="btn sm pri" onclick="loadSchema(${JSON.stringify(sc).replace(/"/g,'&quot;')})">Load</button>
-        <button class="btn sm stop" onclick="deleteSchema('${sc.id}')">Delete</button>
-      </div>
-    </div>`).join('')}
-  </div>`;
+    <div class="hd-right">
+      ${!hasGoogle ? '<span style="font-size:10px;color:var(--warning);background:var(--warning-dim);border:1px solid var(--warning);border-radius:var(--r-sm);padding:2px 8px">🔒 Add Google OAuth in Settings</span>' : ''}
+      <span style="font-size:11px;color:var(--text-3)">${S.invitees.length} invitees · ${sent} sent · ${confirmed} confirmed</span>
+      <button class="btn btn-sm" onclick="exportCSV()">↓ CSV</button>
+      <button class="btn btn-sm btn-warning" onclick="exportProfile()">↓ Profile</button>
+      <button class="btn btn-sm" onclick="triggerFile(importProfile,'.json')">↑ Load</button>
+      <button class="btn btn-sm btn-primary" onclick="S.modal='new';render()">＋ New</button>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    ${TABS.map((t,i)=>`<button class="tab-btn${S.tab===i?' active':''}" onclick="S.tab=${i};render()">${t.label}</button>`).join('')}
+  </div>
+
+  <div class="app-body">
+    <div class="app-main" id="main-content">
+      ${[renderSettings,renderContacts,renderEmail,renderSend,renderTrack][S.tab]()}
+    </div>
+    <div class="app-sidebar" id="logpanel">${logHTML()}</div>
+  </div>
+
+  <div class="bottom-nav">
+    ${TABS.map((t,i)=>`<button class="nav-item${S.tab===i?' active':''}" onclick="S.tab=${i};render()">
+      <span class="nav-icon">${t.icon}</span><span>${t.label}</span>
+    </button>`).join('')}
+  </div>
+
+  ${renderModal()}`;
+
+  if (S.tab===2 && S.previewName) requestAnimationFrame(refreshComposePreview);
+  saveState();
 }
 
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// ─── Tab 1: Setup ─────────────────────────────────────────────────────────────
-function renderSetup() {
+// ═══════════════════════════════════════════════════════════════════
+// TAB 0: SETTINGS (event config + saved configs)
+// ═══════════════════════════════════════════════════════════════════
+function renderSettings() {
   const e = S.event;
   const ml = {embedded:'Embedded',gdrive:'Google Drive ID',url:'Direct URL'};
-  const imgDefs = [{key:'Emblem',label:'Header Emblem',hint:'Main event image'},{key:'Logo',label:'Signature',hint:'Small signature image'},{key:'Sig',label:'Footer Logo',hint:'Org footer/letterhead'}];
-  return `<div style="padding:16px 20px;max-width:600px">
+  const imgDefs = [
+    {key:'Emblem',   label:'Header Emblem',  hint:'Main event image shown at top of email'},
+    {key:'Logo',     label:'Signature Image',hint:'Shown after the closing signature'},
+    {key:'Sig',      label:'Footer Logo',    hint:'Small logo in the dark footer area'},
+  ];
+  return `<div style="padding:16px;max-width:620px">
 
-    <div class="sl">EVENT DETAILS</div>
+    <div class="sl">Event Details</div>
     <div class="card">
-      ${[['Profile Name','profileName'],['Event Display Name','eventName'],['Full Title','fullTitle'],['Date','eventDate'],['Venue','venue'],['VIP Start','vipStart'],['VIP End','vipEnd']].map(([lbl,key])=>`
-      <div style="margin-bottom:8px">
-        <div style="font-size:9px;color:#6e7681;margin-bottom:3px">${lbl}</div>
-        <input class="ifield" type="text" value="${(e[key]||'').replace(/"/g,'&quot;')}" oninput="S.event['${key}']=this.value;S.unsaved=true">
+      ${[['Profile Name','profileName'],['Event Display Name','eventName'],['Full Title / Headline','fullTitle'],['Date','eventDate'],['Venue','venue'],['Guest Program Start','vipStart'],['Guest Program End','vipEnd']].map(([lbl,key])=>`
+      <div style="margin-bottom:9px">
+        <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;letter-spacing:.05em">${lbl}</div>
+        <input class="ifield" type="text" value="${esc(e[key]||'')}" oninput="S.event['${key}']=this.value;S.unsaved=true">
       </div>`).join('')}
     </div>
 
-    <div class="sl">EMAIL</div>
+    <div class="sl">Email Configuration</div>
     <div class="card">
-      ${[['Email Subject','emailSubject'],['Org Name','org'],['Contact Name','contactName'],['Contact Title','contactTitle'],['Contact Email','contactEmail'],['Date Shown in Letter','sentDate'],['Org Location','orgLocation']].map(([lbl,key])=>`
-      <div style="margin-bottom:8px">
-        <div style="font-size:9px;color:#6e7681;margin-bottom:3px">${lbl}</div>
-        <input class="ifield" type="text" value="${(e[key]||'').replace(/"/g,'&quot;')}" oninput="S.event['${key}']=this.value;S.unsaved=true">
+      ${[['Email Subject','emailSubject'],['Org / Sender Name','org'],['Contact Name','contactName'],['Contact Title','contactTitle'],['Contact Email','contactEmail'],['Date Shown in Letter','sentDate'],['Org Location','orgLocation']].map(([lbl,key])=>`
+      <div style="margin-bottom:9px">
+        <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;letter-spacing:.05em">${lbl}</div>
+        <input class="ifield" type="text" value="${esc(e[key]||'')}" oninput="S.event['${key}']=this.value;S.unsaved=true">
       </div>`).join('')}
     </div>
 
-    <div class="sl">GOOGLE OAUTH CLIENT ID</div>
-    <div class="card" style="background:#0a1a0a;border-color:#238636">
-      <div style="font-size:10px;color:#3fb950;margin-bottom:8px;line-height:1.6">
-        Required for "Import from Sheets", "Sync to Sheet", "Sync RSVPs", and "Send via Gmail".<br>
-        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:#58a6ff">console.cloud.google.com → Credentials → Create OAuth 2.0 Client ID (Web)</a><br>
-        Add <code style="color:#C8A84B">https://lychan110.github.io</code> and <code style="color:#C8A84B">http://localhost</code> as authorized JavaScript origins. Enable Gmail API + Sheets API.
+    <div class="sl">Google Integration</div>
+    <div class="card" style="background:var(--success-dim);border-color:var(--success)">
+      <div style="font-size:12px;color:var(--success);margin-bottom:8px;line-height:1.6">
+        Required for Gmail send and Google Sheets sync.<br>
+        <a href="https://console.cloud.google.com/apis/credentials" target="_blank" style="color:var(--accent)">Google Cloud Console → Credentials → Create OAuth 2.0 Client ID (Web)</a><br>
+        Add your GitHub Pages URL and <code style="font-size:11px">http://localhost</code> as JavaScript origins. Enable Gmail API + Sheets API.
       </div>
-      <div style="font-size:9px;color:#6e7681;margin-bottom:3px">CLIENT ID</div>
+      <div style="font-size:10px;color:var(--text-3);margin-bottom:3px">OAuth Client ID</div>
       <input class="ifield" type="text" placeholder="123456789-abc.apps.googleusercontent.com"
-        value="${(S.googleClientId||'').replace(/"/g,'&quot;')}"
+        value="${esc(S.googleClientId||'')}"
         oninput="S.googleClientId=this.value;S.unsaved=true"
-        style="border-color:${S.googleClientId?'#238636':'#21262d'}">
-      ${S.googleClientId?'<div style="font-size:9px;color:#3fb950;margin-top:4px">✓ Google OAuth configured</div>':''}
+        style="border-color:${S.googleClientId?'var(--success)':'var(--border)'}">
+      ${S.googleClientId?'<div style="font-size:11px;color:var(--success);margin-top:4px">✓ Google OAuth configured</div>':''}
     </div>
 
-    <div class="sl">GOOGLE SHEETS URLS</div>
+    <div class="sl">Google Sheets</div>
     <div class="card">
-      ${[['Invitee List Sheet URL (import from)','inviteeSheetUrl','https://docs.google.com/spreadsheets/d/...'],
-         ['Master Sheet URL (sync tracking to)','masterSheetUrl','https://docs.google.com/spreadsheets/d/...'],
-         ['RSVP Form Response Sheet URL','rsvpResponseUrl','https://docs.google.com/spreadsheets/d/...']].map(([lbl,key,ph])=>`
-      <div style="margin-bottom:8px">
-        <div style="font-size:9px;color:#6e7681;margin-bottom:3px">${lbl}</div>
-        <input class="ifield" type="text" placeholder="${ph}" value="${(e[key]||'').replace(/"/g,'&quot;')}" oninput="S.event['${key}']=this.value;S.unsaved=true">
+      ${[['Invitee Sheet URL (import from)','inviteeSheetUrl','https://docs.google.com/spreadsheets/d/…'],
+         ['Master Sheet URL (sync status to)','masterSheetUrl','https://docs.google.com/spreadsheets/d/…'],
+         ['RSVP Response Sheet URL','rsvpResponseUrl','https://docs.google.com/spreadsheets/d/…']].map(([lbl,key,ph])=>`
+      <div style="margin-bottom:9px">
+        <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;letter-spacing:.05em">${lbl}</div>
+        <input class="ifield" type="text" placeholder="${ph}" value="${esc(e[key]||'')}" oninput="S.event['${key}']=this.value;S.unsaved=true">
       </div>`).join('')}
     </div>
 
-    <div class="sl">RSVP FORM PREFILL</div>
+    <div class="sl">RSVP Form Prefill</div>
     <div class="card">
-      <div style="font-size:9px;color:#8b949e;margin-bottom:8px;line-height:1.6">In Google Forms, click ⋮ → "Get pre-filled link" → fill sample data → copy the URL. The entry IDs look like <code style="color:#C8A84B">entry.123456789</code>.</div>
-      ${[['Google Form Base URL','formUrl','https://docs.google.com/forms/d/e/FORM_ID/viewform'],
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:9px;line-height:1.6">In Google Forms, click ⋮ → "Get pre-filled link" → fill sample data → copy the URL. Entry IDs look like <code style="color:var(--accent)">entry.123456789</code>.</div>
+      ${[['Google Form Base URL','formUrl','https://docs.google.com/forms/d/e/…/viewform'],
          ['Name Entry ID (digits only)','entryName','e.g. 123456789'],
          ['Email Entry ID (digits only)','entryEmail','e.g. 987654321']].map(([lbl,key,ph])=>`
-      <div style="margin-bottom:8px">
-        <div style="font-size:9px;color:#6e7681;margin-bottom:3px">${lbl}</div>
-        <input class="ifield" type="text" placeholder="${ph}" value="${(e[key]||'').replace(/"/g,'&quot;')}" oninput="S.event['${key}']=this.value;S.unsaved=true">
+      <div style="margin-bottom:9px">
+        <div style="font-size:10px;color:var(--text-3);margin-bottom:3px">${lbl}</div>
+        <input class="ifield" type="text" placeholder="${ph}" value="${esc(e[key]||'')}" oninput="S.event['${key}']=this.value;S.unsaved=true">
       </div>`).join('')}
-      ${e.formUrl?`<div style="margin-top:6px;padding:6px 8px;background:#161b22;border-radius:4px;font-size:9px;color:#6e7681;word-break:break-all">Preview: ${buildRsvpLink({name:'Sample Official',email:'sample@example.gov'})}</div>`:''}
+      ${e.formUrl?`<div style="margin-top:6px;padding:7px 10px;background:var(--surface-2);border-radius:var(--r-sm);font-size:11px;color:var(--text-2);word-break:break-all">Preview: ${buildRsvpLink({name:'Sample Guest',email:'sample@example.com'})}</div>`:''}
     </div>
 
-    <div class="sl">IMAGES</div>
+    <div class="sl">Images</div>
     ${imgDefs.map(({key,label,hint}) => {
       const modeKey='img'+key+'Mode', urlKey='img'+key+'Url';
       const mode=e[modeKey]||'embedded', url=e[urlKey]||'';
       return `<div class="card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
-          <div><span style="font-size:11px;color:#f0f6fc">${label}</span> <span style="font-size:9px;color:#6e7681">${hint}</span></div>
-          <button class="btn sm" onclick="syncImageOverrides();testImg('${key.toUpperCase()}')">Test</button>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+          <div><span style="font-size:13px;font-weight:500">${label}</span> <span style="font-size:11px;color:var(--text-3)">${hint}</span></div>
+          <button class="btn btn-sm" onclick="syncImageOverrides();testImg('${key.toUpperCase()}')">Test</button>
         </div>
-        <div style="display:flex;gap:4px;margin-bottom:6px">
+        <div style="display:flex;gap:5px;margin-bottom:7px">
           ${['embedded','gdrive','url'].map(m=>`<button class="cat${mode===m?' on':''}" onclick="S.event['${modeKey}']='${m}';S.unsaved=true;syncImageOverrides();render()">${ml[m]}</button>`).join('')}
         </div>
-        ${mode==='embedded'?`<div style="font-size:9px;color:#6e7681">Embedded base64 — token: <code style="color:#C8A84B">__IMG_${key.toUpperCase()}__</code></div>`
-          :mode==='gdrive'?`<input class="ifield" type="text" placeholder="Paste Google Drive file ID" value="${url.replace(/"/g,'&quot;')}" oninput="S.event['${urlKey}']=this.value;S.unsaved=true;syncImageOverrides()">
-             ${url?`<div style="font-size:9px;color:#6e7681;margin-top:3px">→ drive.google.com/uc?export=view&id=${url}</div>`:''}`
-          :`<input class="ifield" type="text" placeholder="https://example.org/image.png" value="${url.replace(/"/g,'&quot;')}" oninput="S.event['${urlKey}']=this.value;S.unsaved=true;syncImageOverrides()">`}
+        ${mode==='embedded'?`<div style="font-size:11px;color:var(--text-3)">Base64 embedded — token: <code style="color:var(--accent)">__IMG_${key.toUpperCase()}__</code></div>`
+          :mode==='gdrive'?`<input class="ifield" type="text" placeholder="Paste Google Drive file ID" value="${esc(url)}" oninput="S.event['${urlKey}']=this.value;S.unsaved=true;syncImageOverrides()">`
+          :`<input class="ifield" type="text" placeholder="https://example.com/image.png" value="${esc(url)}" oninput="S.event['${urlKey}']=this.value;S.unsaved=true;syncImageOverrides()">`}
       </div>`;
     }).join('')}
 
-    <div style="margin-top:14px;padding-top:12px;border-top:1px solid #161b22">
-      <div style="font-size:9px;color:#6e7681;letter-spacing:.1em;margin-bottom:7px">DATA MANAGEMENT</div>
+    <div class="sl">Saved Configs</div>
+    <div class="card">
+      <div style="font-size:12px;color:var(--text-1);margin-bottom:10px">Save current event config and email template as a named preset</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px">
+        <div style="flex:1;min-width:160px">
+          <div style="font-size:10px;color:var(--text-3);margin-bottom:3px">Config name</div>
+          <input class="ifield" type="text" placeholder="${S.event.profileName||'My Event 2025'}" value="${esc(S.schemaNameDraft||'')}" oninput="S.schemaNameDraft=this.value">
+        </div>
+        <button class="btn btn-warning" onclick="saveSchema()">Save</button>
+        <button class="btn btn-sm" onclick="exportSchema()">↓ Export</button>
+        <button class="btn btn-sm" onclick="triggerFile(importSchemaFile,'.json')">↑ Import</button>
+      </div>
+      <div style="font-size:11px;color:var(--text-3)">Configs include event details and email templates — not invitee data or API keys.</div>
+    </div>
+    ${S.schemas.map(sc=>`
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:10px">
+      <div>
+        <div style="font-size:13px;font-weight:500;color:var(--text-1);display:flex;align-items:center;gap:6px">
+          ${esc(sc.name)} ${sc.id===S.activeSchemaId?'<span class="tag tag-sent" style="font-size:9px">active</span>':''}
+        </div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:2px">${sc.event?.eventDate||''} · ${sc.event?.venue||''}</div>
+        <div style="font-size:10px;color:var(--text-3)">Saved ${new Date(sc.savedAt).toLocaleString()}</div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0">
+        <button class="btn btn-sm btn-primary" onclick="loadSchema(${JSON.stringify(sc).replace(/"/g,'&quot;')})">Load</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteSchema('${sc.id}')">Delete</button>
+      </div>
+    </div>`).join('')}
+
+    <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+      <div style="font-size:10px;color:var(--text-3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Data Management</div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn sm gold" onclick="exportProfile()">↓ Export Profile JSON</button>
-        <button class="btn sm stop" onclick="if(confirm('Clear all saved data?'))clearSavedState()">✕ Clear All</button>
+        <button class="btn btn-sm btn-warning" onclick="exportProfile()">↓ Export Profile JSON</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Clear all saved data?'))clearSavedState()">✕ Clear All</button>
       </div>
     </div>
   </div>`;
 }
 
-// ─── Tab 2: Invitees ──────────────────────────────────────────────────────────
-function renderInvitees() {
-  return `<div style="padding:14px 18px">
-    <div style="display:flex;gap:5px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
-      <span style="font-size:11px;color:#f0f6fc">${S.invitees.length} invitees</span>
+// ═══════════════════════════════════════════════════════════════════
+// TAB 1: CONTACTS
+// ═══════════════════════════════════════════════════════════════════
+function renderContacts() {
+  return `<div style="padding:14px 16px">
+    <div style="display:flex;gap:6px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <span style="font-size:13px;font-weight:500">${S.invitees.length} invitees</span>
       <div style="display:flex;gap:5px;margin-left:auto;flex-wrap:wrap">
-        <button class="btn sm pri" onclick="importFromSheet()" ${!S.googleClientId?'disabled title="Add Google OAuth Client ID in Setup"':''}>⬡ Import from Sheet</button>
-        <button class="btn sm gold" onclick="generateAllRsvpLinks()" ${!S.event.formUrl?'disabled title="Set Form URL in Setup first"':''}>🔗 Generate RSVP Links</button>
-        <button class="btn sm gold" onclick="S.modal='researcher';render()">⬡ From Researcher</button>
-        <button class="btn sm" onclick="triggerFile(importCSV,'.csv')">↑ CSV</button>
-        <button class="btn sm" onclick="S.modal='add';render()">＋ Add</button>
-        <button class="btn sm stop" onclick="if(confirm('Clear ALL invitees?')){S.invitees=[];S.unsaved=true;render();}">Clear</button>
+        <button class="btn btn-sm btn-primary" onclick="importFromSheet()" ${!S.googleClientId?'disabled title="Add Google OAuth in Settings"':''}>⬡ From Sheet</button>
+        <button class="btn btn-sm" onclick="generateAllRsvpLinks()" ${!S.event.formUrl?'disabled title="Set Form URL in Settings first"':''}>🔗 RSVP Links</button>
+        <button class="btn btn-sm btn-success" onclick="S.modal='researcher';render()">⬡ From ContactScout</button>
+        <button class="btn btn-sm" onclick="triggerFile(importCSV,'.csv')">↑ CSV</button>
+        <button class="btn btn-sm" onclick="S.modal='add';render()">＋ Add</button>
+        <button class="btn btn-sm btn-danger" onclick="if(confirm('Clear ALL invitees?')){S.invitees=[];S.unsaved=true;render();}">Clear</button>
       </div>
     </div>
-    ${S.invitees.length===0?`<div style="text-align:center;padding:40px;color:#30363d"><div style="font-size:24px;margin-bottom:8px">📋</div><div style="font-size:11px">No invitees yet — import from Google Sheets, upload CSV, or add manually.</div></div>`:''}
-    ${S.invitees.map((inv,idx) => `
-    <div style="display:grid;grid-template-columns:1fr 130px 70px 70px 20px;gap:5px;padding:6px 0;border-bottom:1px solid #0d1117;align-items:center">
+    ${S.invitees.length===0?`
+    <div class="empty">
+      <div class="empty-icon">👥</div>
+      <div class="empty-text">No invitees yet.<br>Import from Google Sheets, upload a CSV, or add manually.</div>
+    </div>`:''}
+    ${S.invitees.length>0?`
+    <div style="display:grid;grid-template-columns:1fr 150px 70px 70px 26px;gap:6px;padding:5px 14px;border-bottom:1px solid var(--border);font-size:10px;color:var(--text-3);letter-spacing:.06em;text-transform:uppercase">
+      <div>Name</div><div class="inv-email-col">Email</div><div>Invite</div><div class="inv-rsvp-col">RSVP</div><div></div>
+    </div>`:''}
+    ${S.invitees.map((inv,idx)=>`
+    <div class="inv-row">
       <div>
-        <div style="font-size:11px;color:#f0f6fc">${esc(inv.name)}</div>
-        <div style="font-size:9px;color:#6e7681">${inv.title?esc(inv.title)+' · ':''} ${inv.category||''}</div>
+        <div style="font-size:13px;font-weight:500;color:var(--text-1)">${esc(inv.name)}</div>
+        <div style="font-size:11px;color:var(--text-3)">${inv.title?esc(inv.title)+' · ':''}${inv.category||''}</div>
       </div>
-      <input class="ifield" type="text" value="${(inv.email||'').replace(/"/g,'&quot;')}" placeholder="email"
-        oninput="S.invitees[${idx}].email=this.value;S.unsaved=true" style="font-size:9px;padding:3px 7px">
-      <span class="tag" style="${its(inv.inviteStatus)};font-size:8px">${IL[inv.inviteStatus]||'NOT SENT'}</span>
-      <span class="tag" style="${rts(inv.rsvpStatus)};font-size:8px">${RL[inv.rsvpStatus]||'NO RESP'}</span>
-      <button class="btn sm stop" onclick="S.invitees.splice(${idx},1);S.unsaved=true;render()" style="padding:2px 5px">✕</button>
+      <input class="ifield inv-email-col" type="text" value="${esc(inv.email||'')}" placeholder="email"
+        oninput="S.invitees[${idx}].email=this.value;S.unsaved=true" style="font-size:11px;padding:4px 8px">
+      <span class="tag ${ITAG[inv.inviteStatus]||'tag-ns'}">${IL[inv.inviteStatus]||'Not sent'}</span>
+      <span class="tag inv-rsvp-col ${RTAG[inv.rsvpStatus]||'tag-noresp'}">${RL[inv.rsvpStatus]||'No RSVP'}</span>
+      <button class="btn btn-xs btn-danger" onclick="S.invitees.splice(${idx},1);S.unsaved=true;render()" style="padding:2px 5px;border-radius:4px">✕</button>
     </div>`).join('')}
     ${S.invitees.length>0?`
-    <div style="padding:8px 0;font-size:9px;color:#6e7681">
+    <div style="padding:8px 14px;font-size:11px;color:var(--text-3)">
       ${S.invitees.filter(i=>!i.email).length} missing email ·
       ${S.invitees.filter(i=>i.rsvpLink).length} with RSVP links ·
       ${S.invitees.filter(i=>i.inviteStatus==='sent').length} sent
@@ -962,107 +1041,106 @@ function renderInvitees() {
   </div>`;
 }
 
-// ─── Tab 3: Compose ────────────────────────────────────────────────────────────
-function renderCompose() {
+// ═══════════════════════════════════════════════════════════════════
+// TAB 2: EMAIL (compose)
+// ═══════════════════════════════════════════════════════════════════
+function renderEmail() {
   const prevInv = S.previewName ? S.invitees.find(x=>x.name===S.previewName) : S.invitees[0];
-  const prevFirst = prevInv ? prevInv.name.split(' ')[0] : 'Sample';
-  const prevLast  = prevInv ? prevInv.name.split(' ').slice(1).join(' ') : 'Official';
-  return `<div style="display:grid;grid-template-columns:1fr 1fr;height:100%;overflow:hidden">
-    <!-- Left: editor -->
-    <div style="overflow-y:auto;padding:14px 16px;border-right:1px solid #21262d">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="display:flex;gap:3px">
+  return `<div class="compose-layout">
+    <div class="compose-editor">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+        <div style="display:flex;gap:4px">
           ${['html','text'].map(m=>`<button class="cat${S.tplMode===m?' on':''}" onclick="S.tplMode='${m}';render()">${m.toUpperCase()}</button>`).join('')}
         </div>
-        <button class="btn sm gold" onclick="openFullPreview()">⛶ Full Preview</button>
+        <button class="btn btn-sm" onclick="openFullPreview()">⛶ Full Preview</button>
       </div>
 
       ${S.tplMode==='html'?`
-      <div style="font-size:9px;color:#6e7681;margin-bottom:4px">HTML EMAIL TEMPLATE</div>
-      <textarea style="background:#0d1117;border:1px solid #21262d;color:#c9d1d9;padding:8px 10px;border-radius:5px;font-family:'DM Mono',monospace;font-size:10px;width:100%;min-height:300px;outline:none;resize:vertical;line-height:1.5"
+      <div style="font-size:10px;color:var(--text-3);margin-bottom:4px;letter-spacing:.08em;text-transform:uppercase">HTML Email Template</div>
+      <textarea style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-1);padding:9px 11px;border-radius:var(--r-sm);font-family:monospace;font-size:11px;width:100%;min-height:300px;outline:none;resize:vertical;line-height:1.5;transition:border-color .15s"
+        onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor=''"
         oninput="S.htmlBody=this.value;S.unsaved=true;requestAnimationFrame(refreshComposePreview)">${esc(S.htmlBody||EMAIL_TEMPLATE.trim())}</textarea>
-      <button class="btn sm" style="margin-top:5px" onclick="S.htmlBody='';S.unsaved=true;render()">↺ Reset to default</button>
-      `:
-      `<div style="margin-bottom:8px">
-        <div style="font-size:9px;color:#6e7681;margin-bottom:3px">SUBJECT</div>
-        <input class="ifield" type="text" value="${(S.textSubject||'').replace(/"/g,'&quot;')}" oninput="S.textSubject=this.value;S.unsaved=true;requestAnimationFrame(refreshComposePreview)">
+      <button class="btn btn-sm" style="margin-top:6px" onclick="S.htmlBody='';S.unsaved=true;render()">↺ Reset to default</button>
+      `:`
+      <div style="margin-bottom:9px">
+        <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.08em">Subject</div>
+        <input class="ifield" type="text" value="${esc(S.textSubject||'')}" oninput="S.textSubject=this.value;S.unsaved=true;requestAnimationFrame(refreshComposePreview)">
       </div>
-      <div>
-        <div style="font-size:9px;color:#6e7681;margin-bottom:3px">BODY</div>
-        <textarea style="background:#0d1117;border:1px solid #21262d;color:#c9d1d9;padding:8px 10px;border-radius:5px;font-family:'DM Mono',monospace;font-size:11px;width:100%;min-height:260px;outline:none;resize:vertical;line-height:1.7"
-          oninput="S.textBody=this.value;S.unsaved=true">${esc(S.textBody)}</textarea>
-      </div>`}
+      <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;text-transform:uppercase;letter-spacing:.08em">Body</div>
+      <textarea style="background:var(--surface-2);border:1px solid var(--border);color:var(--text-1);padding:9px 11px;border-radius:var(--r-sm);font-family:inherit;font-size:13px;width:100%;min-height:260px;outline:none;resize:vertical;line-height:1.7"
+        oninput="S.textBody=this.value;S.unsaved=true">${esc(S.textBody)}</textarea>
+      `}
 
-      <div style="margin-top:10px;padding:8px 10px;background:#0d1117;border:1px solid #21262d;border-radius:5px">
-        <div style="font-size:9px;color:#6e7681;margin-bottom:5px;letter-spacing:.1em">TOKENS — click to copy</div>
+      <div style="margin-top:12px;padding:9px 11px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--r-sm)">
+        <div style="font-size:10px;color:var(--text-3);margin-bottom:6px;letter-spacing:.08em;text-transform:uppercase">Template tokens — click to copy</div>
         <div style="display:flex;flex-wrap:wrap;gap:4px">
           ${['{{FirstName}}','{{LastName}}','{{FullTitle}}','{{EventName}}','{{EventDate}}','{{Venue}}','{{RSVP_Link}}','{{OrgName}}','{{ContactName}}','{{ContactEmail}}','{{VIPStart}}','{{VIPEnd}}','{{Date_Sent}}'].map(v=>`
-          <code style="font-size:10px;padding:2px 6px;background:#161b22;border:1px solid #21262d;border-radius:3px;cursor:pointer;color:#C8A84B" onclick="navigator.clipboard.writeText('${v}');log('Copied ${v}')">${v}</code>`).join('')}
+          <code style="font-size:11px;padding:2px 7px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;color:var(--accent)" onclick="navigator.clipboard.writeText('${v}');log('Copied ${v}')">${v}</code>`).join('')}
         </div>
       </div>
     </div>
 
-    <!-- Right: preview -->
-    <div style="display:flex;flex-direction:column;overflow:hidden">
-      <div style="padding:8px 12px;border-bottom:1px solid #21262d;display:flex;align-items:center;gap:8px;flex-shrink:0">
-        <div style="font-size:9px;color:#6e7681">PREVIEW FOR</div>
-        <select style="background:#0d1117;border:1px solid #21262d;color:#c9d1d9;padding:3px 6px;border-radius:4px;font-family:inherit;font-size:10px;outline:none" onchange="S.previewName=this.value;render()">
-          ${S.invitees.length===0?'<option>Sample Official</option>':''}
-          ${S.invitees.map(inv=>`<option value="${inv.name.replace(/"/g,'&quot;')}" ${S.previewName===inv.name?'selected':''}>${esc(inv.name)}</option>`).join('')}
+    <div class="compose-preview-wrap">
+      <div class="compose-preview-hd">
+        <div style="font-size:10px;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase">Preview for</div>
+        <select style="background:var(--surface);border:1px solid var(--border);color:var(--text-1);padding:3px 7px;border-radius:var(--r-sm);font-family:inherit;font-size:12px;outline:none" onchange="S.previewName=this.value;render()">
+          ${S.invitees.length===0?'<option>Sample Guest</option>':''}
+          ${S.invitees.map(inv=>`<option value="${esc(inv.name)}" ${S.previewName===inv.name?'selected':''}>${esc(inv.name)}</option>`).join('')}
         </select>
       </div>
-      ${S.tplMode==='html'?
-        `<iframe id="preview-frame" style="flex:1;border:none;background:#fff"></iframe>`:
-        `<div style="flex:1;overflow-y:auto;padding:16px;background:#fff;color:#1a1a1a;font-family:Georgia,serif;font-size:13px;line-height:1.8;white-space:pre-wrap">${esc(personalize(S.textBody, prevInv||{name:'Sample Official',email:'sample@example.gov',rsvpLink:''}))}</div>`
+      ${S.tplMode==='html'
+        ?`<iframe id="preview-frame" style="flex:1;border:none;background:#fff"></iframe>`
+        :`<div style="flex:1;overflow-y:auto;padding:16px;background:#fff;color:#1a1a1a;font-family:Georgia,serif;font-size:13px;line-height:1.8;white-space:pre-wrap">${esc(personalize(S.textBody, prevInv||{name:'Sample Guest',email:'sample@example.com',rsvpLink:''}))}</div>`
       }
     </div>
   </div>`;
 }
 
 function refreshComposePreview() {
-  if (S.tab!==3) return;
-  const inv = S.previewName ? S.invitees.find(x=>x.name===S.previewName) : (S.invitees[0]||{name:'Sample Official',email:'',rsvpLink:''});
-  const nameParts = (inv.name||'Sample Official').split(' ');
-  const html = S.htmlBody ? personalize(S.htmlBody, inv)
-                           : buildEmail(nameParts[0], nameParts.slice(1).join(' '));
+  if (S.tab !== 2) return;
+  const inv = S.previewName ? S.invitees.find(x=>x.name===S.previewName) : (S.invitees[0]||{name:'Sample Guest',email:'',rsvpLink:''});
+  const nameParts = (inv.name||'Sample Guest').split(' ');
+  const html = S.htmlBody ? personalize(S.htmlBody, inv) : buildEmail(nameParts[0], nameParts.slice(1).join(' '));
   writePreview(html, 'preview-frame');
 }
 
-// ─── Tab 4: Send ──────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// TAB 3: SEND
+// ═══════════════════════════════════════════════════════════════════
 function renderSend() {
-  const unsent = S.invitees.filter(i=>i.email && i.inviteStatus!=='sent' && i.inviteStatus!=='skipped');
-  const pct = S.sendProgress.total>0 ? Math.round(((S.sendProgress.sent+S.sendProgress.failed)/S.sendProgress.total)*100) : 0;
+  const unsent = S.invitees.filter(i => i.email && i.inviteStatus !== 'sent' && i.inviteStatus !== 'skipped');
+  const pct = S.sendProgress.total > 0 ? Math.round(((S.sendProgress.sent+S.sendProgress.failed)/S.sendProgress.total)*100) : 0;
   const hasOAuth = !!S.googleClientId;
-  return `<div style="padding:16px 20px;max-width:580px">
-    ${!hasOAuth?`<div style="background:#1a0e00;border:1px solid #bb8009;border-radius:6px;padding:10px 14px;margin-bottom:12px;font-size:11px;color:#e3b341">
-      Gmail OAuth not configured. <button class="btn sm gold" onclick="S.tab=1;render()">Go to Setup</button>
-      <span style="font-size:10px;color:#8b949e;display:block;margin-top:4px">Or use the manual Gmail fallback below.</span>
+  return `<div style="padding:16px;max-width:580px">
+    ${!hasOAuth?`<div style="background:var(--warning-dim);border:1px solid var(--warning);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:12px;color:var(--warning)">
+      Gmail OAuth not configured. <button class="btn btn-sm" onclick="S.tab=0;render()">Go to Settings</button>
+      <span style="font-size:11px;color:var(--text-2);display:block;margin-top:4px">Or use the manual Gmail fallback below.</span>
     </div>`:''}
 
     <div class="card">
-      <div style="font-size:12px;color:#f0f6fc;margin-bottom:12px">Send via Gmail API</div>
+      <div style="font-size:14px;font-weight:500;margin-bottom:12px">Send via Gmail</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-        <div style="background:#161b22;border-radius:6px;padding:11px 13px">
-          <div style="font-size:20px;font-weight:500;color:#f0f6fc">${unsent.length}</div>
-          <div style="font-size:9px;color:#6e7681;margin-top:2px">Unsent invitees</div>
+        <div style="background:var(--surface-2);border-radius:var(--r-sm);padding:12px">
+          <div style="font-size:22px;font-weight:600;color:var(--text-1)">${unsent.length}</div>
+          <div style="font-size:10px;color:var(--text-3);margin-top:2px;letter-spacing:.06em;text-transform:uppercase">Unsent invitees</div>
         </div>
-        <div style="background:#0c1a0c;border-radius:6px;padding:11px 13px">
-          <div style="font-size:20px;font-weight:500;color:#3fb950">${S.invitees.filter(i=>i.inviteStatus==='sent').length}</div>
-          <div style="font-size:9px;color:#3fb950;margin-top:2px">Already sent</div>
+        <div style="background:var(--success-dim);border-radius:var(--r-sm);padding:12px">
+          <div style="font-size:22px;font-weight:600;color:var(--success)">${S.invitees.filter(i=>i.inviteStatus==='sent').length}</div>
+          <div style="font-size:10px;color:var(--success);margin-top:2px;letter-spacing:.06em;text-transform:uppercase">Already sent</div>
         </div>
       </div>
       <div style="display:flex;gap:7px;flex-wrap:wrap">
-        <button class="btn pri" ${S.sending||!hasOAuth?'disabled':''} onclick="sendBulkEmails('unsent')">
+        <button class="btn btn-primary" ${S.sending||!hasOAuth?'disabled':''} onclick="sendBulkEmails('unsent')">
           ${S.sending?`Sending… ${S.sendProgress.sent}/${S.sendProgress.total}`:`▶ Send new only (${unsent.length})`}
         </button>
         <button class="btn" ${S.sending||!hasOAuth?'disabled':''} onclick="sendBulkEmails('all')">
           Send all (${S.invitees.filter(i=>i.email).length})
         </button>
-        ${S.sending?`<button class="btn stop" onclick="_sendAbort=true">■ Stop</button>`:''}
+        ${S.sending?`<button class="btn btn-danger" onclick="_sendAbort=true">■ Stop</button>`:''}
       </div>
-      ${(S.sending||S.sendProgress.total>0)?`
+      ${S.sending||S.sendProgress.total>0?`
       <div style="margin-top:10px">
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:#6e7681;margin-bottom:4px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-3);margin-bottom:4px">
           <span>${S.sending?'Sending to '+S.sendProgress.current+'…':'Done'}</span>
           <span>${S.sendProgress.sent} sent · ${S.sendProgress.failed} failed · ${pct}%</span>
         </div>
@@ -1072,190 +1150,171 @@ function renderSend() {
 
     ${S.sendLog.length>0?`
     <div class="card">
-      <div style="font-size:11px;color:#f0f6fc;margin-bottom:10px">Send Log</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Send Log</div>
       <div style="max-height:240px;overflow-y:auto">
         ${S.sendLog.map(entry=>`
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #161b22;font-size:11px">
-          <span style="color:#f0f6fc;font-weight:500">${esc(entry.name)}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--surface-3);font-size:12px">
+          <span style="font-weight:500">${esc(entry.name)}</span>
           <div style="display:flex;gap:10px;align-items:center">
-            <span style="font-size:9px;color:#6e7681">${entry.email}</span>
-            <span style="font-size:10px;font-weight:500;color:${entry.status==='sent'?'#3fb950':'#f85149'}">${entry.status==='sent'?'✓ Sent':'✗ '+entry.status}</span>
-            <span style="font-size:9px;color:#6e7681">${entry.ts}</span>
+            <span style="font-size:10px;color:var(--text-3)">${esc(entry.email)}</span>
+            <span style="font-weight:500;color:${entry.status==='sent'?'var(--success)':'var(--danger)'}">${entry.status==='sent'?'✓ Sent':'✗ '+entry.status}</span>
+            <span style="font-size:10px;color:var(--text-3)">${entry.ts}</span>
           </div>
         </div>`).join('')}
       </div>
     </div>`:''}
 
-    <div class="card" style="background:#0a0d14;border-color:#1f6feb">
-      <div style="font-size:10px;color:#58a6ff;margin-bottom:5px;font-weight:500">Manual fallback — Gmail compose</div>
-      <div style="font-size:9px;color:#8b949e;margin-bottom:8px;line-height:1.5">Opens Gmail in browser tab. HTML downloads for manual paste. Use if OAuth isn't configured.</div>
+    <div class="card" style="background:var(--accent-dim);border-color:#c2d4f8">
+      <div style="font-size:12px;color:var(--accent);margin-bottom:5px;font-weight:500">Manual fallback — Gmail compose</div>
+      <div style="font-size:11px;color:var(--text-2);margin-bottom:8px;line-height:1.5">Opens Gmail in a new tab. Use if OAuth isn't configured yet.</div>
       <div style="display:flex;gap:5px;flex-wrap:wrap">
         ${S.invitees.filter(i=>i.email&&i.inviteStatus!=='sent').slice(0,5).map(inv=>`
-        <button class="btn sm" onclick='openGmailFallback(${JSON.stringify(inv).replace(/"/g,"&quot;")})' style="font-size:9px">✉ ${esc(inv.name.split(' ')[0])}</button>`).join('')}
-        ${S.invitees.filter(i=>i.email&&i.inviteStatus!=='sent').length>5?`<span style="font-size:9px;color:#6e7681;padding:4px 0">+${S.invitees.filter(i=>i.email&&i.inviteStatus!=='sent').length-5} more</span>`:''}
+        <button class="btn btn-sm" onclick='openGmailFallback(${JSON.stringify(inv).replace(/"/g,"&quot;")})'>✉ ${esc(inv.name.split(' ')[0])}</button>`).join('')}
+        ${S.invitees.filter(i=>i.email&&i.inviteStatus!=='sent').length>5?`<span style="font-size:11px;color:var(--text-3);padding:4px 0">+${S.invitees.filter(i=>i.email&&i.inviteStatus!=='sent').length-5} more</span>`:''}
       </div>
     </div>
   </div>`;
 }
 
-// ─── Tab 5: Tracker ───────────────────────────────────────────────────────────
-function renderTracker() {
-  const confirmed = S.invitees.filter(i=>i.rsvpStatus==='confirmed');
-  const declined  = S.invitees.filter(i=>i.rsvpStatus==='declined');
-  const pending   = S.invitees.filter(i=>i.rsvpStatus==='pending');
-  const noResp    = S.invitees.filter(i=>i.rsvpStatus==='no_response');
+// ═══════════════════════════════════════════════════════════════════
+// TAB 4: TRACK (RSVP tracker + sync)
+// ═══════════════════════════════════════════════════════════════════
+function renderTrack() {
+  const confirmed = S.invitees.filter(i => i.rsvpStatus==='confirmed');
+  const declined  = S.invitees.filter(i => i.rsvpStatus==='declined');
+  const pending   = S.invitees.filter(i => i.rsvpStatus==='pending');
+  const noResp    = S.invitees.filter(i => i.rsvpStatus==='no_response');
   const total     = S.invitees.length || 1;
-  // Simple visual bar chart (pure CSS, no recharts)
-  const bars = [['Confirmed',confirmed.length,'#3fb950'],['Declined',declined.length,'#f85149'],['Pending',pending.length,'#e3b341'],['No RSVP',noResp.length,'#6e7681']];
-  return `<div style="padding:16px 20px">
-    <!-- Stat cards -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:14px">
-      ${[['Total',S.invitees.length,'',''],['Confirmed',confirmed.length,'#0c1a0c','#3fb950'],['Declined',declined.length,'#1a0a0a','#f85149'],['Pending',pending.length,'#1a1400','#e3b341'],['No RSVP',noResp.length,'','#6e7681']].map(([l,v,bg,tc])=>`
-      <div style="background:${bg||'#161b22'};border:1px solid #21262d;border-radius:6px;padding:11px 12px">
-        <div style="font-size:22px;font-weight:500;color:${tc||'#f0f6fc'}">${v}</div>
-        <div style="font-size:9px;color:${tc||'#6e7681'};margin-top:2px;letter-spacing:.06em">${l}</div>
+  const hasOAuth  = !!S.googleClientId;
+  const hasMaster = !!S.event.masterSheetUrl;
+  const bars = [['Confirmed',confirmed.length,'var(--success)'],['Declined',declined.length,'var(--danger)'],['Pending',pending.length,'var(--warning)'],['No RSVP',noResp.length,'var(--border-2)']];
+  return `<div style="padding:16px">
+    <div class="rsvp-cards">
+      ${[['Total',S.invitees.length,'var(--text-1)',''],
+         ['Confirmed',confirmed.length,'var(--success)','var(--success-dim)'],
+         ['Declined',declined.length,'var(--danger)','var(--danger-dim)'],
+         ['Pending',pending.length,'var(--warning)','var(--warning-dim)'],
+         ['No RSVP',noResp.length,'var(--text-3)','']].map(([l,v,tc,bg])=>`
+      <div class="rsvp-card" style="${bg?'background:'+bg+';border-color:'+tc:''}">
+        <div class="rsvp-num" style="color:${tc}">${v}</div>
+        <div class="rsvp-lbl" style="color:${tc}">${l}</div>
       </div>`).join('')}
     </div>
 
-    <!-- Sync bar -->
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;padding:7px 11px;background:#0d1117;border:1px solid #21262d;border-radius:6px">
-      <button class="btn sm pri" onclick="syncRsvpResponses()" ${!S.googleClientId?'disabled title="Add Google OAuth Client ID in Setup"':''}>↻ Sync RSVP Responses</button>
-      <span style="font-size:10px;color:#6e7681">Reads your Google Form response sheet and matches by email.</span>
-      ${!S.googleClientId?'<span style="font-size:9px;color:#e3b341">🔒 OAuth needed</span>':''}
-    </div>
-
-    <!-- Bar chart -->
     <div class="card" style="margin-bottom:12px">
-      <div style="font-size:10px;color:#f0f6fc;margin-bottom:12px">Response Breakdown</div>
+      <div style="font-size:13px;font-weight:500;margin-bottom:10px">Response Breakdown</div>
       ${bars.map(([label,count,color])=>`
       <div style="margin-bottom:8px">
-        <div style="display:flex;justify-content:space-between;font-size:9px;color:#6e7681;margin-bottom:3px">
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-2);margin-bottom:3px">
           <span>${label}</span><span style="color:${color}">${count} (${Math.round(count/total*100)}%)</span>
         </div>
-        <div style="height:8px;background:#161b22;border-radius:4px;overflow:hidden">
+        <div style="height:8px;background:var(--surface-3);border-radius:4px;overflow:hidden">
           <div style="height:100%;width:${Math.round(count/total*100)}%;background:${color};border-radius:4px;transition:width .4s"></div>
         </div>
       </div>`).join('')}
     </div>
 
-    <!-- Confirmed addresses -->
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <div style="font-size:10px;color:#f0f6fc">Confirmed — Recent RSVPs</div>
-        <button class="btn sm" onclick="navigator.clipboard.writeText('${confirmed.map(i=>i.name+' <'+i.email+'>').join(', ')}');log('${confirmed.length} confirmed emails copied')">Copy emails</button>
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px">Sync RSVP Responses</div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Reads your Google Form response sheet and matches responses by email.</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="syncRsvpResponses()" ${!hasOAuth?'disabled title="Add Google OAuth in Settings"':''}>↻ Sync RSVP Responses</button>
+        ${!hasOAuth?'<span style="font-size:11px;color:var(--warning)">🔒 OAuth needed — go to Settings</span>':''}
       </div>
-      ${confirmed.length===0?'<div style="font-size:10px;color:#6e7681">No confirmed attendees yet.</div>':''}
-      ${confirmed.slice(0,20).map(inv=>`
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid #161b22;font-size:11px">
-        <div>
-          <span style="color:#f0f6fc;font-weight:500">${esc(inv.name)}</span>
-          <span style="color:#6e7681;font-size:9px;margin-left:8px">${esc(inv.title||'')}</span>
-        </div>
-        <div style="text-align:right;font-size:9px;color:#6e7681">
-          ${inv.rsvpDate?'<span style="color:#3fb950">'+inv.rsvpDate+'</span>':''}
-          <div>${esc(inv.email)}</div>
-        </div>
-      </div>`).join('')}
-      ${confirmed.length>20?`<div style="font-size:9px;color:#6e7681;padding-top:6px">+ ${confirmed.length-20} more</div>`:''}
     </div>
-  </div>`;
-}
 
-// ─── Tab 6: Sync ──────────────────────────────────────────────────────────────
-function renderSync() {
-  const hasMaster = !!S.event.masterSheetUrl;
-  const hasOAuth  = !!S.googleClientId;
-  return `<div style="padding:16px 20px;max-width:560px">
-    <div class="card" style="background:#0a0f1a;border-color:#1f6feb">
-      <div style="font-size:12px;color:#58a6ff;margin-bottom:8px;font-weight:500">⬡ Sync to Master Google Sheet</div>
-      <div style="font-size:10px;color:#8b949e;line-height:1.6;margin-bottom:12px">
-        Writes all ${S.invitees.length} invitees with current invite + RSVP status to your master sheet.<br>
-        Columns: FirstName, LastName, Title, Category, Email, RSVP_Link, InviteSent, InviteSentDate, RSVP_Status, RSVP_Date, Notes
-      </div>
-      <div style="margin-bottom:10px">
-        <div style="font-size:9px;color:#6e7681;margin-bottom:3px">MASTER SHEET URL</div>
-        <input class="ifield" type="text" placeholder="https://docs.google.com/spreadsheets/d/..."
-          value="${(S.event.masterSheetUrl||'').replace(/"/g,'&quot;')}"
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px">Sync to Master Google Sheet</div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Writes all ${S.invitees.length} invitees with current invite + RSVP status to your master sheet.</div>
+      <div style="margin-bottom:8px">
+        <div style="font-size:10px;color:var(--text-3);margin-bottom:3px">Master Sheet URL</div>
+        <input class="ifield" type="text" placeholder="https://docs.google.com/spreadsheets/d/…"
+          value="${esc(S.event.masterSheetUrl||'')}"
           oninput="S.event.masterSheetUrl=this.value;S.unsaved=true">
       </div>
       <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center">
-        <button class="btn pri" onclick="syncToMasterSheet()" ${!hasOAuth||!hasMaster?'disabled':''}>⬡ Sync to Sheet</button>
-        ${hasMaster?`<button class="btn sm" onclick="window.open('${S.event.masterSheetUrl}','_blank')">Open Sheet ↗</button>`:''}
-        ${!hasOAuth?'<span style="font-size:9px;color:#e3b341">🔒 OAuth needed — go to Setup</span>':''}
-        ${!hasMaster&&hasOAuth?'<span style="font-size:9px;color:#6e7681">Enter Sheet URL above</span>':''}
+        <button class="btn btn-primary" onclick="syncToMasterSheet()" ${!hasOAuth||!hasMaster?'disabled':''}>⬡ Sync to Sheet</button>
+        ${hasMaster?`<button class="btn btn-sm" onclick="window.open('${S.event.masterSheetUrl}','_blank')">Open Sheet ↗</button>`:''}
+        ${!hasOAuth?'<span style="font-size:11px;color:var(--warning)">🔒 OAuth needed</span>':''}
       </div>
     </div>
 
     <div class="card">
-      <div style="font-size:11px;color:#f0f6fc;margin-bottom:8px">CSV Export (no OAuth needed)</div>
-      <div style="font-size:10px;color:#8b949e;margin-bottom:10px">Download all ${S.invitees.length} invitees as a CSV with all 10 tracking columns. Import into any spreadsheet.</div>
-      <button class="btn grn" onclick="exportCSV()">↓ Export Master CSV</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div style="font-size:13px;font-weight:500">Confirmed — Recent RSVPs</div>
+        <button class="btn btn-sm" onclick="navigator.clipboard.writeText(${JSON.stringify(confirmed.map(i=>i.name+' <'+i.email+'>').join(', '))});log('${confirmed.length} confirmed emails copied')">Copy emails</button>
+      </div>
+      ${confirmed.length===0?'<div style="font-size:12px;color:var(--text-3)">No confirmed attendees yet.</div>':''}
+      ${confirmed.slice(0,20).map(inv=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--surface-3);font-size:12px">
+        <div>
+          <span style="font-weight:500">${esc(inv.name)}</span>
+          <span style="color:var(--text-3);font-size:10px;margin-left:7px">${esc(inv.title||'')}</span>
+        </div>
+        <div style="text-align:right;font-size:10px;color:var(--text-3)">
+          ${inv.rsvpDate?`<span style="color:var(--success)">${inv.rsvpDate}</span>`:''}
+          <div>${esc(inv.email)}</div>
+        </div>
+      </div>`).join('')}
+      ${confirmed.length>20?`<div style="font-size:11px;color:var(--text-3);padding-top:6px">+ ${confirmed.length-20} more</div>`:''}
     </div>
 
-    <div class="card" style="background:#0a0a0a">
-      <div style="font-size:10px;color:#6e7681;margin-bottom:8px">Google Apps Script (optional power tool)</div>
-      <div style="font-size:9px;color:#6e7681;line-height:1.6">
-        The <code style="color:#C8A84B">scripts/general_user_workflow.gs</code> file in this repo provides in-sheet menu actions:
-        Generate RSVP Links, Send Invites, Sync RSVPs — all runnable from within Google Sheets.<br>
-        Use this if you prefer managing the workflow from the spreadsheet side.
-      </div>
-    </div>
-
-    <div class="card" style="background:#0a1a0a;border-color:#238636">
-      <div style="font-size:10px;color:#3fb950;margin-bottom:8px">Workflow Summary</div>
-      <div style="font-size:10px;color:#8b949e;line-height:1.8">
-        1. <strong style="color:#f0f6fc">Invitees tab</strong> → Import from Sheet (or CSV)<br>
-        2. <strong style="color:#f0f6fc">Invitees tab</strong> → Generate RSVP Links<br>
-        3. <strong style="color:#f0f6fc">Compose tab</strong> → Review/customize email template<br>
-        4. <strong style="color:#f0f6fc">Send tab</strong> → Send new only (Gmail OAuth)<br>
-        5. <strong style="color:#f0f6fc">Tracker tab</strong> → Sync RSVP Responses from Form<br>
-        6. <strong style="color:#f0f6fc">Sync tab</strong> → Sync to Master Sheet
-      </div>
+    <div class="card" style="margin-top:4px">
+      <div style="font-size:13px;font-weight:500;margin-bottom:8px">CSV Export (no OAuth needed)</div>
+      <div style="font-size:12px;color:var(--text-2);margin-bottom:10px">Download all ${S.invitees.length} invitees as CSV with all tracking columns. Import into any spreadsheet.</div>
+      <button class="btn btn-success" onclick="exportCSV()">↓ Export CSV</button>
     </div>
   </div>`;
 }
 
-// ─── Full-screen preview ──────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// FULL PREVIEW
+// ═══════════════════════════════════════════════════════════════════
 function openFullPreview() {
   S.modal = 'fullpreview'; render();
   requestAnimationFrame(() => {
-    const inv = S.invitees[0]||{name:'Sample Official',email:'',rsvpLink:''};
+    const inv = S.invitees[0]||{name:'Sample Guest',email:'',rsvpLink:''};
     const nameParts = inv.name.split(' ');
     const html = S.htmlBody ? personalize(S.htmlBody, inv) : buildEmail(nameParts[0], nameParts.slice(1).join(' '));
     writePreview(html, 'full-preview-frame');
   });
 }
 
-// ─── Modals ───────────────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════════════════
 function renderModal() {
   if (!S.modal) return '';
 
-  if (S.modal==='new') return `
+  if (S.modal === 'new') return `
   <div class="modal-bg" onclick="S.modal=null;render()"><div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:13px;color:#f0f6fc;margin-bottom:10px">Start New Event</div>
-    <p style="font-size:11px;color:#8b949e;line-height:1.6;margin-bottom:14px">This resets the current session. <strong style="color:#e3b341">Save your current profile first if you have unsaved work.</strong></p>
-    <button class="btn gold" onclick="exportProfile()">↓ Save Current Profile</button>
-    <button class="btn stop" style="margin-left:8px" onclick="S.event={...DEFAULT_EVENT};S.invitees=[];syncImageOverrides();S.unsaved=false;S.modal=null;log('New event started.');render()">Reset & Start Fresh</button>
-    <button class="btn sm" style="margin-left:8px" onclick="S.modal=null;render()">Cancel</button>
+    <div style="font-family:var(--ff-d);font-size:18px;margin-bottom:10px">Start New Event</div>
+    <p style="font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:14px">This resets the current session. <strong style="color:var(--warning)">Save your profile first if you have unsaved work.</strong></p>
+    <button class="btn btn-warning" onclick="exportProfile()">↓ Save Current Profile</button>
+    <button class="btn btn-danger" style="margin-left:8px" onclick="S.event={...DEFAULT_EVENT};S.invitees=[];syncImageOverrides();S.unsaved=false;S.modal=null;log('New event started.');render()">Reset &amp; Start Fresh</button>
+    <button class="btn btn-sm" style="margin-left:8px" onclick="S.modal=null;render()">Cancel</button>
   </div></div>`;
 
-  if (S.modal==='researcher') return `
+  if (S.modal === 'researcher') return `
   <div class="modal-bg" onclick="S.modal=null;render()"><div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:13px;color:#f0f6fc;margin-bottom:10px">⬡ Import from VIP Researcher</div>
-    <p style="font-size:11px;color:#8b949e;line-height:1.7;margin-bottom:14px">
-      In VIP Researcher, click <strong style="color:#3fb950">⬡ Export → Mailer</strong> after verifying officials, then load that JSON file here.<br><br>
-      <strong style="color:#f0f6fc">Merge rules:</strong> New officials added as NOT SENT · Existing names get email refreshed, invite status preserved · Left-office excluded.
+    <div style="font-family:var(--ff-d);font-size:18px;margin-bottom:10px">Import from ContactScout</div>
+    <p style="font-size:13px;color:var(--text-2);line-height:1.7;margin-bottom:14px">
+      In ContactScout, click <strong style="color:var(--success)">Export → InviteFlow</strong> after verifying contacts, then load that JSON file here.<br><br>
+      <strong>Merge rules:</strong> New contacts added as Not Sent · Existing names get email refreshed · Inactive contacts excluded.
     </p>
-    <button class="btn pri" onclick="triggerFile(importResearcher,'.json')">↑ Choose File</button>
-    <button class="btn sm" style="margin-left:8px" onclick="S.modal=null;render()">Cancel</button>
+    <button class="btn btn-primary" onclick="triggerFile(importResearcher,'.json')">↑ Choose File</button>
+    <button class="btn btn-sm" style="margin-left:8px" onclick="S.modal=null;render()">Cancel</button>
   </div></div>`;
 
-  if (S.modal==='add') return `
+  if (S.modal === 'add') return `
   <div class="modal-bg" onclick="S.modal=null;render()"><div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:13px;color:#f0f6fc;margin-bottom:14px">Add Invitee Manually</div>
-    ${[['Full Name *','m_name','Firstname Lastname'],['Title','m_title','e.g. US Representative'],['Email','m_email','scheduler@example.gov'],['Category','m_cat','e.g. US House']].map(([l,id,ph])=>`
-    <div style="margin-bottom:9px"><div style="font-size:9px;color:#6e7681;margin-bottom:3px">${l}</div><input id="${id}" class="ifield" type="text" placeholder="${ph}"></div>`).join('')}
-    <button class="btn pri" onclick="
+    <div style="font-family:var(--ff-d);font-size:18px;margin-bottom:14px">Add Invitee Manually</div>
+    ${[['Full Name *','m_name','First Last'],['Title','m_title','e.g. Director'],['Email','m_email','name@example.com'],['Category','m_cat','e.g. Group A']].map(([l,id,ph])=>`
+    <div style="margin-bottom:9px">
+      <div style="font-size:10px;color:var(--text-3);margin-bottom:3px;letter-spacing:.05em">${l}</div>
+      <input id="${id}" class="ifield" type="text" placeholder="${ph}">
+    </div>`).join('')}
+    <button class="btn btn-primary" onclick="
       const n=document.getElementById('m_name').value.trim();
       if(!n){alert('Name required');return;}
       S.invitees.push({name:n,title:document.getElementById('m_title').value.trim(),
@@ -1263,15 +1322,15 @@ function renderModal() {
         category:document.getElementById('m_cat').value.trim(),
         rsvpLink:'',inviteStatus:'not_sent',sentAt:'',rsvpStatus:'no_response',rsvpDate:'',notes:''});
       S.unsaved=true;S.modal=null;log('+ Added '+n);render();">Add</button>
-    <button class="btn sm" style="margin-left:8px" onclick="S.modal=null;render()">Cancel</button>
+    <button class="btn btn-sm" style="margin-left:8px" onclick="S.modal=null;render()">Cancel</button>
   </div></div>`;
 
-  if (S.modal==='fullpreview') return `
+  if (S.modal === 'fullpreview') return `
   <div class="modal-bg" style="padding:0;align-items:stretch" onclick="S.modal=null;render()">
-  <div style="display:flex;flex-direction:column;width:100%;max-width:780px;margin:0 auto;background:#0d1117;height:100vh" onclick="event.stopPropagation()">
-    <div style="background:#080c10;padding:8px 15px;border-bottom:1px solid #21262d;display:flex;align-items:center;gap:10px;flex-shrink:0">
-      <span style="font-size:11px;color:#f0f6fc">Full Preview</span>
-      <button class="btn sm" style="margin-left:auto" onclick="S.modal=null;render()">✕ Close</button>
+  <div style="display:flex;flex-direction:column;width:100%;max-width:780px;margin:0 auto;background:var(--surface);height:100dvh" onclick="event.stopPropagation()">
+    <div style="background:var(--surface-2);padding:9px 15px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0">
+      <span style="font-size:13px;font-weight:500">Full Preview</span>
+      <button class="btn btn-sm" style="margin-left:auto" onclick="S.modal=null;render()">✕ Close</button>
     </div>
     <iframe id="full-preview-frame" style="flex:1;border:none;background:#fff"></iframe>
   </div></div>`;
@@ -1279,9 +1338,9 @@ function renderModal() {
   return '';
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 // INIT
-// ═══════════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════
 window.addEventListener('beforeunload', e => {
   if (S.unsaved) { e.preventDefault(); e.returnValue='Unsaved changes — export a profile backup first.'; }
 });
