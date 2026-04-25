@@ -18,29 +18,29 @@ Status: `[ ]` todo · `[x]` done · `[-]` skipped
 ## Phase 1 — Scaffold & Auth
 
 ### 1.1 package.json + Vite config
-- [ ] `package.json` with scripts: `dev`, `build`, `deploy`
-- [ ] Dependencies: `react`, `react-dom`, `primereact`, `primeicons`, `primeflex`, `@tiptap/react`, `@tiptap/starter-kit`, `gh-pages`
-- [ ] Dev dependencies: `vite`, `@vitejs/plugin-react`, `typescript`, `@types/react`, `@types/react-dom`
-- [ ] `vite.config.ts`: base `'./'`, input `src/inviteflow/index.html`, outDir `dist`, filename `inviteflow`
-- [ ] `tsconfig.json`: strict mode, JSX react-jsx
-- [ ] `src/inviteflow/index.html`: minimal HTML shell that mounts `<div id="root">` + loads `main.tsx`
+- [x] `package.json` with scripts: `dev`, `build`, `deploy`
+- [x] Dependencies: `react`, `react-dom`, `primereact`, `primeicons`, `primeflex`, `@tiptap/react`, `@tiptap/starter-kit`, `gh-pages`
+- [x] Dev dependencies: `vite`, `@vitejs/plugin-react`, `typescript`, `@types/react`, `@types/react-dom`
+- [x] `vite.config.ts`: base `'./'`, input `src/inviteflow/index.html`, outDir `dist`, filename `inviteflow`
+- [x] `tsconfig.json`: strict mode, JSX react-jsx
+- [x] `src/inviteflow/index.html`: minimal HTML shell that mounts `<div id="root">` + loads `main.tsx`
 
 ### 1.2 OAuth 2.0 PKCE (`src/inviteflow/api/auth.ts`)
-- [ ] `getToken(scope: string): Promise<string>` — returns cached token or triggers Google OAuth popup
-- [ ] Token cached in sessionStorage keyed by scope
-- [ ] Scopes: `spreadsheets`, `gmail.send`, `drive.appdata`
-- [ ] Uses `google.accounts.oauth2.initTokenClient` from GSI CDN (`accounts.google.com/gsi/client`)
-- [ ] `clearToken(scope)` clears sessionStorage entry
-- [ ] `src/inviteflow/index.html` must include `<script src="https://accounts.google.com/gsi/client" async defer>`
+- [x] `getToken(scope: string): Promise<string>` — returns cached token or triggers Google OAuth popup
+- [x] Token cached in sessionStorage keyed by scope
+- [x] Scopes: `spreadsheets`, `gmail.send`, `drive.appdata`
+- [x] Uses `google.accounts.oauth2.initTokenClient` from GSI CDN (`accounts.google.com/gsi/client`)
+- [x] `clearToken(scope)` clears sessionStorage entry
+- [x] `src/inviteflow/index.html` must include `<script src="https://accounts.google.com/gsi/client" async defer>`
 
 ### 1.3 API stubs
-- [ ] `src/inviteflow/api/sheets.ts` — export `sheetsGet(token, spreadsheetId, range)` and `sheetsUpdate(token, spreadsheetId, range, values)`
-- [ ] `src/inviteflow/api/drive.ts` — export `listAppDataFiles(token)`, `getAppDataFile(token, fileId)`, `createAppDataFile(token, name, content)`, `updateAppDataFile(token, fileId, content)`, `deleteAppDataFile(token, fileId)`
-- [ ] `src/inviteflow/api/gmail.ts` — export `sendEmail(token, raw: string): Promise<void>` with exponential backoff (base 2s, max 64s, jitter ±20%)
+- [x] `src/inviteflow/api/sheets.ts` — export `sheetsGet(token, spreadsheetId, range)` and `sheetsUpdate(token, spreadsheetId, range, values)`
+- [x] `src/inviteflow/api/drive.ts` — export `listAppDataFiles(token)`, `getAppDataFile(token, fileId)`, `createAppDataFile(token, name, content)`, `updateAppDataFile(token, fileId, content)`, `deleteAppDataFile(token, fileId)`
+- [x] `src/inviteflow/api/gmail.ts` — export `sendEmail(token, raw: string): Promise<void>` with exponential backoff (base 2s, max 64s, jitter ±20%)
 
 ### 1.4 Deploy script
-- [ ] In `package.json`: `"predeploy": "npm run build && node scripts/copy-static.js"`, `"deploy": "gh-pages -d dist"`
-- [ ] `scripts/copy-static.js` copies `index.html` and `contactscout.html` into `dist/`
+- [x] In `package.json`: `"predeploy": "npm run build && node scripts/copy-static.js"`, `"deploy": "gh-pages -d dist"`
+- [x] `scripts/copy-static.js` copies `index.html` and `contactscout.html` into `dist/`
 
 ---
 
@@ -107,85 +107,85 @@ type TabId = 'events' | 'setup' | 'invitees' | 'compose' | 'send' | 'tracker' | 
 ```
 
 ### 2.2 Context + Reducer
-- [ ] `src/inviteflow/state/AppContext.tsx` — creates `AppContext`, exports `useAppState()` and `useAppDispatch()` hooks
-- [ ] `src/inviteflow/state/reducer.ts` — handles all action types
-- [ ] `src/inviteflow/state/actions.ts` — action type union
-- [ ] Actions: `SET_TAB`, `SET_EVENT`, `ADD_EVENT`, `DELETE_EVENT`, `UPDATE_EVENT`, `SET_INVITEES`, `ADD_INVITEE`, `UPDATE_INVITEE`, `SET_COMPOSE`, `START_SEND`, `SEND_PROGRESS`, `LOG_SEND`, `STOP_SEND`, `SET_UNSAVED`
-- [ ] `App.tsx` wraps everything in `<AppProvider>`, renders `<TabBar>` + active tab component
+- [x] `src/inviteflow/state/AppContext.tsx` — creates `AppContext`, exports `useAppState()` and `useAppDispatch()` hooks
+- [x] `src/inviteflow/state/reducer.ts` — handles all action types
+- [x] `src/inviteflow/state/actions.ts` — action type union
+- [x] Actions: `SET_TAB`, `SET_EVENT`, `ADD_EVENT`, `DELETE_EVENT`, `UPDATE_EVENT`, `SET_INVITEES`, `ADD_INVITEE`, `UPDATE_INVITEE`, `SET_COMPOSE`, `START_SEND`, `SEND_PROGRESS`, `LOG_SEND`, `STOP_SEND`, `SET_UNSAVED`
+- [x] `App.tsx` wraps everything in `<AppProvider>`, renders `<TabBar>` + active tab component
 
 ### 2.3 Persistence
-- [ ] `saveState(state: AppState): void` — writes to localStorage key `inviteflow_v3_state` (excludes sendLog for size)
-- [ ] `loadState(): Partial<AppState>` — reads from localStorage
-- [ ] Called in reducer after every state change via useEffect in AppContext
+- [x] `saveState(state: AppState): void` — writes to localStorage key `inviteflow_v3_state` (excludes sendLog for size)
+- [x] `loadState(): Partial<AppState>` — reads from localStorage
+- [x] Called in reducer after every state change via useEffect in AppContext
 
 ---
 
 ## Phase 3 — Events & Setup Tabs
 
 ### 3.1 Events Tab (`src/inviteflow/tabs/EventsTab.tsx`)
-- [ ] Lists all events from `state.events` (loaded from Drive appDataFolder on mount)
-- [ ] Each event card: name, date, venue; "Activate" button sets `activeEventId`; "Delete" with confirm
-- [ ] "New Event" button → creates blank `AppEvent`, saves to Drive, adds to state
-- [ ] On mount: `listAppDataFiles` → load each event config → dispatch `SET_EVENTS`
-- [ ] Active event has a highlighted border
+- [x] Lists all events from `state.events` (loaded from Drive appDataFolder on mount)
+- [x] Each event card: name, date, venue; "Activate" button sets `activeEventId`; "Delete" with confirm
+- [x] "New Event" button → creates blank `AppEvent`, saves to Drive, adds to state
+- [x] On mount: `listAppDataFiles` → load each event config → dispatch `SET_EVENTS`
+- [x] Active event has a highlighted border
 
 ### 3.2 Setup Tab (`src/inviteflow/tabs/SetupTab.tsx`)
-- [ ] Form fields bound to `state.events.find(e => e.id === state.activeEventId)`:
+- [x] Form fields bound to `state.events.find(e => e.id === state.activeEventId)`:
   - Event Name, Event Date (date input), Venue, Org Name, Contact Name, Contact Email
   - Google Form Base URL, RSVP Response Sheet URL, Master Sheet URL, Form Entry ID (email field)
   - VIP Start Time, VIP End Time
   - Emblem Image URL
-- [ ] Google Client ID field (saved to `AppEvent.googleClientId` + localStorage `gClientId`)
-- [ ] "Authorize Sheets" button → `getToken('spreadsheets')`
-- [ ] "Authorize Gmail" button → `getToken('gmail.send')`
-- [ ] "Authorize Drive" button → `getToken('drive.appdata')`
-- [ ] "Save" button → `updateAppDataFile` + dispatch `UPDATE_EVENT`
+- [x] Google Client ID field (saved to `AppEvent.googleClientId` + localStorage `gClientId`)
+- [x] "Authorize Sheets" button → `getToken('spreadsheets')`
+- [x] "Authorize Gmail" button → `getToken('gmail.send')`
+- [x] "Authorize Drive" button → `getToken('drive.appdata')`
+- [x] "Save" button → `updateAppDataFile` + dispatch `UPDATE_EVENT`
 
 ---
 
 ## Phase 4 — Invitees Tab
 
 ### 4.1 DataTable (`src/inviteflow/tabs/InviteesTab.tsx`)
-- [ ] `<DataTable>` from PrimeReact; `value={state.invitees}`; `virtualScroll`; `scrollHeight="flex"`
-- [ ] Columns: FirstName, LastName, Title, Category, Email, InviteStatus (dropdown cell editor), SentAt, RSVPStatus, RSVPDate, Notes (text cell editor)
-- [ ] `filterDisplay="row"` on Category and InviteStatus columns
-- [ ] `selectionMode="multiple"` with checkbox column
-- [ ] Toolbar above table: "Import from Sheets" button, "Import JSON" file input, "Add Manually" button, "Export CSV" button
-- [ ] Bulk action toolbar (shown when rows selected): "Send Selected", "Mark Invited", "Reset Status", "Delete Selected"
+- [x] `<DataTable>` from PrimeReact; `value={state.invitees}`; `virtualScroll`; `scrollHeight="flex"`
+- [x] Columns: FirstName, LastName, Title, Category, Email, InviteStatus (dropdown cell editor), SentAt, RSVPStatus, RSVPDate, Notes (text cell editor)
+- [x] `filterDisplay="row"` on Category and InviteStatus columns
+- [x] `selectionMode="multiple"` with checkbox column
+- [x] Toolbar above table: "Import from Sheets" button, "Import JSON" file input, "Add Manually" button, "Export CSV" button
+- [x] Bulk action toolbar (shown when rows selected): "Send Selected", "Mark Invited", "Reset Status", "Delete Selected"
 
 ### 4.2 Import from Sheets
-- [ ] Input for Sheets URL → parse spreadsheetId from URL → `sheetsGet(token, id, 'Sheet1!A:K')`
-- [ ] Map columns by header row: FirstName, LastName, Title, Category, Email, RSVP_Link, InviteSent, InviteSentDate, RSVP_Status, RSVP_Date, Notes
-- [ ] Show preview count before confirming import
-- [ ] Merge by Email (existing rows updated, new rows appended)
+- [x] Input for Sheets URL → parse spreadsheetId from URL → `sheetsGet(token, id, 'Sheet1!A:K')`
+- [x] Map columns by header row: FirstName, LastName, Title, Category, Email, RSVP_Link, InviteSent, InviteSentDate, RSVP_Status, RSVP_Date, Notes
+- [x] Show preview count before confirming import
+- [x] Merge by Email (existing rows updated, new rows appended)
 
 ### 4.3 Import JSON (ContactScout export)
-- [ ] Accept `.json` file; parse as `Array<{name, title, category, email, ...}>`
-- [ ] Map name → firstName/lastName (split on first space)
-- [ ] Merge by email
+- [x] Accept `.json` file; parse as `Array<{name, title, category, email, ...}>`
+- [x] Map name → firstName/lastName (split on first space)
+- [x] Merge by email
 
 ### 4.4 Add Manually
-- [ ] Dialog with fields: First Name, Last Name, Title, Category, Email
-- [ ] Generates UUID id; adds to state
+- [x] Dialog with fields: First Name, Last Name, Title, Category, Email
+- [x] Generates UUID id; adds to state
 
 ---
 
 ## Phase 5 — Compose & Send Tabs
 
 ### 5.1 Compose Tab (`src/inviteflow/tabs/ComposeTab.tsx`)
-- [ ] Subject line `<input>` bound to `state.textSubject`
-- [ ] TipTap `<EditorContent>` initialized with `useEditor({ extensions: [StarterKit] })`
-- [ ] On editor `update`, sync HTML to `state.htmlBody` via `editor.getHTML()`
-- [ ] Token toolbar: one button per token → `editor.commands.insertContent('{{TokenName}}')`
-- [ ] Preview panel: renders `state.htmlBody` with first invitee's data substituted; uses `dangerouslySetInnerHTML` inside an iframe-equivalent sandboxed div
-- [ ] "Save Template" button → saves htmlBody + textSubject to Drive appDataFolder under event config
+- [x] Subject line `<input>` bound to `state.textSubject`
+- [x] TipTap `<EditorContent>` initialized with `useEditor({ extensions: [StarterKit] })`
+- [x] On editor `update`, sync HTML to `state.htmlBody` via `editor.getHTML()`
+- [x] Token toolbar: one button per token → `editor.commands.insertContent('{{TokenName}}')`
+- [x] Preview panel: renders `state.htmlBody` with first invitee's data substituted; uses `dangerouslySetInnerHTML` inside an iframe-equivalent sandboxed div
+- [x] "Save Template" button → saves htmlBody + textSubject to Drive appDataFolder under event config
 
 ### 5.2 Send Tab (`src/inviteflow/tabs/SendTab.tsx`)
-- [ ] Filter dropdown: All / Unsent / Failed
-- [ ] "Send to filtered" button → calls `sendBulkEmails(filtered)`
-- [ ] Progress bar: `state.sendProgress.current / state.sendProgress.total`
-- [ ] Send log table: email, name, status (sent/failed), timestamp, error message
-- [ ] `sendBulkEmails(invitees)`:
+- [x] Filter dropdown: All / Unsent / Failed
+- [x] "Send to filtered" button → calls `sendBulkEmails(filtered)`
+- [x] Progress bar: `state.sendProgress.current / state.sendProgress.total`
+- [x] Send log table: email, name, status (sent/failed), timestamp, error message
+- [x] `sendBulkEmails(invitees)`:
   1. Get Gmail token
   2. For each invitee: build MIME raw, call `sendEmail(token, raw)`
   3. After each 80 sends, wait 60s (rate limiting)
@@ -194,10 +194,10 @@ type TabId = 'events' | 'setup' | 'invitees' | 'compose' | 'send' | 'tracker' | 
   6. On failure: dispatch `UPDATE_INVITEE` with `inviteStatus: 'failed'`, log error
 
 ### 5.3 MIME builder (`src/inviteflow/api/gmail.ts`)
-- [ ] `buildMimeRaw(from, to, subject, htmlBody): string`
+- [x] `buildMimeRaw(from, to, subject, htmlBody): string`
   - Builds RFC 2822 MIME message with `Content-Type: text/html; charset=utf-8`
   - Returns base64url encoded string
-- [ ] `personalize(template: string, invitee: Invitee, event: AppEvent): string`
+- [x] `personalize(template: string, invitee: Invitee, event: AppEvent): string`
   - Replaces all `{{Token}}` placeholders with invitee/event data
 
 ---
@@ -205,42 +205,42 @@ type TabId = 'events' | 'setup' | 'invitees' | 'compose' | 'send' | 'tracker' | 
 ## Phase 6 — Tracker & Sync Tabs
 
 ### 6.1 Tracker Tab (`src/inviteflow/tabs/TrackerTab.tsx`)
-- [ ] Summary cards: Total, Pending, Sent, RSVP Attending, RSVP Declined, No Response
-- [ ] Breakdown table by Category: columns = Invited / Attending / Declined / No Response / Total
-- [ ] All derived from `state.invitees` (no API call needed)
+- [x] Summary cards: Total, Pending, Sent, RSVP Attending, RSVP Declined, No Response
+- [x] Breakdown table by Category: columns = Invited / Attending / Declined / No Response / Total
+- [x] All derived from `state.invitees` (no API call needed)
 
 ### 6.2 Sync Tab (`src/inviteflow/tabs/SyncTab.tsx`)
-- [ ] "Push to Master Sheet" button:
+- [x] "Push to Master Sheet" button:
   - Gets Sheets token
   - Clears sheet (or appends) then batch-writes all invitees in master sheet column order
   - Shows row count written
-- [ ] "Pull RSVP Responses" button:
+- [x] "Pull RSVP Responses" button:
   - Reads RSVP Response Sheet URL
   - Matches by Email (primary key)
   - Updates `rsvpStatus` and `rsvpDate` in state
   - Shows N updated count
-- [ ] GAS instructions section: copy-paste `Code.gs` content; link to GAS deployment docs
-- [ ] Shows current `masterSheetUrl` and `rsvpResponseUrl` from event config (link to Setup if not set)
+- [x] GAS instructions section: copy-paste `Code.gs` content; link to GAS deployment docs
+- [x] Shows current `masterSheetUrl` and `rsvpResponseUrl` from event config (link to Setup if not set)
 
 ---
 
 ## Phase 7 — GAS Trigger
 
 ### 7.1 `gas/Code.gs`
-- [ ] `onFormSubmit(e)` function:
+- [x] `onFormSubmit(e)` function:
   - Reads `e.response.getItemResponses()` to extract email + attending response
   - Opens master sheet by URL (from script property `MASTER_SHEET_URL`)
   - Finds row where Email column matches
   - Writes RSVP_Status and RSVP_Date
-- [ ] Script property `MASTER_SHEET_URL` — set via Apps Script project settings
-- [ ] Comment block with setup instructions (how to add trigger, set property)
+- [x] Script property `MASTER_SHEET_URL` — set via Apps Script project settings
+- [x] Comment block with setup instructions (how to add trigger, set property)
 
 ---
 
 ## Phase 8 — Deploy
 
 ### 8.1 Build + deploy
-- [ ] `scripts/copy-static.js`: copies `index.html`, `contactscout.html` to `dist/`
-- [ ] Verify `dist/inviteflow.html` exists after `npm run build`
-- [ ] `npm run deploy` publishes to `gh-pages` branch
-- [ ] Update `index.html` card: verify link is `inviteflow.html` (already correct in current file)
+- [x] `scripts/copy-static.js`: copies `index.html`, `contactscout.html` to `dist/`
+- [x] Verify `dist/inviteflow.html` exists after `npm run build`
+- [x] `npm run deploy` publishes to `gh-pages` branch
+- [x] Update `index.html` card: verify link is `inviteflow.html` (already correct in current file)

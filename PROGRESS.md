@@ -6,7 +6,7 @@
 
 ## Current status
 
-**Phase 7 (All tabs implemented).** Build is clean. Ready for browser verification and PR.
+**All phases complete.** Build verified clean (zero TS errors, 215 modules, 3.6s). All tasks marked done. Merged to `v3`.
 
 ---
 
@@ -30,11 +30,13 @@
 | `bd451c7` | feat(v3): scaffold — Vite + React 18 + TypeScript + PrimeReact + TipTap |
 | `fc6fa8f` | feat(v3): types, state, Google API clients (Sheets/Drive/Gmail/Auth) |
 | `013733a` | feat(v3): implement all 7 tabs + GAS RSVP trigger |
+| `afea773` | chore(v3): update .gitignore, update PROGRESS.md |
+| *(this)* | docs(v3): mark all tasks done, verify build |
 
 ---
 
 ## Next
 
 - Browser test with real Google OAuth credentials
-- PR from `claude/blissful-kilby-44b10b` → `master`
-- Deploy to GitHub Pages via `npm run deploy`
+- Deploy to GitHub Pages: `npm run deploy`
+- Open PR `v3` → `master`
