@@ -1,5 +1,6 @@
 img/
 .remember/
+.claude/worktrees/
 
 # Node / Vite
 node_modules/
