@@ -68,15 +68,31 @@ function saveScoutState(s: ScoutState) {
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
 
-// ── Status colors ─────────────────────────────────────────────────────────────
-const STATUS_COLOR: Record<string, string> = {
-  pending: '#6e7681', checking: '#C8A84B', done: '#3fb950',
-  changed: '#58a6ff', left_office: '#f85149', error: '#f85149',
+// ── Status styles ─────────────────────────────────────────────────────────────
+const STATUS_CLASS: Record<string, string> = {
+  pending: 'text-gray-400 dark:text-[#6e7681]',
+  checking: 'text-[#C8A84B]',
+  done: 'text-green-600 dark:text-[#3fb950]',
+  changed: 'text-blue-600 dark:text-[#58a6ff]',
+  left_office: 'text-red-600 dark:text-[#f85149]',
+  error: 'text-red-600 dark:text-[#f85149]',
 };
 const STATUS_LABEL: Record<string, string> = {
   pending: 'Pending', checking: 'Checking…', done: 'Verified',
   changed: 'Changed', left_office: 'Inactive', error: 'Error',
 };
+
+const BTN_GHOST = "min-h-[44px] px-3 py-1 rounded border border-gray-300 bg-transparent text-gray-700 text-xs font-mono tracking-wide cursor-pointer hover:bg-gray-100 dark:border-[#21262d] dark:text-[#8b949e] dark:hover:bg-[#161b22] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap";
+const BTN_GREEN = "min-h-[44px] px-3 py-1 rounded border border-green-600 bg-green-600 text-white text-xs font-mono tracking-wide cursor-pointer hover:bg-green-700 dark:border-[#238636] dark:bg-[#238636] disabled:opacity-50 disabled:cursor-not-allowed";
+const BTN_BLUE_GHOST = "min-h-[44px] px-3 py-1 rounded border border-blue-400 bg-transparent text-blue-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-50 dark:border-[#58a6ff] dark:text-[#58a6ff] dark:hover:bg-[#0d1f3c] disabled:opacity-50 disabled:cursor-not-allowed";
+const BTN_GOLD = "min-h-[44px] px-3 py-1 rounded border border-[#C8A84B] bg-[#1c1a10] text-[#C8A84B] text-xs font-mono tracking-wide cursor-pointer hover:bg-[#2a2510] disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap";
+const BTN_DANGER = "min-h-[44px] px-3 py-1 rounded border border-red-500 bg-transparent text-red-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-red-50 dark:border-[#f85149] dark:text-[#f85149] disabled:opacity-50 disabled:cursor-not-allowed";
+const BTN_SCAN = (st: string) => `min-h-[44px] px-3 py-1 rounded border text-xs font-mono tracking-wide cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap ${
+  st === 'done' ? 'border-green-500 text-green-600 dark:border-[#3fb950] dark:text-[#3fb950]' :
+  st === 'scanning' ? 'border-[#C8A84B] text-[#C8A84B]' :
+  'border-gray-300 text-gray-600 dark:border-[#21262d] dark:text-[#8b949e]'
+}`;
+const INPUT = "bg-white border border-gray-300 text-gray-900 text-xs font-mono px-2.5 py-1.5 rounded outline-none focus:border-blue-500 dark:bg-[#0d1117] dark:border-[#21262d] dark:text-[#c9d1d9]";
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function ContactScoutPanel() {
@@ -275,95 +291,81 @@ export default function ContactScoutPanel() {
     r.readAsText(file);
   }
 
-  // ── Styles ────────────────────────────────────────────────────────────────────
-  const s = {
-    panel: { border: '1px solid #21262d', borderRadius: 6, background: '#0d1117', marginTop: 8 } as React.CSSProperties,
-    header: { display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', cursor: 'pointer', userSelect: 'none' as const },
-    label: { fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', textTransform: 'uppercase' as const },
-    body: { padding: '12px 16px', borderTop: '1px solid #21262d' },
-    btn: (color = '#8b949e', bg = 'transparent'): React.CSSProperties => ({
-      border: `1px solid ${color}`, background: bg, color, padding: '4px 10px',
-      borderRadius: 4, cursor: 'pointer', fontFamily: 'monospace', fontSize: 10,
-      letterSpacing: '0.05em', whiteSpace: 'nowrap',
-    }),
-    input: { background: '#0d1117', border: '1px solid #21262d', color: '#c9d1d9', padding: '5px 8px', borderRadius: 4, fontFamily: 'monospace', fontSize: 11 } as React.CSSProperties,
-  };
+  function tryUnlock() {
+    if (pwInput === 'scout2025') { setUnlocked(true); setPwErr(false); }
+    else { setPwErr(true); }
+  }
 
   // ── Lock screen ───────────────────────────────────────────────────────────────
   function renderLock() {
     return (
-      <div style={{ padding: '16px', display: 'flex', gap: 8, alignItems: 'center' }}>
+      <div className="px-4 py-3 flex flex-wrap gap-2 items-center border-t border-gray-200 dark:border-[#21262d]">
         <input
           type="password"
           placeholder="Enter passcode…"
           value={pwInput}
           onChange={e => { setPwInput(e.target.value); setPwErr(false); }}
           onKeyDown={e => e.key === 'Enter' && tryUnlock()}
-          style={{ ...s.input, width: 160 }}
+          className={`${INPUT} w-40`}
         />
-        <button style={s.btn('#58a6ff')} onClick={tryUnlock}>Unlock</button>
-        {pwErr && <span style={{ fontSize: 10, color: '#f85149' }}>Incorrect passcode</span>}
+        <button className={BTN_BLUE_GHOST} onClick={tryUnlock}>Unlock</button>
+        {pwErr && <span className="text-[10px] text-red-600 dark:text-[#f85149]">Incorrect passcode</span>}
       </div>
     );
-  }
-
-  function tryUnlock() {
-    if (pwInput === 'scout2025') { setUnlocked(true); setPwErr(false); }
-    else { setPwErr(true); }
   }
 
   // ── Main UI ───────────────────────────────────────────────────────────────────
   function renderContent() {
     return (
-      <div style={s.body}>
+      <div className="px-4 py-3 border-t border-gray-200 dark:border-[#21262d]">
         {/* API key row */}
         {showKeyInput ? (
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12 }}>
+          <div className="flex flex-wrap gap-2 items-center mb-3">
             <input
               type="password"
               placeholder="sk-ant-…"
               value={apiKeyDraft}
               onChange={e => setApiKeyDraft(e.target.value)}
-              style={{ ...s.input, flex: 1 }}
+              className={`${INPUT} flex-1 min-w-[180px]`}
             />
-            <button style={s.btn('#3fb950')} onClick={() => {
+            <button className={BTN_GREEN} onClick={() => {
               if (!apiKeyDraft.startsWith('sk-ant-')) return;
               setApiKey(apiKeyDraft);
               sessionStorage.setItem(SS_KEY, apiKeyDraft);
               setApiKeyDraft(''); setShowKeyInput(false);
             }}>Save Key</button>
-            <button style={s.btn()} onClick={() => setShowKeyInput(false)}>Cancel</button>
+            <button className={BTN_GHOST} onClick={() => setShowKeyInput(false)}>Cancel</button>
           </div>
         ) : (
-          <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 10, color: apiKey ? '#3fb950' : '#f85149' }}>
+          <div className="flex flex-wrap gap-2 items-center mb-3">
+            <span className={`text-[10px] font-mono ${apiKey ? 'text-green-600 dark:text-[#3fb950]' : 'text-red-600 dark:text-[#f85149]'}`}>
               {apiKey ? '● API key set' : '● No API key'}
             </span>
-            <button style={s.btn()} onClick={() => setShowKeyInput(true)}>
+            <button className={BTN_GHOST} onClick={() => setShowKeyInput(true)}>
               {apiKey ? 'Change Key' : 'Set API Key'}
             </button>
-            <button style={s.btn('#C8A84B', '#1c1a10')} onClick={exportToInviteFlow} title="Push active contacts to Invitees list">
+            <button className={BTN_GOLD} onClick={exportToInviteFlow} title="Push active contacts to Invitees list">
               Push to InviteFlow ({scout.contacts.filter(c => c.status !== 'left_office').length})
             </button>
-            <button style={s.btn()} onClick={exportBackup}>Backup</button>
-            <button style={s.btn()} onClick={() => importRef.current?.click()}>Restore</button>
-            <input ref={importRef} type="file" accept=".json" style={{ display: 'none' }}
+            <button className={BTN_GHOST} onClick={exportBackup}>Backup</button>
+            <button className={BTN_GHOST} onClick={() => importRef.current?.click()}>Restore</button>
+            <input ref={importRef} type="file" accept=".json" className="hidden"
               onChange={e => e.target.files?.[0] && importBackup(e.target.files[0])} />
             {running && (
               <>
-                <span style={{ fontSize: 10, color: '#C8A84B' }}>{progress.done}/{progress.total}</span>
-                <button style={s.btn('#f85149')} onClick={() => { abortRef.current = true; }}>Stop</button>
+                <span className="text-[10px] text-[#C8A84B] font-mono">{progress.done}/{progress.total}</span>
+                <button className={BTN_DANGER} onClick={() => { abortRef.current = true; }}>Stop</button>
               </>
             )}
           </div>
         )}
 
         {/* Scan targets */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+        <div className="flex flex-wrap gap-1.5 mb-3">
           {SCAN_TARGETS.map(t => {
-            const st = scout.scanStatus[t.id];
+            const st = scout.scanStatus[t.id] ?? '';
             return (
-              <button key={t.id} style={s.btn(st === 'done' ? '#3fb950' : st === 'scanning' ? '#C8A84B' : '#8b949e')}
+              <button key={t.id} className={BTN_SCAN(st)}
                 onClick={() => runScan(t.id)} disabled={running} title={t.desc}>
                 {st === 'scanning' ? '↻ ' : st === 'done' ? '✓ ' : ''}
                 {t.label.split(' — ')[0]}
@@ -371,7 +373,7 @@ export default function ContactScoutPanel() {
             );
           })}
           {scout.contacts.length > 0 && (
-            <button style={s.btn('#58a6ff')} disabled={running}
+            <button className={BTN_BLUE_GHOST} disabled={running}
               onClick={() => runVerify(scout.contacts.filter(c => c.status === 'pending').map(c => c.name))}>
               Verify All Pending
             </button>
@@ -380,50 +382,59 @@ export default function ContactScoutPanel() {
 
         {/* New contacts found */}
         {scout.newContacts.length > 0 && (
-          <div style={{ marginBottom: 10, border: '1px solid #21262d', borderRadius: 4, overflow: 'hidden' }}>
-            <div style={{ padding: '6px 10px', background: '#161b22', fontSize: 10, color: '#C8A84B', letterSpacing: '0.08em' }}>
+          <div className="mb-2.5 border border-gray-200 rounded overflow-hidden dark:border-[#21262d]">
+            <div className="px-2.5 py-1.5 bg-gray-100 text-[10px] text-[#C8A84B] tracking-[0.08em] font-mono dark:bg-[#161b22]">
               NEW CONTACTS ({scout.newContacts.length})
             </div>
             {scout.newContacts.slice(0, 8).map(c => (
-              <div key={c.name} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '5px 10px', borderTop: '1px solid #0d1117', fontSize: 10 }}>
-                <span style={{ flex: 1, color: '#c9d1d9' }}>{c.name}</span>
-                <span style={{ color: '#6e7681' }}>{c.title}</span>
-                <button style={{ ...s.btn('#3fb950'), padding: '2px 7px', fontSize: 9 }} onClick={() => {
-                  persist({
-                    ...scout,
-                    contacts: [...scout.contacts, { ...c, status: 'pending', result: null }],
-                    newContacts: scout.newContacts.filter(x => x.name !== c.name),
-                  });
-                  addLog(`+ Added ${c.name}`);
-                }}>Add</button>
-                <button style={{ ...s.btn('#6e7681'), padding: '2px 7px', fontSize: 9 }} onClick={() => {
-                  persist({ ...scout, newContacts: scout.newContacts.filter(x => x.name !== c.name) });
-                }}>Dismiss</button>
+              <div key={c.name} className="flex flex-wrap gap-2 items-center px-2.5 py-1.5 border-t border-gray-100 text-xs dark:border-[#0d1117]">
+                <span className="flex-1 text-gray-900 dark:text-[#c9d1d9]">{c.name}</span>
+                <span className="text-gray-500 dark:text-[#6e7681]">{c.title}</span>
+                <button className="min-h-[32px] px-2 py-0.5 rounded border border-green-500 text-green-600 text-[9px] font-mono cursor-pointer hover:bg-green-50 dark:border-[#3fb950] dark:text-[#3fb950]"
+                  onClick={() => {
+                    persist({
+                      ...scout,
+                      contacts: [...scout.contacts, { ...c, status: 'pending', result: null }],
+                      newContacts: scout.newContacts.filter(x => x.name !== c.name),
+                    });
+                    addLog(`+ Added ${c.name}`);
+                  }}>Add</button>
+                <button className="min-h-[32px] px-2 py-0.5 rounded border border-gray-300 text-gray-500 text-[9px] font-mono cursor-pointer hover:bg-gray-100 dark:border-[#21262d] dark:text-[#6e7681]"
+                  onClick={() => {
+                    persist({ ...scout, newContacts: scout.newContacts.filter(x => x.name !== c.name) });
+                  }}>Dismiss</button>
               </div>
             ))}
             {scout.newContacts.length > 8 && (
-              <div style={{ padding: '4px 10px', fontSize: 9, color: '#6e7681' }}>+{scout.newContacts.length - 8} more…</div>
+              <div className="px-2.5 py-1 text-[9px] text-gray-400 dark:text-[#6e7681]">+{scout.newContacts.length - 8} more…</div>
             )}
           </div>
         )}
 
         {/* Contact list */}
         {scout.contacts.length === 0 ? (
-          <div style={{ fontSize: 10, color: '#6e7681', fontStyle: 'italic', padding: '8px 0' }}>
+          <div className="text-[10px] text-gray-500 italic py-2 dark:text-[#6e7681]">
             No contacts yet — run a scan above or restore a backup.
           </div>
         ) : (
-          <div style={{ maxHeight: 260, overflowY: 'auto', border: '1px solid #21262d', borderRadius: 4 }}>
+          <div
+            className="max-h-64 overflow-y-auto border border-gray-200 rounded dark:border-[#21262d]"
+            role="region"
+            aria-label="Contact list"
+            tabIndex={0}
+          >
             {scout.contacts.map(c => (
-              <div key={c.name} style={{ display: 'flex', gap: 8, alignItems: 'center', padding: '5px 10px', borderBottom: '1px solid #0d1117', fontSize: 10 }}>
-                <span style={{ width: 56, color: STATUS_COLOR[c.status], letterSpacing: '0.06em', flexShrink: 0, fontSize: 9 }}>
+              <div key={c.name} className="flex flex-wrap gap-2 items-center px-2.5 py-1.5 border-b border-gray-100 text-xs dark:border-[#0d1117]">
+                <span className={`w-14 text-[9px] font-mono tracking-[0.06em] shrink-0 ${STATUS_CLASS[c.status] ?? 'text-gray-400'}`}>
                   {STATUS_LABEL[c.status]}
                 </span>
-                <span style={{ flex: 1, color: '#c9d1d9' }}>{c.name}</span>
-                <span style={{ color: '#6e7681', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.title}</span>
-                <span style={{ color: '#6e7681', maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.officeEmail ?? c.directEmail}</span>
+                <span className="flex-1 text-gray-900 dark:text-[#c9d1d9]">{c.name}</span>
+                <span className="text-gray-500 max-w-[160px] truncate dark:text-[#6e7681]">{c.title}</span>
+                <span className="text-gray-500 max-w-[140px] truncate dark:text-[#6e7681]">{c.officeEmail ?? c.directEmail}</span>
                 {c.status === 'pending' && (
-                  <button style={{ ...s.btn('#58a6ff'), padding: '2px 7px', fontSize: 9 }} onClick={() => runVerify([c.name])} disabled={running}>
+                  <button
+                    className="min-h-[32px] px-2 py-0.5 rounded border border-blue-400 text-blue-600 text-[9px] font-mono cursor-pointer hover:bg-blue-50 dark:border-[#58a6ff] dark:text-[#58a6ff] disabled:opacity-50"
+                    onClick={() => runVerify([c.name])} disabled={running}>
                     Verify
                   </button>
                 )}
@@ -434,7 +445,7 @@ export default function ContactScoutPanel() {
 
         {/* Log */}
         {log.length > 0 && (
-          <div style={{ marginTop: 10, maxHeight: 80, overflowY: 'auto', fontSize: 9, color: '#6e7681', fontFamily: 'monospace', lineHeight: 1.6 }}>
+          <div className="mt-2.5 max-h-20 overflow-y-auto text-[9px] text-gray-400 font-mono leading-relaxed dark:text-[#6e7681]">
             {log.slice(0, 10).map((l, i) => <div key={i}>{l}</div>)}
           </div>
         )}
@@ -443,12 +454,15 @@ export default function ContactScoutPanel() {
   }
 
   return (
-    <div style={{ ...s.panel, opacity: open && !unlocked ? 0.6 : 1 }}>
-      <div style={s.header} onClick={() => setOpen(o => !o)}>
-        <span style={s.label}>ContactScout</span>
-        <span style={{ fontSize: 9, color: '#6e7681' }}>— Claude-powered contact discovery</span>
-        {!unlocked && open && <span style={{ fontSize: 9, color: '#C8A84B', marginLeft: 4 }}>🔒</span>}
-        <span style={{ marginLeft: 'auto', fontSize: 10, color: '#6e7681' }}>{open ? '▲' : '▼'}</span>
+    <div className={`mt-2 border border-gray-200 rounded-lg bg-white dark:bg-[#0d1117] dark:border-[#21262d] ${open && !unlocked ? 'opacity-60' : ''}`}>
+      <div
+        className="flex items-center gap-2 px-3 py-2 cursor-pointer select-none min-h-[44px]"
+        onClick={() => setOpen(o => !o)}
+      >
+        <span className="text-[10px] text-gray-500 tracking-[0.1em] font-mono uppercase dark:text-[#6e7681]">ContactScout</span>
+        <span className="text-[9px] text-gray-400 dark:text-[#6e7681]">— Claude-powered contact discovery</span>
+        {!unlocked && open && <span className="text-[9px] text-[#C8A84B] ml-1">🔒</span>}
+        <span className="ml-auto text-[10px] text-gray-400 dark:text-[#6e7681]">{open ? '▲' : '▼'}</span>
       </div>
       {open && (unlocked ? renderContent() : renderLock())}
     </div>
