@@ -18,7 +18,7 @@ Public-facing files carry author credit "by Lenya Chan" near their title.
 Two self-contained vanilla JS HTML apps. No build step. No dependencies.
 
 ## contactscout.html (~30 KB)
-- State object `S`: { officials[], newOfficials[], scanStatus{}, scanMeta{}, apiKey, unsaved }
+- State object `S`: { contacts[], newContacts[], scanStatus{}, scanMeta{}, apiKey, unsaved }
 - Key functions: render(), upd(), callClaude(), saveState(), loadState(), exportProfile(), importProfile()
 - Persistence: localStorage key `contactscout_state`
 - API key: sessionStorage key `cs_api_key`
@@ -26,7 +26,7 @@ Two self-contained vanilla JS HTML apps. No build step. No dependencies.
 
 ## inviteflow.html (~75 KB)
 - State object `S`: { event{}, invitees[], tab, tplMode, textSubject, textBody, htmlBody, sendLog[], schemas[], activeSchemaId, schemaNameDraft, googleClientId, sending, sendProgress{}, previewName, unsaved, log[] }
-- `S.event` new fields: inviteeSheetUrl, masterSheetUrl, rsvpResponseUrl, formUrl, entryName, entryEmail
+- `S.event` fields: name, date, venue, orgName, contactName, contactEmail, contactTitle, vipStart, vipEnd, formUrl, entryName, entryEmail, inviteeSheetUrl, masterSheetUrl, rsvpResponseUrl, replyTo, senderName, images
 - `S.invitees[]` schema: { name, title, category, email, rsvpLink, inviteStatus, sentAt, rsvpStatus, rsvpDate, notes }
 - Key functions: render(), buildEmail(), personalize(), saveState(), loadState(), clearSavedState()
 - Google OAuth: getGoogleToken(scope) via GSI CDN — scopes: 'spreadsheets', 'gmail.send'
@@ -35,8 +35,13 @@ Two self-contained vanilla JS HTML apps. No build step. No dependencies.
 - RSVP links: buildRsvpLink(inv), generateAllRsvpLinks()
 - Schema mgmt: saveSchema(), loadSchema(), deleteSchema(), exportSchema()
 - Persistence: localStorage key `inviteflow_state` — includes googleClientId, tplMode, htmlBody, schemas
-- Template tokens: {{FirstName}}, {{LastName}}, {{FullName}}, {{EventName}}, {{EventDate}}, {{Venue}}, {{RSVP_Link}}, {{FullTitle}}, {{OrgName}}, {{ContactName}}, {{ContactEmail}}, {{VIPStart}}, {{VIPEnd}}, {{Date_Sent}}
-- Tabs (7): Setup, Invitees, Compose, Send, Tracker, Sync, Configs — Setup is tab 0 (v02+, was Events first in v01)
+- Template tokens: {{FirstName}}, {{LastName}}, {{FullName}}, {{EventName}}, {{EventDate}}, {{Venue}}, {{RSVP_Link}}, {{FullTitle}}, {{OrgName}}, {{ContactName}}, {{ContactEmail}}, {{ContactTitle}}, {{VIPStart}}, {{VIPEnd}}, {{Date_Sent}}
+- Tabs (5): Settings, Contacts, Email, Send, Track
+  - Settings (tab 0): event details, email config, Google OAuth, Sheets URLs, RSVP form prefill, images, saved configs, data management
+  - Contacts (tab 1): import from Sheet/ContactScout/CSV, manual add, status table
+  - Email (tab 2): HTML/plain-text template editor, live preview
+  - Send (tab 3): bulk send via Gmail, progress, manual fallback
+  - Track (tab 4): RSVP stats, bar chart, sync RSVP responses, sync to master sheet
 - Master sheet columns: FirstName, LastName, Title, Category, Email, RSVP_Link, InviteSent, InviteSentDate, RSVP_Status, RSVP_Date, Notes
 - Secrets: googleClientId stored in localStorage only — never hardcode. Claude API key in contactscout uses sessionStorage.
 
