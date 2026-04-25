@@ -1,5 +1,19 @@
 # Invite Automation Suite — Claude Guide
 
+Author: Lenya Chan
+Updated: 2026-04-24
+
+## Planning docs
+- `docs/ROADMAP.md` — prioritized UX improvement roadmap with persona analysis
+- `docs/PROGRESS.md` — per-version changelog of UX work completed
+- `docs/TASKS.md` — current and backlog task list with implementation notes
+
+## File versioning
+Active production files: `index.html`, `inviteflow.html`, `contactscout.html`
+Iterations use the pattern `{name}_v{N:02d}.html` (e.g. `inviteflow_v02.html`).
+When a version is approved, promote it by replacing the production file.
+Public-facing files carry author credit "by Lenya Chan" near their title.
+
 ## Architecture
 Two self-contained vanilla JS HTML apps. No build step. No dependencies.
 
@@ -22,7 +36,7 @@ Two self-contained vanilla JS HTML apps. No build step. No dependencies.
 - Schema mgmt: saveSchema(), loadSchema(), deleteSchema(), exportSchema()
 - Persistence: localStorage key `inviteflow_state` — includes googleClientId, tplMode, htmlBody, schemas
 - Template tokens: {{FirstName}}, {{LastName}}, {{FullName}}, {{EventName}}, {{EventDate}}, {{Venue}}, {{RSVP_Link}}, {{FullTitle}}, {{OrgName}}, {{ContactName}}, {{ContactEmail}}, {{VIPStart}}, {{VIPEnd}}, {{Date_Sent}}
-- Tabs (7): Events, Setup, Invitees, Compose, Send, Tracker, Sync
+- Tabs (7): Setup, Invitees, Compose, Send, Tracker, Sync, Configs — Setup is tab 0 (v02+, was Events first in v01)
 - Master sheet columns: FirstName, LastName, Title, Category, Email, RSVP_Link, InviteSent, InviteSentDate, RSVP_Status, RSVP_Date, Notes
 - Secrets: googleClientId stored in localStorage only — never hardcode. Claude API key in contactscout uses sessionStorage.
 
@@ -31,3 +45,11 @@ Two self-contained vanilla JS HTML apps. No build step. No dependencies.
 - saveState() called at end of render()
 - No frameworks, no imports, no fetch except Claude API (contactscout) + Google APIs (inviteflow)
 - Google APIs called with OAuth2 Bearer token from getGoogleToken() — never API keys in source
+
+## UX conventions
+- First-run experience: inviteflow shows a 3-step welcome card (setupComplete() hides it) — keep it updated if new required steps are added
+- Google OAuth section in renderSetup() has two states: 5-step guide (no clientId) and compact confirmed state (clientId set)
+- Empty states must include actionable buttons; passive "nothing here" messages are not acceptable
+- All tab index references must be updated together: TABS array, render() switch, any onclick="S.tab=N", render checks like `if (S.tab===N)`
+- ContactScout: needsCustomization() detects [YOUR STATE] placeholders — keep it in sync if placeholder patterns change
+- Dates: YYYY-MM-DD in all docs and filenames
