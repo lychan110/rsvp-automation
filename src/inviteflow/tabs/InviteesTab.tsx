@@ -5,6 +5,7 @@ import { useAppState, useAppDispatch } from '../state/AppContext';
 import { getToken } from '../api/auth';
 import { sheetsGet, extractSheetId } from '../api/sheets';
 import type { Invitee } from '../types';
+import ContactScoutPanel from '../components/ContactScoutPanel';
 
 function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
   return {
@@ -269,6 +270,9 @@ export default function InviteesTab() {
           <Column rowEditor style={{ width: 70 }} />
         </DataTable>
       </div>
+
+      {/* ContactScout */}
+      <ContactScoutPanel />
 
       {/* Add manually modal */}
       {showAdd && (
