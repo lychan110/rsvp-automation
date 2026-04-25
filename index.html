@@ -3,66 +3,75 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Invite Automation Suite</title>
+<title>InviteFlow</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#080c10;color:#c9d1d9;font-family:'DM Mono','Courier New',monospace;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
-.wrap{max-width:680px;width:100%}
-h1{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#f0f6fc;letter-spacing:-.03em;margin-bottom:6px}
-.sub{font-size:10px;color:#6e7681;letter-spacing:.14em;margin-bottom:48px}
-.cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:40px}
-@media(max-width:480px){.cards{grid-template-columns:1fr}}
-.card{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:22px;text-decoration:none;color:inherit;transition:border-color .15s,transform .1s;display:block}
-.card:hover{border-color:#1f6feb;transform:translateY(-2px)}
-.card-name{font-family:'Syne',sans-serif;font-size:16px;font-weight:800;color:#f0f6fc;letter-spacing:-.02em;margin-bottom:4px}
-.card-file{font-size:9px;color:#1f6feb;letter-spacing:.08em;margin-bottom:12px}
-.card-desc{font-size:11px;color:#8b949e;line-height:1.7}
-.flow{display:flex;align-items:center;gap:10px;margin-bottom:40px;padding:14px 18px;background:#0a0e14;border:1px solid #161b22;border-radius:6px;font-size:10px;color:#6e7681;flex-wrap:wrap}
-.flow-step{color:#c9d1d9}.flow-arrow{color:#30363d}
-.footer{font-size:9px;color:#30363d;letter-spacing:.08em;text-align:center}
-.badge{display:inline-block;font-size:8px;padding:2px 6px;border-radius:3px;border:1px solid;letter-spacing:.07em;vertical-align:middle;margin-left:6px}
+body{background:#f0f4f8;color:#1e293b;font-family:'Inter',system-ui,sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px}
+.wrap{max-width:520px;width:100%}
+.logo{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+.logo-icon{width:40px;height:40px;background:#2563eb;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon svg{width:22px;height:22px;fill:#fff}
+h1{font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-.02em}
+.sub{font-size:13px;color:#64748b;margin-bottom:40px;margin-top:4px;padding-left:52px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:28px 32px;text-decoration:none;color:inherit;display:block;box-shadow:0 1px 3px rgba(0,0,0,.06);transition:box-shadow .15s,border-color .15s,transform .12s;margin-bottom:32px}
+.card:hover{border-color:#93c5fd;box-shadow:0 4px 16px rgba(37,99,235,.1);transform:translateY(-2px)}
+.card-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;margin-bottom:14px}
+.card-name{font-size:20px;font-weight:700;color:#0f172a;letter-spacing:-.02em;margin-bottom:6px}
+.card-desc{font-size:14px;color:#475569;line-height:1.7;margin-bottom:20px}
+.card-features{display:flex;flex-direction:column;gap:7px;margin-bottom:24px}
+.feat{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#334155}
+.feat-dot{width:6px;height:6px;border-radius:50%;background:#2563eb;flex-shrink:0;margin-top:5px}
+.launch-btn{display:inline-flex;align-items:center;gap:8px;background:#2563eb;color:#fff;font-family:inherit;font-size:14px;font-weight:600;padding:11px 22px;border-radius:8px;border:none;cursor:pointer;text-decoration:none;transition:background .15s}
+.launch-btn:hover{background:#1d4ed8}
+.launch-btn svg{width:16px;height:16px;fill:#fff}
+.footer{text-align:center;font-size:12px;color:#94a3b8}
+.admin-link{font-size:11px;color:#cbd5e1;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;margin-top:8px;display:block;text-align:center;transition:color .15s}
+.admin-link:hover{color:#64748b}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>INVITE AUTOMATION SUITE</h1>
-  <div class="sub">CONTACT RESEARCH · INVITE WORKFLOW · RSVP TRACKING</div>
-
-  <div class="flow">
-    <span class="flow-step">1. ContactScout</span>
-    <span class="flow-arrow">→</span>
-    <span style="color:#6e7681">scan &amp; verify officials</span>
-    <span class="flow-arrow">→</span>
-    <span style="color:#6e7681">export JSON</span>
-    <span class="flow-arrow">→</span>
-    <span class="flow-step">2. InviteFlow</span>
-    <span class="flow-arrow">→</span>
-    <span style="color:#6e7681">import · send · track</span>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+    </div>
+    <h1>InviteFlow</h1>
   </div>
+  <div class="sub">Event invite management · Gmail · Google Sheets</div>
 
-  <div class="cards">
-    <a class="card" href="contactscout.html">
-      <div class="card-name">ContactScout <span class="badge" style="border-color:#1f6feb;color:#58a6ff">CLAUDE API</span></div>
-      <div class="card-file">contactscout.html</div>
-      <div class="card-desc">
-        Research, verify, and discover elected officials using live web search.
-        Scan by category (Congress, state legislature, city councils).
-        Export a verified contact list for InviteFlow.
-      </div>
-    </a>
-    <a class="card" href="inviteflow.html">
-      <div class="card-name">InviteFlow <span class="badge" style="border-color:#238636;color:#3fb950">AUTO-SAVE</span></div>
-      <div class="card-file">inviteflow.html</div>
-      <div class="card-desc">
-        Compose and send personalized invite emails via Gmail.
-        Import from ContactScout JSON or CSV.
-        Track sent / RSVP status. Auto-saves to browser storage.
-      </div>
-    </a>
-  </div>
+  <a class="card" href="inviteflow.html">
+    <div class="card-badge">Web App · No Install Required</div>
+    <div class="card-name">Send &amp; Track Invitations</div>
+    <div class="card-desc">Compose personalized event invitations, send via Gmail, and track RSVPs — all in one place.</div>
+    <div class="card-features">
+      <div class="feat"><div class="feat-dot"></div><span>Import your guest list from Google Sheets or a CSV file</span></div>
+      <div class="feat"><div class="feat-dot"></div><span>Compose rich HTML or plain-text emails with custom templates</span></div>
+      <div class="feat"><div class="feat-dot"></div><span>Send personalized invites in bulk via Gmail with one click</span></div>
+      <div class="feat"><div class="feat-dot"></div><span>Track sent / opened / RSVP status and sync back to Sheets</span></div>
+    </div>
+    <span class="launch-btn">
+      <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      Open InviteFlow
+    </span>
+  </a>
 
-  <div class="footer">OPEN IN BROWSER · NO INSTALL · NO SERVER REQUIRED</div>
+  <div class="footer">Runs entirely in your browser &mdash; no server, no install</div>
+  <button class="admin-link" onclick="openScout()">Internal tools</button>
 </div>
+<script>
+// ContactScout is an internal research tool (Claude AI + web search).
+// Password: change atob value below to atob(btoa('yournewpassword'))
+const _sc = atob('c2NvdXQyMDI1'); // scout2025
+async function openScout() {
+  const pw = prompt('Internal access code:');
+  if (pw === null) return;
+  if (pw.trim() === _sc) {
+    window.location.href = 'contactscout.html';
+  } else {
+    alert('Incorrect access code.');
+  }
+}
+</script>
 </body>
 </html>
