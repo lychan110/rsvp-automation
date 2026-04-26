@@ -60,30 +60,19 @@ body{background:var(--bg);color:var(--text-1);font-family:var(--ff-b);min-height
 <div class="wrap">
   <div class="hero">
     <div class="eyebrow">Event Invitation Suite</div>
-    <h1>Research contacts.<br><em>Send invitations.</em><br>Track RSVPs.</h1>
-    <p class="sub">Two standalone browser tools that take you from contact research to confirmed guests — no installation, no server required.</p>
+    <h1>Compose invitations.<br><em>Send at scale.</em><br>Track RSVPs.</h1>
+    <p class="sub">A standalone browser tool that takes you from contact list to confirmed guests — no installation, no server required.</p>
   </div>
 
   <div class="flow">
-    <div class="fstep"><span class="fnum">1</span>ContactScout: find &amp; verify contacts</div>
+    <div class="fstep"><span class="fnum">1</span>Import contacts</div>
     <span class="farr">→</span>
-    <div class="fstep"><span class="fnum">2</span>Export contact list</div>
+    <div class="fstep"><span class="fnum">2</span>Compose &amp; send emails</div>
     <span class="farr">→</span>
-    <div class="fstep"><span class="fnum">3</span>InviteFlow: compose &amp; send emails</div>
-    <span class="farr">→</span>
-    <div class="fstep"><span class="fnum">4</span>Track RSVPs</div>
+    <div class="fstep"><span class="fnum">3</span>Track RSVPs</div>
   </div>
 
-  <div class="apps">
-    <div class="app-card" onclick="openScout()">
-      <div class="ac-top">
-        <span class="ac-name">ContactScout</span>
-        <span class="badge badge-blue">CLAUDE API</span>
-      </div>
-      <div class="ac-file">contactscout.html</div>
-      <div class="ac-desc">Research, verify, and discover contacts using live web search. Scan by category, confirm details, and export a verified contact list.</div>
-      <div class="ac-cta">Open ContactScout →</div>
-    </div>
+  <div class="apps" style="grid-template-columns:1fr">
     <a class="app-card" href="inviteflow.html">
       <div class="ac-top">
         <span class="ac-name">InviteFlow</span>
@@ -100,17 +89,5 @@ body{background:var(--bg);color:var(--text-1);font-family:var(--ff-b);min-height
     <div>InviteFlow Suite &nbsp;·&nbsp; Lenya Chan</div>
   </div>
 </div>
-<script>
-const _sc = atob('c2NvdXQyMDI1'); // scout2025
-async function openScout() {
-  const pw = prompt('Access code:');
-  if (pw === null) return;
-  if (pw.trim() === _sc) {
-    window.location.href = 'inviteflow.html';
-  } else {
-    alert('Incorrect access code.');
-  }
-}
-</script>
 </body>
 </html>
