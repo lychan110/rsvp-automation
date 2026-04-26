@@ -1,5 +1,4 @@
 import { useAppState } from '../state/AppContext';
-import type { Invitee } from '../types';
 
 interface CategoryRow {
   category: string;
@@ -9,6 +8,25 @@ interface CategoryRow {
   declined: number;
   noResponse: number;
 }
+
+const STAT_COLORS: Record<string, string> = {
+  TOTAL: 'border-l-gray-400 dark:border-l-[#8b949e]',
+  PENDING: 'border-l-gray-400 dark:border-l-[#6e7681]',
+  SENT: 'border-l-green-500 dark:border-l-[#3fb950]',
+  FAILED: 'border-l-red-500 dark:border-l-[#f85149]',
+  ATTENDING: 'border-l-[#C8A84B]',
+  DECLINED: 'border-l-red-500 dark:border-l-[#f85149]',
+  'NO RESPONSE': 'border-l-gray-400 dark:border-l-[#6e7681]',
+};
+const STAT_VALUE_COLORS: Record<string, string> = {
+  TOTAL: 'text-gray-500 dark:text-[#8b949e]',
+  PENDING: 'text-gray-500 dark:text-[#6e7681]',
+  SENT: 'text-green-600 dark:text-[#3fb950]',
+  FAILED: 'text-red-600 dark:text-[#f85149]',
+  ATTENDING: 'text-[#C8A84B]',
+  DECLINED: 'text-red-600 dark:text-[#f85149]',
+  'NO RESPONSE': 'text-gray-400 dark:text-[#6e7681]',
+};
 
 export default function TrackerTab() {
   const state = useAppState();
@@ -21,6 +39,11 @@ export default function TrackerTab() {
   const attending = inv.filter(i => i.rsvpStatus === 'Attending').length;
   const declined = inv.filter(i => i.rsvpStatus === 'Declined').length;
   const noResponse = inv.filter(i => i.rsvpStatus === 'No Response').length;
+
+  const stats: [string, number][] = [
+    ['TOTAL', total], ['PENDING', pending], ['SENT', sent],
+    ['FAILED', failed], ['ATTENDING', attending], ['DECLINED', declined], ['NO RESPONSE', noResponse],
+  ];
 
   const cats = Array.from(new Set(inv.map(i => i.category).filter(Boolean))).sort();
   const byCategory: CategoryRow[] = cats.map(cat => {
@@ -35,63 +58,61 @@ export default function TrackerTab() {
     };
   });
 
-  const card = (label: string, value: number, color: string) => (
-    <div key={label} style={{ background: '#0d1117', border: `1px solid #21262d`, borderRadius: 7, padding: '16px 20px', borderLeft: `3px solid ${color}` }}>
-      <div style={{ fontSize: 9, color: '#6e7681', letterSpacing: '0.12em', marginBottom: 6 }}>{label}</div>
-      <div style={{ fontSize: 28, color, fontWeight: 700 }}>{value}</div>
-    </div>
-  );
-
-  const th: React.CSSProperties = { fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', padding: '6px 12px', textAlign: 'left', borderBottom: '1px solid #21262d' };
-  const td: React.CSSProperties = { fontSize: 11, color: '#c9d1d9', padding: '7px 12px', borderBottom: '1px solid #161b22' };
-
   if (total === 0) {
     return (
-      <div style={{ padding: 40, textAlign: 'center', color: '#6e7681', fontSize: 12 }}>
+      <div className="p-10 text-gray-500 text-xs text-center dark:text-[#6e7681]">
         No invitees yet. Add them in the Invitees tab.
       </div>
     );
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 900, margin: '0 auto' }}>
-      <div style={{ fontSize: 13, color: '#f0f6fc', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 20 }}>TRACKER</div>
+    <div className="p-5 max-w-[900px] mx-auto w-full">
+      <div className="text-sm font-bold tracking-[0.08em] text-gray-900 mb-5 dark:text-[#f0f6fc]">TRACKER</div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(130px,1fr))', gap: 10, marginBottom: 28 }}>
-        {card('TOTAL', total, '#8b949e')}
-        {card('PENDING', pending, '#6e7681')}
-        {card('SENT', sent, '#3fb950')}
-        {card('FAILED', failed, '#f85149')}
-        {card('ATTENDING', attending, '#C8A84B')}
-        {card('DECLINED', declined, '#f85149')}
-        {card('NO RESPONSE', noResponse, '#6e7681')}
+      {/* Stat cards */}
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 mb-7">
+        {stats.map(([label, value]) => (
+          <div
+            key={label}
+            className={`bg-white border border-gray-200 border-l-4 rounded-lg px-4 py-3 dark:bg-[#0d1117] dark:border-[#21262d] ${STAT_COLORS[label]}`}
+          >
+            <div className="text-[9px] text-gray-500 tracking-[0.12em] font-mono mb-1.5 dark:text-[#6e7681]">{label}</div>
+            <div className={`text-2xl font-bold ${STAT_VALUE_COLORS[label]}`}>{value}</div>
+          </div>
+        ))}
       </div>
 
+      {/* By category table */}
       {byCategory.length > 0 && (
         <>
-          <div style={{ fontSize: 10, color: '#6e7681', letterSpacing: '0.12em', marginBottom: 10 }}>BY CATEGORY</div>
-          <div style={{ border: '1px solid #21262d', borderRadius: 7, overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr>
-                  {['Category', 'Total', 'Sent', 'Attending', 'Declined', 'No Response'].map(h => (
-                    <th key={h} style={th}>{h.toUpperCase()}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {byCategory.map(row => (
-                  <tr key={row.category}>
-                    <td style={td}>{row.category}</td>
-                    <td style={td}>{row.total}</td>
-                    <td style={{ ...td, color: '#3fb950' }}>{row.sent}</td>
-                    <td style={{ ...td, color: '#C8A84B' }}>{row.attending}</td>
-                    <td style={{ ...td, color: '#f85149' }}>{row.declined}</td>
-                    <td style={{ ...td, color: '#6e7681' }}>{row.noResponse}</td>
+          <div className="text-[10px] text-gray-500 tracking-widest font-mono uppercase mb-2.5 dark:text-[#6e7681]">BY CATEGORY</div>
+          <div className="border border-gray-200 rounded-lg overflow-hidden dark:border-[#21262d]">
+            <div className="overflow-x-auto" role="region" aria-label="Category breakdown" tabIndex={0}>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    {['Category', 'Total', 'Sent', 'Attending', 'Declined', 'No Response'].map(h => (
+                      <th key={h} className="text-[10px] text-gray-500 tracking-widest font-mono uppercase text-left px-3 py-2 border-b border-gray-200 dark:text-[#6e7681] dark:border-[#21262d]">
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {byCategory.map(row => (
+                    <tr key={row.category} className="border-b border-gray-100 last:border-0 dark:border-[#161b22]">
+                      <td className="text-xs text-gray-900 px-3 py-1.5 dark:text-[#c9d1d9]">{row.category}</td>
+                      <td className="text-xs text-gray-700 px-3 py-1.5 dark:text-[#c9d1d9]">{row.total}</td>
+                      <td className="text-xs text-green-600 px-3 py-1.5 dark:text-[#3fb950]">{row.sent}</td>
+                      <td className="text-xs text-[#C8A84B] px-3 py-1.5">{row.attending}</td>
+                      <td className="text-xs text-red-600 px-3 py-1.5 dark:text-[#f85149]">{row.declined}</td>
+                      <td className="text-xs text-gray-500 px-3 py-1.5 dark:text-[#6e7681]">{row.noResponse}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </>
       )}
