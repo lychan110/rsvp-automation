@@ -8,4 +8,10 @@
 
 body {
   margin: 0;
+  background: var(--bg-root);
+  color: var(--text-base);
 }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-subtle); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }

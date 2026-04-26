@@ -1,14 +1,11 @@
 /* TipTap editor content styles */
 .tiptap {
   outline: none;
+  background: transparent;
   min-height: 200px;
   font-size: 13px;
   line-height: 1.8;
-  color: #111827;
-}
-
-.dark .tiptap {
-  color: #c9d1d9;
+  color: var(--text-base);
 }
 
 .tiptap p {

@@ -52,3 +52,17 @@
 .p-datatable .p-datatable-thead > tr > th {
   padding: 6px 10px;
 }
+
+/* Row editor icon colors inherit text-color-secondary */
+.p-datatable .p-row-editor-init,
+.p-datatable .p-row-editor-save,
+.p-datatable .p-row-editor-cancel {
+  color: var(--text-color-secondary);
+}
+
+/* Paginator follows surface vars — explicit for safety */
+.p-paginator {
+  background: var(--surface-card);
+  border-color: var(--surface-border);
+  color: var(--text-color-secondary);
+}
