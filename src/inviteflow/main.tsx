@@ -7,6 +7,7 @@ import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import './styles/primereact-reset.css';
 import './styles/tiptap.css';
+import './theme.css';
 import App from './App';
 
 const root = document.getElementById('root');
