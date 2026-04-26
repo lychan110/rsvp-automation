@@ -1,5 +1,11 @@
+:root {
+  color-scheme: light;
+}
+
 /* Override PrimeReact lara-light-indigo vars for dark mode */
 .dark {
+  --highlight-bg: #1f3a5f;
+  --highlight-text-color: #58a6ff;
   --surface-ground: #080c10;
   --surface-section: #080c10;
   --surface-card: #0d1117;
