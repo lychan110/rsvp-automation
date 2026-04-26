@@ -85,7 +85,7 @@ export default function ComposeTab() {
 
       {/* Editor + Preview split */}
       <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', overflow: 'hidden' }}>
-        <div style={{ borderRight: '1px solid #21262d', overflow: 'auto', padding: 16 }}>
+        <div style={{ borderRight: '1px solid #21262d', overflow: 'auto', padding: 16, background: '#0d1117' }}>
           <div style={{ fontSize: 10, color: '#6e7681', letterSpacing: '0.1em', marginBottom: 8 }}>EDITOR</div>
           <EditorContent
             editor={editor}
