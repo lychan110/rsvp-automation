@@ -1,23 +1,5 @@
-[data-theme="dark"] {
-  --bg-root: #080c10;
-  --bg-surface: #0d1117;
-  --bg-subtle: #161b22;
-  --border: #21262d;
-  --text-base: #c9d1d9;
-  --text-heading: #f0f6fc;
-  --text-muted: #6e7681;
-  --text-secondary: #8b949e;
-  --accent: #1f6feb;
-  --gold: #C8A84B;
-  --gold-bg: #2a1a00;
-  --success: #3fb950;
-  --success-bg: #238636;
-  --danger: #f85149;
-  --danger-dark: #da3633;
-  --blue: #58a6ff;
-}
-
-[data-theme="light"] {
+/* Light mode defaults */
+:root {
   --bg-root: #f6f8fa;
   --bg-surface: #ffffff;
   --bg-subtle: #eaeef2;
@@ -34,4 +16,24 @@
   --danger: #cf222e;
   --danger-dark: #cf222e;
   --blue: #0969da;
+}
+
+/* Dark mode overrides — matches .dark class applied by AppContext */
+.dark {
+  --bg-root: #080c10;
+  --bg-surface: #0d1117;
+  --bg-subtle: #161b22;
+  --border: #21262d;
+  --text-base: #c9d1d9;
+  --text-heading: #f0f6fc;
+  --text-muted: #6e7681;
+  --text-secondary: #8b949e;
+  --accent: #1f6feb;
+  --gold: #C8A84B;
+  --gold-bg: #2a1a00;
+  --success: #3fb950;
+  --success-bg: #238636;
+  --danger: #f85149;
+  --danger-dark: #da3633;
+  --blue: #58a6ff;
 }

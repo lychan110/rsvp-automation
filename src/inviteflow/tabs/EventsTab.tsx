@@ -24,31 +24,6 @@ function blankEvent(id: string): AppEvent {
   };
 }
 
-function cardStyle(active: boolean): React.CSSProperties {
-  return {
-    background: 'var(--bg-surface)',
-    border: `1px solid ${active ? 'var(--gold)' : 'var(--border)'}`,
-    borderRadius: 7,
-    padding: '16px 18px',
-    cursor: 'pointer',
-    transition: 'border-color .15s',
-  };
-}
-
-function btnStyle(variant: 'pri' | 'del' | 'def'): React.CSSProperties {
-  return {
-    border: `1px solid ${variant === 'pri' ? 'var(--accent)' : variant === 'del' ? 'var(--danger-dark)' : 'var(--border)'}`,
-    background: variant === 'pri' ? 'var(--accent)' : 'transparent',
-    color: variant === 'pri' ? '#fff' : variant === 'del' ? 'var(--danger)' : 'var(--text-secondary)',
-    padding: '4px 10px',
-    borderRadius: 4,
-    cursor: 'pointer',
-    fontFamily: 'monospace',
-    fontSize: 10,
-    letterSpacing: '0.05em',
-  };
-}
-
 export default function EventsTab() {
   const state = useAppState();
   const dispatch = useAppDispatch();
@@ -108,44 +83,63 @@ export default function EventsTab() {
   }
 
   return (
-    <div style={{ padding: 24, maxWidth: 860, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <span style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, letterSpacing: '0.08em' }}>EVENTS</span>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button style={btnStyle('def')} onClick={loadEvents} disabled={loading}>
+    <div className="p-5 max-w-[860px] mx-auto w-full">
+      <div className="flex items-center justify-between mb-5">
+        <span className="text-sm font-bold tracking-[0.08em] text-gray-900 dark:text-[#f0f6fc]">EVENTS</span>
+        <div className="flex gap-2">
+          <button
+            onClick={loadEvents}
+            disabled={loading}
+            className="min-h-[44px] px-3 py-1 rounded border border-gray-300 bg-transparent text-gray-700 text-xs font-mono tracking-wide cursor-pointer hover:bg-gray-100 dark:border-[#21262d] dark:text-[#8b949e] dark:hover:bg-[#161b22] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {loading ? 'Loading…' : 'Refresh'}
           </button>
-          <button style={btnStyle('pri')} onClick={createEvent}>+ New Event</button>
+          <button
+            onClick={createEvent}
+            className="min-h-[44px] px-3 py-1 rounded border border-blue-600 bg-blue-600 text-white text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-700 dark:border-[#1f6feb] dark:bg-[#1f6feb]"
+          >
+            + New Event
+          </button>
         </div>
       </div>
 
-      {err && <div style={{ color: 'var(--danger)', fontSize: 11, marginBottom: 12 }}>{err}</div>}
+      {err && <div className="text-xs text-red-600 mb-3 dark:text-[#f85149]">{err}</div>}
 
       {state.events.length === 0 && !loading && (
-        <div style={{ color: 'var(--text-muted)', fontSize: 12, textAlign: 'center', padding: 40 }}>
-          No events yet. Click "+ New Event" to create one.
+        <div className="text-gray-500 text-xs text-center py-10 dark:text-[#6e7681]">
+          No events yet. Click &ldquo;+ New Event&rdquo; to create one.
         </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(260px,1fr))', gap: 12 }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {state.events.map(ev => (
           <div
             key={ev.id}
-            style={cardStyle(state.activeEventId === ev.id)}
+            className={[
+              'bg-white border rounded-lg p-4 cursor-pointer transition-colors dark:bg-[#0d1117]',
+              state.activeEventId === ev.id
+                ? 'border-[#C8A84B]'
+                : 'border-gray-200 hover:border-gray-400 dark:border-[#21262d] dark:hover:border-[#484f58]',
+            ].join(' ')}
             onClick={() => { dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id }); dispatch({ type: 'SET_TAB', tab: 'setup' }); }}
           >
-            <div style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, marginBottom: 4 }}>{ev.name || 'Unnamed Event'}</div>
-            <div style={{ fontSize: 10, color: 'var(--text-muted)', marginBottom: 12 }}>
+            <div className="text-sm font-bold text-gray-900 mb-1 dark:text-[#f0f6fc]">{ev.name || 'Unnamed Event'}</div>
+            <div className="text-[10px] text-gray-500 mb-3 dark:text-[#6e7681]">
               {ev.date || 'No date'} · {ev.venue || 'No venue'}
             </div>
-            <div style={{ display: 'flex', gap: 6 }} onClick={e => e.stopPropagation()}>
+            <div className="flex gap-2" onClick={e => e.stopPropagation()}>
               <button
-                style={btnStyle('pri')}
                 onClick={() => { dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id }); dispatch({ type: 'SET_TAB', tab: 'setup' }); }}
+                className="min-h-[44px] px-3 py-1 rounded border border-blue-600 bg-blue-600 text-white text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-700 dark:border-[#1f6feb] dark:bg-[#1f6feb]"
               >
                 {state.activeEventId === ev.id ? '✓ Active' : 'Activate'}
               </button>
-              <button style={btnStyle('del')} onClick={() => deleteEvent(ev.id)}>Delete</button>
+              <button
+                onClick={() => deleteEvent(ev.id)}
+                className="min-h-[44px] px-3 py-1 rounded border border-red-500 bg-transparent text-red-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-red-50 dark:border-[#f85149] dark:text-[#f85149] dark:hover:bg-[#2d0f0e]"
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}

@@ -45,6 +45,8 @@ function onFormSubmit(e) {
   }
 }`;
 
+const SECTION = "text-[10px] text-gray-500 tracking-widest font-mono uppercase mt-5 mb-2.5 border-b border-gray-200 pb-1.5 dark:text-[#6e7681] dark:border-[#21262d]";
+
 export default function SyncTab() {
   const state = useAppState();
   const dispatch = useAppDispatch();
@@ -62,13 +64,12 @@ export default function SyncTab() {
       const token = await getToken('spreadsheets');
       const id = extractSheetId(ev.masterSheetUrl);
       await sheetsClear(token, id, 'Sheet1!A:K');
-      const header = MASTER_COLUMNS;
       const rows = state.invitees.map(i => [
         i.firstName, i.lastName, i.title, i.category, i.email, i.rsvpLink,
         i.inviteStatus === 'sent' ? 'TRUE' : 'FALSE',
         i.sentAt, i.rsvpStatus, i.rsvpDate, i.notes,
       ]);
-      await sheetsUpdate(token, id, 'Sheet1!A1', [header, ...rows]);
+      await sheetsUpdate(token, id, 'Sheet1!A1', [MASTER_COLUMNS, ...rows]);
       setStatus(`Pushed ${rows.length} rows to master sheet.`);
     } catch (e) {
       setStatus('Error: ' + String(e));
@@ -115,62 +116,72 @@ export default function SyncTab() {
     }
   }
 
-  const btn = (color = 'var(--text-secondary)', bg = 'transparent', disabled = false): React.CSSProperties => ({
-    border: `1px solid ${color}`, background: bg, color, padding: '6px 14px',
-    borderRadius: 4, cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.5 : 1,
-    fontFamily: 'monospace', fontSize: 11, letterSpacing: '0.05em',
-  });
-
-  const sectionLabel: React.CSSProperties = { fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.12em', marginBottom: 10, marginTop: 20 };
-
   return (
-    <div style={{ padding: 24, maxWidth: 760, margin: '0 auto' }}>
-      <div style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, letterSpacing: '0.08em', marginBottom: 16 }}>SYNC</div>
+    <div className="p-5 max-w-[760px] mx-auto w-full">
+      <div className="text-sm font-bold tracking-[0.08em] text-gray-900 mb-4 dark:text-[#f0f6fc]">SYNC</div>
 
       {status && (
-        <div style={{ fontSize: 11, color: status.startsWith('Error') ? 'var(--danger)' : 'var(--success)', marginBottom: 14 }}>{status}</div>
+        <div className={`text-xs mb-4 ${status.startsWith('Error') ? 'text-red-600 dark:text-[#f85149]' : 'text-green-600 dark:text-[#3fb950]'}`}>
+          {status}
+        </div>
       )}
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 28 }}>
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 7, padding: '18px 20px' }}>
-          <div style={sectionLabel}>PUSH TO MASTER SHEET</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14, lineHeight: 1.7 }}>
+      {/* Action cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-7">
+        {/* Push card */}
+        <div className="bg-white border border-gray-200 rounded-lg p-5 dark:bg-[#0d1117] dark:border-[#21262d]">
+          <div className={SECTION}>PUSH TO MASTER SHEET</div>
+          <p className="text-xs text-gray-500 mb-4 leading-relaxed dark:text-[#6e7681]">
             Clears and rewrites all {state.invitees.length} invitees to your master Google Sheet.
-            {ev?.masterSheetUrl
-              ? <><br /><a href={ev.masterSheetUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--blue)', fontSize: 10 }}>Open sheet ↗</a></>
-              : <><br /><span style={{ color: 'var(--danger)', fontSize: 10 }}>Master Sheet URL not set in Setup.</span></>
-            }
-          </div>
-          <button style={btn('var(--success)', 'var(--success-bg)', pushing)} onClick={pushToSheets} disabled={pushing}>
+          </p>
+          {ev?.masterSheetUrl
+            ? <a href={ev.masterSheetUrl} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 dark:text-[#58a6ff] mb-3 block">Open sheet ↗</a>
+            : <span className="text-[10px] text-red-600 dark:text-[#f85149] mb-3 block">Master Sheet URL not set in Setup.</span>
+          }
+          <button
+            className="min-h-[44px] px-3 py-1 rounded border border-green-600 bg-green-600 text-white text-xs font-mono tracking-wide cursor-pointer hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed dark:border-[#238636] dark:bg-[#238636]"
+            onClick={pushToSheets}
+            disabled={pushing}
+          >
             {pushing ? 'Pushing…' : `Push ${state.invitees.length} rows`}
           </button>
         </div>
 
-        <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 7, padding: '18px 20px' }}>
-          <div style={sectionLabel}>PULL RSVP RESPONSES</div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginBottom: 14, lineHeight: 1.7 }}>
+        {/* Pull card */}
+        <div className="bg-white border border-gray-200 rounded-lg p-5 dark:bg-[#0d1117] dark:border-[#21262d]">
+          <div className={SECTION}>PULL RSVP RESPONSES</div>
+          <p className="text-xs text-gray-500 mb-4 leading-relaxed dark:text-[#6e7681]">
             Reads RSVP statuses from your response sheet and updates invitee records.
-            {ev?.rsvpResponseUrl
-              ? <><br /><a href={ev.rsvpResponseUrl} target="_blank" rel="noreferrer" style={{ color: 'var(--blue)', fontSize: 10 }}>Open sheet ↗</a></>
-              : <><br /><span style={{ color: 'var(--danger)', fontSize: 10 }}>RSVP Response Sheet URL not set in Setup.</span></>
-            }
-          </div>
-          <button style={btn('var(--blue)', 'transparent', pulling)} onClick={pullRsvp} disabled={pulling}>
+          </p>
+          {ev?.rsvpResponseUrl
+            ? <a href={ev.rsvpResponseUrl} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 dark:text-[#58a6ff] mb-3 block">Open sheet ↗</a>
+            : <span className="text-[10px] text-red-600 dark:text-[#f85149] mb-3 block">RSVP Response Sheet URL not set in Setup.</span>
+          }
+          <button
+            className="min-h-[44px] px-3 py-1 rounded border border-blue-400 bg-transparent text-blue-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-[#58a6ff] dark:text-[#58a6ff] dark:hover:bg-[#0d1f3c]"
+            onClick={pullRsvp}
+            disabled={pulling}
+          >
             {pulling ? 'Pulling…' : 'Pull RSVP Responses'}
           </button>
         </div>
       </div>
 
-      <div style={sectionLabel}>GAS RSVP INGEST TRIGGER</div>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.8, marginBottom: 12 }}>
-        Paste this script into your Google Form's Apps Script project. Add a trigger on <code style={{ background: 'var(--bg-subtle)', padding: '1px 4px', borderRadius: 3 }}>onFormSubmit</code> (Form Submit event). Set script property <code style={{ background: 'var(--bg-subtle)', padding: '1px 4px', borderRadius: 3 }}>MASTER_SHEET_URL</code> to your master sheet URL.
-      </div>
-      <div style={{ position: 'relative' }}>
-        <pre style={{ background: 'var(--bg-surface)', border: '1px solid var(--border)', borderRadius: 6, padding: '14px 16px', fontSize: 10, color: 'var(--text-base)', overflowX: 'auto', lineHeight: 1.7 }}>
+      {/* GAS section */}
+      <div className={SECTION}>GAS RSVP INGEST TRIGGER</div>
+      <p className="text-xs text-gray-500 leading-relaxed mb-3 dark:text-[#6e7681]">
+        Paste this script into your Google Form's Apps Script project. Add a trigger on{' '}
+        <code className="bg-gray-100 px-1 rounded text-[10px] dark:bg-[#161b22]">onFormSubmit</code>{' '}
+        (Form Submit event). Set script property{' '}
+        <code className="bg-gray-100 px-1 rounded text-[10px] dark:bg-[#161b22]">MASTER_SHEET_URL</code>{' '}
+        to your master sheet URL.
+      </p>
+      <div className="relative">
+        <pre className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-[10px] text-gray-800 overflow-x-auto leading-relaxed dark:bg-[#0d1117] dark:border-[#21262d] dark:text-[#c9d1d9]">
           {GAS_CODE}
         </pre>
         <button
-          style={{ position: 'absolute', top: 8, right: 8, ...btn('var(--text-muted)') }}
+          className="absolute top-2 right-2 min-h-[32px] px-2.5 py-1 rounded border border-gray-300 bg-white text-gray-600 text-[10px] font-mono cursor-pointer hover:border-gray-500 dark:bg-[#161b22] dark:border-[#21262d] dark:text-[#8b949e]"
           onClick={() => { navigator.clipboard.writeText(GAS_CODE); setStatus('Copied GAS code to clipboard.'); }}
         >
           Copy

@@ -1,6 +1,10 @@
 import type { AppState } from '../types';
 import type { Action } from './actions';
 
+function loadDarkPref(): boolean {
+  return localStorage.getItem('inviteflow_theme') === 'dark';
+}
+
 export const INITIAL_STATE: AppState = {
   activeEventId: null,
   events: [],
@@ -12,7 +16,7 @@ export const INITIAL_STATE: AppState = {
   sending: false,
   sendProgress: { current: 0, total: 0 },
   unsaved: false,
-  theme: 'dark',
+  darkMode: loadDarkPref(),
 };
 
 export function reducer(state: AppState, action: Action): AppState {
@@ -52,10 +56,13 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, sending: false };
     case 'SET_UNSAVED':
       return { ...state, unsaved: action.unsaved };
+    case 'TOGGLE_DARK': {
+      const next = !state.darkMode;
+      localStorage.setItem('inviteflow_theme', next ? 'dark' : 'light');
+      return { ...state, darkMode: next };
+    }
     case 'LOAD_STATE':
       return { ...state, ...action.partial };
-    case 'TOGGLE_THEME':
-      return { ...state, theme: state.theme === 'dark' ? 'light' : 'dark' };
     default:
       return state;
   }

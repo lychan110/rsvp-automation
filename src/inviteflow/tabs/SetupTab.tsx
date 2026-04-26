@@ -20,6 +20,10 @@ const FIELDS: Array<{ key: keyof AppEvent; label: string; type?: string; placeho
   { key: 'imgEmblemUrl', label: 'Emblem Image URL', placeholder: 'https://drive.google.com/…' },
 ];
 
+const INPUT = "w-full bg-white border border-gray-300 text-gray-900 text-xs font-mono px-2.5 py-1.5 rounded outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:bg-[#0d1117] dark:border-[#21262d] dark:text-[#c9d1d9] dark:focus:border-[#58a6ff]";
+const LABEL = "text-[10px] text-gray-500 tracking-widest font-mono uppercase mb-1 block dark:text-[#6e7681]";
+const SECTION = "text-[10px] text-gray-500 tracking-widest font-mono uppercase mt-5 mb-2.5 border-b border-gray-200 pb-1.5 dark:text-[#6e7681] dark:border-[#21262d]";
+
 export default function SetupTab() {
   const state = useAppState();
   const dispatch = useAppDispatch();
@@ -31,11 +35,15 @@ export default function SetupTab() {
 
   if (!ev) {
     return (
-      <div style={{ padding: 40, color: 'var(--text-muted)', fontSize: 12, textAlign: 'center' }}>
-        No active event. Go to <button
-          style={{ background: 'none', border: 'none', color: 'var(--blue)', cursor: 'pointer', fontFamily: 'monospace', fontSize: 12 }}
+      <div className="p-10 text-gray-500 text-xs text-center dark:text-[#6e7681]">
+        No active event. Go to{' '}
+        <button
+          className="text-blue-600 bg-transparent border-none cursor-pointer font-mono text-xs dark:text-[#58a6ff]"
           onClick={() => dispatch({ type: 'SET_TAB', tab: 'events' })}
-        >Events</button> to create or activate one.
+        >
+          Events
+        </button>{' '}
+        to create or activate one.
       </div>
     );
   }
@@ -70,69 +78,57 @@ export default function SetupTab() {
     }
   }
 
-  const inputStyle: React.CSSProperties = {
-    background: 'var(--bg-surface)',
-    border: '1px solid var(--border)',
-    color: 'var(--text-base)',
-    padding: '6px 10px',
-    borderRadius: 5,
-    fontFamily: 'monospace',
-    fontSize: 11,
-    width: '100%',
-    outline: 'none',
-  };
-  const labelStyle: React.CSSProperties = { fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.1em', marginBottom: 4, display: 'block' };
-  const sectionStyle: React.CSSProperties = { fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.12em', marginTop: 20, marginBottom: 10, borderBottom: '1px solid var(--border)', paddingBottom: 6 };
-  const btnStyle = (color: string): React.CSSProperties => ({
-    border: `1px solid ${color}`,
-    background: 'transparent',
-    color,
-    padding: '5px 12px',
-    borderRadius: 4,
-    cursor: 'pointer',
-    fontFamily: 'monospace',
-    fontSize: 10,
-    letterSpacing: '0.05em',
-  });
-
   return (
-    <div style={{ padding: 24, maxWidth: 640, margin: '0 auto' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <span style={{ fontSize: 13, color: 'var(--text-heading)', fontWeight: 700, letterSpacing: '0.08em' }}>SETUP</span>
+    <div className="p-5 max-w-[640px] mx-auto w-full">
+      <div className="flex items-center justify-between mb-4">
+        <span className="text-sm font-bold tracking-[0.08em] text-gray-900 dark:text-[#f0f6fc]">SETUP</span>
         <button
-          style={{ ...btnStyle('var(--success)'), background: 'var(--success-bg)', color: '#fff', border: '1px solid var(--success-bg)' }}
           onClick={save}
           disabled={saving}
+          className="min-h-[44px] px-3 py-1 rounded border border-green-600 bg-green-600 text-white text-xs font-mono tracking-wide cursor-pointer hover:bg-green-700 dark:border-[#238636] dark:bg-[#238636] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? 'Saving…' : 'Save'}
         </button>
       </div>
 
-      {status && <div style={{ fontSize: 11, color: status.startsWith('Error') ? 'var(--danger)' : 'var(--success)', marginBottom: 12 }}>{status}</div>}
+      {status && (
+        <div className={`text-xs mb-3 ${status.startsWith('Error') ? 'text-red-600 dark:text-[#f85149]' : 'text-green-600 dark:text-[#3fb950]'}`}>
+          {status}
+        </div>
+      )}
 
-      <div style={sectionStyle}>GOOGLE OAUTH</div>
-      <div style={{ marginBottom: 12 }}>
-        <label style={labelStyle}>Google Client ID</label>
+      <div className={SECTION}>GOOGLE OAUTH</div>
+      <div className="mb-3">
+        <label className={LABEL}>Google Client ID</label>
         <input
-          style={inputStyle}
+          className={INPUT}
           value={clientIdDraft}
           onChange={e => setClientIdDraft(e.target.value)}
           placeholder="123456789-abc.apps.googleusercontent.com"
         />
       </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
-        <button style={btnStyle('var(--blue)')} onClick={() => authorize('spreadsheets')}>Authorize Sheets</button>
-        <button style={btnStyle('var(--blue)')} onClick={() => authorize('gmail.send')}>Authorize Gmail</button>
-        <button style={btnStyle('var(--blue)')} onClick={() => authorize('drive.appdata')}>Authorize Drive</button>
+      <div className="flex flex-wrap gap-2 mb-5">
+        <button
+          className="min-h-[44px] px-3 py-1 rounded border border-blue-400 bg-transparent text-blue-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-50 dark:border-[#58a6ff] dark:text-[#58a6ff] dark:hover:bg-[#0d1f3c]"
+          onClick={() => authorize('spreadsheets')}
+        >Authorize Sheets</button>
+        <button
+          className="min-h-[44px] px-3 py-1 rounded border border-blue-400 bg-transparent text-blue-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-50 dark:border-[#58a6ff] dark:text-[#58a6ff] dark:hover:bg-[#0d1f3c]"
+          onClick={() => authorize('gmail.send')}
+        >Authorize Gmail</button>
+        <button
+          className="min-h-[44px] px-3 py-1 rounded border border-blue-400 bg-transparent text-blue-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-50 dark:border-[#58a6ff] dark:text-[#58a6ff] dark:hover:bg-[#0d1f3c]"
+          onClick={() => authorize('drive.appdata')}
+        >Authorize Drive</button>
       </div>
 
-      <div style={sectionStyle}>EVENT DETAILS</div>
-      <div style={{ display: 'grid', gap: 12 }}>
+      <div className={SECTION}>EVENT DETAILS</div>
+      <div className="grid gap-3">
         {FIELDS.map(f => (
           <div key={f.key}>
-            <label style={labelStyle}>{f.label.toUpperCase()}</label>
+            <label className={LABEL}>{f.label}</label>
             <input
-              style={inputStyle}
+              className={INPUT}
               type={f.type ?? 'text'}
               value={String(ev[f.key] ?? '')}
               onChange={e => update(f.key, e.target.value)}
