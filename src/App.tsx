@@ -40,7 +40,7 @@ const STATUS_LABEL: Record<CSStatus, string> = {
   changed: 'CHANGED', left_office: 'LEFT OFFICE', error: 'ERROR',
 };
 const STATUS_COLOR: Record<CSStatus, string> = {
-  pending: '#6e7681', checking: '#f59e0b', done: '#3fb950',
+  pending: '#8b949e', checking: '#f59e0b', done: '#3fb950',
   changed: '#58a6ff', left_office: '#f85149', error: '#e3b341',
 };
 
@@ -97,10 +97,10 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
   }
 
   return (
-    <div style={{ height: '100vh', background: '#080c10', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ height: '100dvh', background: '#080c10', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
       <div style={{ background: '#0d1117', border: '1px solid #21262d', borderRadius: 10, padding: '32px 36px', width: 360, fontFamily: 'monospace' }}>
         <div style={{ fontSize: 17, fontWeight: 800, color: '#f0f6fc', letterSpacing: '-0.02em', marginBottom: 4 }}>CONTACT SCOUT</div>
-        <div style={{ fontSize: 9, color: '#6e7681', letterSpacing: '0.12em', marginBottom: 20 }}>by Lenya Chan · ELECTED OFFICIALS DISCOVERY</div>
+        <div style={{ fontSize: 9, color: '#8b949e', letterSpacing: '0.12em', marginBottom: 20 }}>by Lenya Chan · ELECTED OFFICIALS DISCOVERY</div>
         <div style={{ fontSize: 11, color: '#8b949e', lineHeight: 1.7, marginBottom: 16 }}>
           ContactScout uses Claude AI to discover and verify elected officials. Enter your access code to continue.
         </div>
@@ -112,7 +112,7 @@ function PasswordGate({ onUnlock }: { onUnlock: () => void }) {
             onChange={e => { setPw(e.target.value); setErr(false); }}
             onKeyDown={e => e.key === 'Enter' && attempt()}
             autoFocus
-            style={{ flex: 1, background: '#010409', border: `1px solid ${err ? '#da3633' : '#30363d'}`, borderRadius: 4, color: '#c9d1d9', fontFamily: 'monospace', fontSize: 11, padding: '8px 10px', outline: 'none' }}
+            style={{ flex: 1, background: '#010409', border: `1px solid ${err ? '#da3633' : '#30363d'}`, borderRadius: 4, color: '#c9d1d9', fontFamily: 'monospace', fontSize: 11, padding: '8px 10px' }}
           />
           <button
             onClick={attempt}
@@ -438,7 +438,7 @@ function ContactScoutInner() {
   });
 
   const tagStyle = (status: CSStatus): React.CSSProperties => ({
-    fontSize: 8, padding: '2px 5px', borderRadius: 3, letterSpacing: '0.07em',
+    fontSize: 10, padding: '2px 6px', borderRadius: 3, letterSpacing: '0.07em',
     border: `1px solid ${STATUS_COLOR[status]}`, color: STATUS_COLOR[status],
     animation: status === 'checking' ? 'cs-pulse 1.4s ease-in-out infinite' : undefined,
   });
@@ -446,16 +446,16 @@ function ContactScoutInner() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', background: '#080c10', fontFamily: 'monospace', fontSize: 11, overflow: 'hidden' }}>
-      <style>{`@keyframes cs-pulse{0%,100%{opacity:1}50%{opacity:.3}}`}</style>
+    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column', background: '#080c10', fontFamily: 'monospace', fontSize: 11, overflow: 'hidden' }}>
+      <style>{`@keyframes cs-pulse{0%,100%{opacity:1}50%{opacity:.3}}*:focus-visible{outline:2px solid #58a6ff;outline-offset:2px;}`}</style>
       <input ref={importFileRef} type="file" accept=".json" style={{ display: 'none' }} onChange={e => { const f = e.target.files?.[0]; if (f) { importBackup(f); e.target.value = ''; } }} />
 
       {/* Header */}
       <div style={{ padding: '10px 20px', borderBottom: '1px solid #21262d', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8, flexShrink: 0 }}>
         <div>
           <span style={{ fontWeight: 800, fontSize: 16, color: '#f0f6fc', letterSpacing: '-0.02em' }}>CONTACT SCOUT</span>
-          <span style={{ fontSize: 9, color: '#6e7681', letterSpacing: '0.1em', marginLeft: 10 }}>ELECTED OFFICIALS · VERIFY + DISCOVER</span>
-          <div style={{ fontSize: 9, color: '#6e7681', marginTop: 1 }}>by Lenya Chan</div>
+          <span style={{ fontSize: 9, color: '#8b949e', letterSpacing: '0.1em', marginLeft: 10 }}>ELECTED OFFICIALS · VERIFY + DISCOVER</span>
+          <div style={{ fontSize: 9, color: '#8b949e', marginTop: 1 }}>by Lenya Chan</div>
         </div>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
           {newOfficials.length > 0 && (
@@ -488,7 +488,7 @@ function ContactScoutInner() {
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
             <button style={btn('pri')} onClick={() => openKeyModal()}>→ Add Claude API Key</button>
-            <span style={{ fontSize: 9, color: '#6e7681' }}>Free key at console.anthropic.com → API Keys → Create Key</span>
+            <span style={{ fontSize: 9, color: '#8b949e' }}>Free key at console.anthropic.com → API Keys → Create Key</span>
           </div>
         </div>
       )}
@@ -498,7 +498,7 @@ function ContactScoutInner() {
         {([['TOTAL', stats.total, '#8b949e'], ['VERIFIED', stats.done, '#3fb950'], ['CHANGED', stats.changed, '#58a6ff'], ['LEFT OFFICE', stats.left, '#f85149'], ['READY TO INVITE', stats.ready, '#a371f7']] as const).map(([label, n, col]) => (
           <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: col, display: 'inline-block' }} />
-            <span style={{ fontSize: 9, color: '#6e7681', letterSpacing: '0.1em' }}>{label}</span>
+            <span style={{ fontSize: 9, color: '#8b949e', letterSpacing: '0.1em' }}>{label}</span>
             <span style={{ fontSize: 12, fontWeight: 500, color: col }}>{n}</span>
           </div>
         ))}
@@ -518,7 +518,7 @@ function ContactScoutInner() {
           <button
             key={i}
             onClick={() => setTab(i as 0 | 1)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.04em', padding: '8px 16px', color: tab === i ? '#f0f6fc' : '#6e7681', borderBottom: `2px solid ${tab === i ? '#1f6feb' : 'transparent'}` }}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'monospace', fontSize: 10, letterSpacing: '0.04em', padding: '8px 16px', color: tab === i ? '#f0f6fc' : '#8b949e', borderBottom: `2px solid ${tab === i ? '#1f6feb' : 'transparent'}` }}
           >
             {label}
           </button>
@@ -559,16 +559,16 @@ function ContactScoutInner() {
 
         {/* Log panel */}
         <div style={{ overflowY: 'auto', padding: '11px 13px', background: '#050709', borderLeft: '1px solid #161b22', minHeight: 0 }}>
-          <div style={{ fontSize: 9, color: '#6e7681', letterSpacing: '0.14em', marginBottom: 6 }}>ACTIVITY LOG</div>
-          <div style={{ fontSize: 10, color: '#21262d', fontStyle: 'italic', marginBottom: 6 }}>⬡ Export → InviteFlow to download invitee list.</div>
-          {log.length === 0 && <div style={{ fontSize: 10, color: '#2d3340', fontStyle: 'italic' }}>No activity yet.</div>}
+          <div style={{ fontSize: 9, color: '#8b949e', letterSpacing: '0.14em', marginBottom: 6 }}>ACTIVITY LOG</div>
+          <div style={{ fontSize: 10, color: '#8b949e', fontStyle: 'italic', marginBottom: 6 }}>⬡ Export → InviteFlow to download invitee list.</div>
+          {log.length === 0 && <div style={{ fontSize: 10, color: '#7d8590', fontStyle: 'italic' }}>No activity yet.</div>}
           {log.map((entry, i) => (
-            <div key={i} style={{ fontSize: 10, color: i === 0 ? '#8b949e' : '#2d3340', marginBottom: 3, lineHeight: 1.5, borderLeft: `2px solid ${i === 0 ? '#1f6feb' : 'transparent'}`, paddingLeft: 5 }}>
+            <div key={i} style={{ fontSize: 10, color: i === 0 ? '#8b949e' : '#7d8590', marginBottom: 3, lineHeight: 1.5, borderLeft: `2px solid ${i === 0 ? '#1f6feb' : 'transparent'}`, paddingLeft: 5 }}>
               {entry}
             </div>
           ))}
           <div style={{ marginTop: 14, paddingTop: 10, borderTop: '1px solid #161b22' }}>
-            <div style={{ fontSize: 9, color: '#6e7681', letterSpacing: '0.1em', marginBottom: 6 }}>DATA</div>
+            <div style={{ fontSize: 9, color: '#8b949e', letterSpacing: '0.1em', marginBottom: 6 }}>DATA</div>
             <button style={{ ...btn(), width: '100%', marginBottom: 4, textAlign: 'left' }} onClick={exportBackup}>↓ Backup (.json)</button>
             <button style={{ ...btn(), width: '100%', marginBottom: 4, textAlign: 'left' }} onClick={() => importFileRef.current?.click()}>↑ Import backup</button>
             <button style={{ ...btn('del'), width: '100%', textAlign: 'left' }} onClick={clearAll}>✕ Clear all data</button>
@@ -581,7 +581,7 @@ function ContactScoutInner() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.8)', zIndex: 50, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ background: '#0d1117', border: '1px solid #30363d', borderRadius: 8, padding: '22px 24px', width: 380, maxWidth: '90vw' }}>
             <div style={{ fontSize: 12, color: '#f0f6fc', fontWeight: 700, marginBottom: 6 }}>Claude API Key</div>
-            <div style={{ fontSize: 10, color: '#6e7681', lineHeight: 1.6, marginBottom: 12 }}>
+            <div style={{ fontSize: 10, color: '#8b949e', lineHeight: 1.6, marginBottom: 12 }}>
               Enter your Anthropic API key. Get a free key at{' '}
               <a href="https://console.anthropic.com/" target="_blank" rel="noreferrer" style={{ color: '#58a6ff' }}>console.anthropic.com</a>
               {' '}→ API Keys → Create Key. Starts with <code>sk-ant-</code>. Stored in session only — never persisted.
@@ -592,7 +592,7 @@ function ContactScoutInner() {
               value={keyDraft}
               onChange={e => { setKeyDraft(e.target.value); setKeyErr(false); }}
               onKeyDown={e => e.key === 'Enter' && saveKey()}
-              style={{ width: '100%', background: '#010409', border: `1px solid ${keyErr ? '#da3633' : '#30363d'}`, borderRadius: 4, color: '#c9d1d9', fontFamily: 'monospace', fontSize: 11, padding: '7px 10px', outline: 'none', marginBottom: 8 }}
+              style={{ width: '100%', background: '#010409', border: `1px solid ${keyErr ? '#da3633' : '#30363d'}`, borderRadius: 4, color: '#c9d1d9', fontFamily: 'monospace', fontSize: 11, padding: '7px 10px', marginBottom: 8 }}
               autoFocus
             />
             {keyErr && <div style={{ fontSize: 10, color: '#f85149', marginBottom: 8 }}>Must start with sk-ant-</div>}
@@ -640,7 +640,7 @@ function VerifyTab({ officials, allOfficials, activeCat, setActiveCat, selected,
             <button
               key={c}
               onClick={() => setActiveCat(c)}
-              style={{ border: `1px solid ${activeCat === c ? '#1f6feb' : '#21262d'}`, background: activeCat === c ? '#0c2d6b' : 'transparent', color: activeCat === c ? '#58a6ff' : '#6e7681', padding: '3px 8px', borderRadius: 20, cursor: 'pointer', fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.07em' }}
+              style={{ border: `1px solid ${activeCat === c ? '#1f6feb' : '#21262d'}`, background: activeCat === c ? '#0c2d6b' : 'transparent', color: activeCat === c ? '#58a6ff' : '#8b949e', padding: '3px 8px', borderRadius: 20, cursor: 'pointer', fontFamily: 'monospace', fontSize: 9, letterSpacing: '0.07em' }}
             >
               {c.toUpperCase()}
             </button>
@@ -655,7 +655,7 @@ function VerifyTab({ officials, allOfficials, activeCat, setActiveCat, selected,
       </div>
 
       {officials.length === 0 && (
-        <div style={{ padding: '40px 20px', textAlign: 'center', color: '#6e7681', fontSize: 11 }}>
+        <div style={{ padding: '40px 20px', textAlign: 'center', color: '#8b949e', fontSize: 11 }}>
           No officials yet. Use <strong style={{ color: '#c9d1d9' }}>＋ Scan for New</strong> to discover, or{' '}
           <button style={{ background: 'none', border: 'none', color: '#58a6ff', cursor: 'pointer', fontFamily: 'monospace', fontSize: 11 }} onClick={addManually}>+ Add Manually</button>.
         </div>
@@ -674,9 +674,9 @@ function VerifyTab({ officials, allOfficials, activeCat, setActiveCat, selected,
               <div>
                 <div style={{ fontSize: 11, fontWeight: 500, color: '#f0f6fc' }}>{o.name}</div>
                 <div style={{ fontSize: 9, color: '#8b949e' }}>{o.title}{o.district ? ` · D${o.district}` : ''}{o.county ? ` · ${o.county}` : ''}</div>
-                <div style={{ fontSize: 9, color: '#6e7681', fontStyle: 'italic' }}>{o.directEmail || o.officeEmail || 'no email'}</div>
+                <div style={{ fontSize: 9, color: '#8b949e', fontStyle: 'italic' }}>{o.directEmail || o.officeEmail || 'no email'}</div>
               </div>
-              <div style={{ fontSize: 9, color: '#6e7681', paddingTop: 1 }}>{o.category}</div>
+              <div style={{ fontSize: 9, color: '#8b949e', paddingTop: 1 }}>{o.category}</div>
               <div><span style={tagStyle(o.status)}>{STATUS_LABEL[o.status]}</span></div>
               <div style={{ fontSize: 10, color: '#30363d' }}>{isOpen ? '▲' : '▼'}</div>
             </div>
@@ -686,13 +686,13 @@ function VerifyTab({ officials, allOfficials, activeCat, setActiveCat, selected,
                   {r.error
                     ? <span style={{ color: '#e3b341' }}>Error: {r.error as string}</span>
                     : <>
-                      {r.stillInOffice !== undefined && <div><span style={{ color: '#6e7681' }}>IN OFFICE </span>{r.stillInOffice ? <span style={{ color: '#3fb950' }}>Yes</span> : <span style={{ color: '#f85149' }}>No{r.replacedBy ? ` → ${r.replacedBy}` : ''}</span>}</div>}
-                      {r.currentTitle && <div><span style={{ color: '#6e7681' }}>TITLE </span>{r.currentTitle as string}</div>}
-                      {r.directEmail && <div><span style={{ color: '#6e7681' }}>DIRECT </span>{r.directEmail as string}</div>}
-                      {r.officeEmail && <div><span style={{ color: '#6e7681' }}>OFFICE </span>{r.officeEmail as string}</div>}
-                      {r.changes && r.changes !== 'No changes detected' && <div style={{ color: '#58a6ff' }}><span style={{ color: '#6e7681' }}>CHANGES </span>{r.changes as string}</div>}
-                      {r.flags && <div style={{ color: '#e3b341' }}><span style={{ color: '#6e7681' }}>FLAGS </span>{r.flags as string}</div>}
-                      {r.confidence && <div><span style={{ color: '#6e7681' }}>CONF </span><span style={{ color: r.confidence === 'high' ? '#3fb950' : r.confidence === 'medium' ? '#e3b341' : '#f85149' }}>{(r.confidence as string).toUpperCase()}</span></div>}
+                      {r.stillInOffice !== undefined && <div><span style={{ color: '#8b949e' }}>IN OFFICE </span>{r.stillInOffice ? <span style={{ color: '#3fb950' }}>Yes</span> : <span style={{ color: '#f85149' }}>No{r.replacedBy ? ` → ${r.replacedBy}` : ''}</span>}</div>}
+                      {r.currentTitle && <div><span style={{ color: '#8b949e' }}>TITLE </span>{r.currentTitle as string}</div>}
+                      {r.directEmail && <div><span style={{ color: '#8b949e' }}>DIRECT </span>{r.directEmail as string}</div>}
+                      {r.officeEmail && <div><span style={{ color: '#8b949e' }}>OFFICE </span>{r.officeEmail as string}</div>}
+                      {r.changes && r.changes !== 'No changes detected' && <div style={{ color: '#58a6ff' }}><span style={{ color: '#8b949e' }}>CHANGES </span>{r.changes as string}</div>}
+                      {r.flags && <div style={{ color: '#e3b341' }}><span style={{ color: '#8b949e' }}>FLAGS </span>{r.flags as string}</div>}
+                      {r.confidence && <div><span style={{ color: '#8b949e' }}>CONF </span><span style={{ color: r.confidence === 'high' ? '#3fb950' : r.confidence === 'medium' ? '#e3b341' : '#f85149' }}>{(r.confidence as string).toUpperCase()}</span></div>}
                     </>
                   }
                 </div>
@@ -750,7 +750,7 @@ function ScanTab({ scanStatus, scanMeta, newOfficials, running, runScan, addNew,
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 11, color: '#f0f6fc', fontWeight: 500 }}>{t.label}</div>
-                  <div style={{ fontSize: 10, color: '#6e7681', marginTop: 2 }}>{t.desc}</div>
+                  <div style={{ fontSize: 10, color: '#8b949e', marginTop: 2 }}>{t.desc}</div>
                   {meta && (
                     <div style={{ fontSize: 10, color: '#8b949e', marginTop: 3 }}>
                       Found {meta.total} · <span style={{ color: meta.confidence === 'high' ? '#3fb950' : meta.confidence === 'medium' ? '#e3b341' : '#f85149' }}>{meta.confidence}</span>
@@ -774,7 +774,7 @@ function ScanTab({ scanStatus, scanMeta, newOfficials, running, runScan, addNew,
                     <div>
                       <div style={{ fontSize: 11, color: '#f0f6fc', fontWeight: 500 }}>{o.name}</div>
                       <div style={{ fontSize: 9, color: '#8b949e' }}>{o.title}{o.district ? ` · D${o.district}` : ''}</div>
-                      {(o.directEmail || o.officeEmail) && <div style={{ fontSize: 9, color: '#6e7681' }}>{o.directEmail || o.officeEmail}</div>}
+                      {(o.directEmail || o.officeEmail) && <div style={{ fontSize: 9, color: '#8b949e' }}>{o.directEmail || o.officeEmail}</div>}
                     </div>
                     <div style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
                       <button style={btn('grn')} onClick={() => addNew(o)}>+ Add</button>
