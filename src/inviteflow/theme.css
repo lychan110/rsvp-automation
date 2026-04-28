@@ -1,0 +1,31 @@
+/* Dark-only color palette — unified design system (2026-04-28) */
+:root {
+  --bg-root: #080c10;
+  --bg-surface: #0d1117;
+  --bg-subtle: #161b22;
+  --bg-nested: #161b22;
+  --bg-dense: #050709;
+  --bg-info-tint: #0c1a2e;
+  --bg-warn-tint: #1a0e00;
+  --border: #21262d;
+  --border-subtle: #161b22;
+  --border-input: #30363d;
+  --text-heading: #f0f6fc;
+  --text-base: #c9d1d9;
+  --text-secondary: #8b949e;
+  --text-muted: #6e7681;
+  --text-dim: #7d8590;
+  --accent: #1f6feb;
+  --accent-highlight: #58a6ff;
+  --accent-border: #1f4f99;
+  --success: #3fb950;
+  --success-bg: #238636;
+  --danger: #f85149;
+  --danger-dark: #da3633;
+  --blue: #58a6ff;
+  --warning: #e3b341;
+  --warning-border: #bb8009;
+  --amber: #f59e0b;
+  --purple: #a371f7;
+  --gold: #C8A84B;
+}
