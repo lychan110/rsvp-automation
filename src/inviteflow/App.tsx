@@ -10,25 +10,25 @@ import TrackerTab from './tabs/TrackerTab';
 import SyncTab from './tabs/SyncTab';
 
 const TABS: { id: TabId; label: string }[] = [
-  { id: 'events', label: 'Events' },
-  { id: 'setup', label: 'Setup' },
+  { id: 'events',   label: 'Events'   },
+  { id: 'setup',    label: 'Setup'    },
   { id: 'invitees', label: 'Invitees' },
-  { id: 'compose', label: 'Compose' },
-  { id: 'send', label: 'Send' },
-  { id: 'tracker', label: 'Tracker' },
-  { id: 'sync', label: 'Sync' },
+  { id: 'compose',  label: 'Compose'  },
+  { id: 'send',     label: 'Send'     },
+  { id: 'tracker',  label: 'Tracker'  },
+  { id: 'sync',     label: 'Sync'     },
 ];
 
 function TabContent() {
   const { tab } = useAppState();
   switch (tab) {
-    case 'events': return <EventsTab />;
-    case 'setup': return <SetupTab />;
+    case 'events':   return <EventsTab />;
+    case 'setup':    return <SetupTab />;
     case 'invitees': return <InviteesTab />;
-    case 'compose': return <ComposeTab />;
-    case 'send': return <SendTab />;
-    case 'tracker': return <TrackerTab />;
-    case 'sync': return <SyncTab />;
+    case 'compose':  return <ComposeTab />;
+    case 'send':     return <SendTab />;
+    case 'tracker':  return <TrackerTab />;
+    case 'sync':     return <SyncTab />;
   }
 }
 
@@ -45,33 +45,44 @@ function AppInner() {
   }
 
   return (
-    <div className="h-screen font-mono flex flex-col overflow-hidden" style={{ background: 'var(--bg-root)', color: 'var(--text-base)' }}>
+    <div
+      className="h-screen font-mono flex flex-col overflow-hidden"
+      style={{ background: 'var(--bg-root)', color: 'var(--text-base)' }}
+    >
       {/* Header */}
-      <header className="px-4 py-2 flex items-center gap-3 shrink-0" style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}>
+      <header
+        className="px-4 py-2 flex items-center gap-3 shrink-0"
+        style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}
+      >
         {/* Left zone */}
-        <span className="font-black text-sm tracking-tight" style={{ color: 'var(--text-heading)' }}>INVITEFLOW</span>
-        <span className="text-[9px] tracking-[0.12em]" style={{ color: 'var(--text-muted)' }}>v3.1</span>
+        <span
+          className="font-black text-sm tracking-tight"
+          style={{ color: 'var(--text-heading)' }}
+        >
+          INVITEFLOW
+        </span>
+        <span
+          className="text-[9px] tracking-[0.12em]"
+          style={{ color: 'var(--text-muted)' }}
+        >
+          v3.1
+        </span>
         {activeEvent && (
-          <span className="text-[10px] text-[#C8A84B] tracking-[0.08em] pl-3 truncate max-w-[160px]" style={{ borderLeft: '1px solid var(--border)' }}>
+          <span
+            className="text-[10px] tracking-[0.08em] pl-3 truncate max-w-[160px]"
+            style={{ color: 'var(--gold)', borderLeft: '1px solid var(--border)' }}
+          >
             {activeEvent.name}
           </span>
         )}
         {state.unsaved && (
-          <span className="text-[9px] tracking-[0.1em]" style={{ color: 'var(--text-muted)' }}>●</span>
+          <span className="text-[9px] tracking-[0.1em]" style={{ color: 'var(--text-muted)' }}>
+            ●
+          </span>
         )}
 
         {/* Right zone */}
-        <div className="ml-auto flex items-center gap-2">
-          {/* Theme toggle */}
-          <button
-            onClick={() => dispatch({ type: 'TOGGLE_DARK' })}
-            aria-label={state.darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="min-h-[44px] min-w-[44px] flex items-center justify-center text-sm rounded"
-            style={{ color: 'var(--text-muted)' }}
-          >
-            {state.darkMode ? '☀' : '☾'}
-          </button>
-
+        <div className="ml-auto flex items-center gap-1">
           {/* Desktop nav */}
           <nav className="hidden md:flex gap-1" role="tablist">
             {TABS.map(t => (
@@ -80,10 +91,7 @@ function AppInner() {
                 role="tab"
                 aria-selected={state.tab === t.id}
                 onClick={() => selectTab(t.id)}
-                className="min-h-[44px] px-2.5 py-1 rounded border text-[10px] font-mono tracking-[0.07em] uppercase cursor-pointer"
-                style={state.tab === t.id
-                  ? { background: 'var(--accent)', borderColor: 'var(--accent)', color: '#fff' }
-                  : { background: 'transparent', borderColor: 'transparent', color: 'var(--text-secondary)' }}
+                className={`if-nav-tab${state.tab === t.id ? ' active' : ''}`}
               >
                 {t.label}
               </button>
@@ -92,8 +100,7 @@ function AppInner() {
 
           {/* Hamburger (mobile only) */}
           <button
-            className="md:hidden min-h-[44px] min-w-[44px] flex items-center justify-center"
-            style={{ color: 'var(--text-secondary)' }}
+            className="md:hidden if-btn sm"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open navigation"
           >
@@ -105,27 +112,28 @@ function AppInner() {
       {/* Mobile drawer */}
       {drawerOpen && (
         <>
-          {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/40 z-40 md:hidden"
+            className="fixed inset-0 bg-black/50 z-40 md:hidden"
             onClick={() => setDrawerOpen(false)}
           />
-          {/* Drawer */}
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Navigation"
-            className="fixed inset-y-0 left-0 w-64 z-50 flex flex-col md:hidden motion-safe:transition-transform"
+            className="fixed inset-y-0 left-0 w-56 z-50 flex flex-col md:hidden"
             style={{ background: 'var(--bg-surface)', borderRight: '1px solid var(--border)' }}
           >
-            <div className="flex items-center justify-between px-4 py-3" style={{ borderBottom: '1px solid var(--border)' }}>
-              <span className="font-black text-sm tracking-tight" style={{ color: 'var(--text-heading)' }}>INVITEFLOW</span>
-              <button
-                onClick={() => setDrawerOpen(false)}
-                aria-label="Close navigation"
-                className="min-h-[44px] min-w-[44px] flex items-center justify-center"
-                style={{ color: 'var(--text-muted)' }}
+            <div
+              className="flex items-center justify-between px-4 py-3"
+              style={{ borderBottom: '1px solid var(--border)' }}
+            >
+              <span
+                className="font-black text-sm tracking-tight"
+                style={{ color: 'var(--text-heading)' }}
               >
+                INVITEFLOW
+              </span>
+              <button className="if-btn sm" onClick={() => setDrawerOpen(false)} aria-label="Close">
                 ✕
               </button>
             </div>
