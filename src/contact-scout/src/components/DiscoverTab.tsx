@@ -28,7 +28,7 @@ export default function DiscoverTab({
           <div style={{ fontSize: 10, color: '#8b949e', lineHeight: 1.7, marginBottom: 8 }}>
             Configure your state, counties, and cities so scans target the right officials.
           </div>
-          <button className="cs-btn sm" style={{ borderColor: '#bb8009', color: '#e3b341' }} onClick={onConfigureJx}>
+          <button className="if-btn sm" style={{ borderColor: '#bb8009', color: '#e3b341' }} onClick={onConfigureJx}>
             Configure Jurisdiction
           </button>
         </div>
@@ -49,7 +49,7 @@ export default function DiscoverTab({
 
         return (
           <div key={t.id} style={{ marginBottom: 10 }}>
-            <div className="cs-card">
+            <div className="if-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, color: '#f0f6fc', fontWeight: 500, marginBottom: 2 }}>{t.label}</div>
@@ -66,14 +66,14 @@ export default function DiscoverTab({
                 </div>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
                   {st === 'scanning' && (
-                    <span className="cs-tag" style={{ borderColor: '#f59e0b', color: '#f59e0b', animation: 'cs-pulse 1.4s ease-in-out infinite' }}>
+                    <span className="if-tag" style={{ borderColor: '#f59e0b', color: '#f59e0b', animation: 'cs-pulse 1.4s ease-in-out infinite' }}>
                       SCANNING
                     </span>
                   )}
-                  {st === 'done'  && <span className="cs-tag" style={{ borderColor: '#238636', color: '#3fb950' }}>DONE</span>}
-                  {st === 'error' && <span className="cs-tag" style={{ borderColor: '#da3633', color: '#f85149' }}>ERROR</span>}
+                  {st === 'done'  && <span className="if-tag" style={{ borderColor: '#238636', color: '#3fb950' }}>DONE</span>}
+                  {st === 'error' && <span className="if-tag" style={{ borderColor: '#da3633', color: '#f85149' }}>ERROR</span>}
                   <button
-                    className="cs-btn sm pri"
+                    className="if-btn sm pri"
                     onClick={() => runScan(t.id)}
                     disabled={running || jxMissing}
                   >
@@ -89,7 +89,7 @@ export default function DiscoverTab({
                   NEW CANDIDATES ({fresh.length})
                 </div>
                 {fresh.map(o => (
-                  <div className="cs-new-card" key={o.name} style={{ marginBottom: 4 }}>
+                  <div className="if-new-card" key={o.name} style={{ marginBottom: 4 }}>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 11, color: '#f0f6fc', fontWeight: 500 }}>{o.name}</div>
                       <div style={{ fontSize: 9, color: '#8b949e' }}>
@@ -100,8 +100,8 @@ export default function DiscoverTab({
                       )}
                     </div>
                     <div style={{ display: 'flex', gap: 5, flexShrink: 0 }}>
-                      <button className="cs-btn sm grn" onClick={() => addNew(o)}>+ Add</button>
-                      <button className="cs-btn sm" onClick={() => dismissNew(o.name)}>✕</button>
+                      <button className="if-btn sm grn" onClick={() => addNew(o)}>+ Add</button>
+                      <button className="if-btn sm" onClick={() => dismissNew(o.name)}>✕</button>
                     </div>
                   </div>
                 ))}

@@ -6,11 +6,11 @@ interface Props {
 
 export default function LogSidebar({ log, show, onClose }: Props) {
   return (
-    <div className={`cs-log-sidebar${show ? ' show' : ''}`}>
+    <div className={`if-log-sidebar${show ? ' show' : ''}`}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexShrink: 0 }}>
-        <div className="cs-section-label">ACTIVITY LOG</div>
+        <div className="if-section-label">ACTIVITY LOG</div>
         <button
-          className="cs-btn sm cs-log-btn"
+          className="if-btn sm if-log-btn"
           onClick={onClose}
           style={{ minHeight: 24, padding: '0 8px' }}
           aria-label="Close log"
