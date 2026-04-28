@@ -12,11 +12,13 @@ Updated: 2026-04-28
 - Do not guess APIs, versions, flags, commit SHAs, or package names. Verify by reading code or docs before asserting.
 
 ## Code Exploration Policy
-Always use jCodemunch-MCP tools -- never fall back to Read, Grep, Glob, or Bash for code exploration.
-- Before reading a file: use get_file_outline or get_file_content
-- Before searching: use search_symbols or search_text
-- Before exploring structure: use get_file_tree or get_repo_outline
-- Call resolve_repo with the current directory first; if not indexed, call index_folder.
+Always use jCodemunch-MCP tools for code navigation. See AGENTS.md for detailed tool reference.
+- Symbol search: `search_symbols` with filters for kind, language, file_pattern
+- Text search: `search_text` (supports regex, context_lines)
+- File analysis: `get_file_outline` before opening any file; `get_file_content` only for specific ranges
+- Repo structure: `get_repo_outline`, `get_file_tree`
+- Relationships: `find_importers`, `find_references`, `get_blast_radius`
+- Call `resolve_repo` first; if not indexed, call `index_folder`.
 
 ## Overview
 
@@ -26,10 +28,10 @@ The suite consists of two complementary tools:
 
 Both run entirely in the browser. InviteFlow uses Gmail + Google Sheets; ContactScout uses Claude API with web search.
 
-## Planning docs
-- `docs/ROADMAP.md` — prioritized UX improvement roadmap with persona analysis
-- `docs/PROGRESS.md` — per-version changelog of UX work completed
-- `docs/TASKS.md` — current and backlog task list with implementation notes
+## Planning & Design Docs
+- `docs/superpowers/plans/` — implementation plans for major features
+- `docs/superpowers/specs/` — detailed design specifications
+- `docs/superpowers/2026-04-28-unified-design-system.md` — complete design system spec with color palette, typography, responsive breakpoints
 
 ## File structure
 
@@ -168,7 +170,6 @@ src/inviteflow/
   sending: boolean,
   sendProgress: { current: number, total: number },
   unsaved: boolean,
-  darkMode: boolean,
 }
 ```
 
@@ -179,8 +180,7 @@ src/inviteflow/
 `id, firstName, lastName, title, category, email, rsvpLink, inviteStatus ('pending'|'sent'|'failed'), sentAt, rsvpStatus ('No Response'|'Attending'|'Declined'), rsvpDate, notes`
 
 **Persistence**
-- `localStorage` key `inviteflow_v3_state` — persists everything except `sendLog`, `sending`, `sendProgress`, `darkMode`
-- `localStorage` key `inviteflow_theme` — `'light'` to opt out of dark; any other value (or absent) = dark
+- `localStorage` key `inviteflow_v3_state` — persists all state except `sendLog`, `sending`, `sendProgress` (transient)
 
 **Template tokens**
 `{{FirstName}}`, `{{LastName}}`, `{{FullName}}`, `{{FullTitle}}`, `{{EventName}}`, `{{EventDate}}`, `{{Venue}}`, `{{OrgName}}`, `{{ContactName}}`, `{{ContactEmail}}`, `{{VIPStart}}`, `{{VIPEnd}}`, `{{RSVP_Link}}`, `{{Date_Sent}}`
@@ -202,30 +202,30 @@ All design tokens come from CSS custom properties in `theme.css`. The `.if-*` cl
 
 | Class | Purpose |
 |-------|---------|
-| `.if-btn` | Base button — transparent bg, `var(--border)` border, monospace 10px |
-| `.if-btn.pri` | Primary — `var(--accent)` fill |
+| `.if-btn` | Base button — 36px min-height, `var(--border)` border, `var(--accent)` text on focus |
+| `.if-btn.pri` | Primary — `var(--accent)` fill, solid background |
 | `.if-btn.grn` | Confirm/send — `var(--success-bg)` fill, `var(--success)` text |
 | `.if-btn.del` | Destructive — `var(--danger-dark)` border, `var(--danger)` text |
-| `.if-btn.ghost` | Outline blue — `var(--blue)` border + text |
-| `.if-btn.sm` | Compact (24px height, 9px font) |
-| `.if-btn.lg` | Large (40px height, 11px font) |
-| `.if-card` | Surface card — `var(--bg-surface)`, 1px border, 8px radius, 16px padding |
-| `.if-section-label` | ALL-CAPS section heading — 10px monospace, wide tracking, muted |
-| `.if-page-title` | Tab title — 13px bold monospace |
-| `.if-input` | Text input — `var(--bg-surface)` bg, `#30363d` border, focus turns blue |
-| `.if-label` | Field label above an input — 10px monospace, uppercase, muted |
-| `.if-pill` | Filter pill — transparent until `.active` (accent color + tint bg) |
-| `.if-stat` | Stat card — surface bg, 3px left accent border |
-| `.if-stat-label` | Label inside stat card — 9px uppercase muted |
-| `.if-stat-value` | Number inside stat card — 24px bold |
-| `.if-code` | Code/pre block — `var(--bg-subtle)` bg, 10px monospace, scrollable |
-| `.if-empty` | Empty state message — centered, 48px vertical padding, muted |
-| `.if-status` | Inline status text; add `.ok` (green) or `.err` (red) or `.info` (blue) |
-| `.if-nav-tab` | Header nav button — uppercase 10px, `.active` gets accent fill |
-| `.if-bulk-bar` | Bulk action toolbar — surface bg, wrapping flex row |
-| `.if-tag` | Inline status badge — border matches current color |
+| `.if-btn.sm` | Compact — 28px min-height |
+| `.if-btn.lg` | Large — 40px min-height |
+| `.if-card` | Surface card — `var(--bg-surface)` bg, 1px border, 8px radius, 16px padding |
+| `.if-section-label` | Section heading — 10px uppercase monospace, `var(--text-muted)` color |
+| `.if-page-title` | Tab title — 13px bold monospace, `var(--text-heading)` |
+| `.if-input` | Text input — 36px min-height, `var(--bg-surface)` bg, `var(--border-input)` border |
+| `.if-label` | Input label — 10px uppercase monospace, `var(--text-secondary)` |
+| `.if-pill` | Filter pill — transparent until `.active` (uses `var(--accent)`) |
+| `.if-stat` | Stat card — surface bg, 3px left `var(--accent)` border |
+| `.if-stat-label` | Stat label — 9px uppercase, `var(--text-muted)` |
+| `.if-stat-value` | Stat value — 24px bold, `var(--text-heading)` |
+| `.if-code` | Code block — `var(--bg-subtle)` bg, 10px monospace, horizontally scrollable |
+| `.if-empty` | Empty state — centered, 48px vertical padding, `var(--text-secondary)` |
+| `.if-status` | Inline status text; add `.ok` (green), `.err` (red), or `.info` (blue) |
+| `.if-nav-tab` | Tab button — uppercase 10px, border-bottom on `.active` with `var(--accent)` |
+| `.if-tag` | Status badge — inline, border uses semantic color variable |
+| `.if-modal-backdrop` | Full-screen overlay — `rgba(0,0,0,0.5)` |
+| `.if-modal` | Modal panel — `var(--bg-root)` bg, 8px radius, shadow |
 
-Mobile breakpoint (`max-width: 767px`): `.if-btn` scales to `min-height: 44px`, `.if-btn.sm` to 36px, `.if-nav-tab` to 44px.
+Mobile breakpoint (`max-width: 767px`): all buttons 44px min-height, inputs 44px min-height for touch targets.
 
 ---
 
@@ -243,9 +243,11 @@ npm run build    # dist/ → deployed to src/contact-scout/
 ```
 src/contact-scout/
   src/
-    main.tsx         — mounts <App />, applies global styles
+    main.tsx         — mounts <App />, imports styles.css
     App.tsx          — full ContactScout logic (password gate + inner panel)
+    styles.css       — unified design system (.if-* classes, 24 CSS variables)
     types.ts         — CSOfficial, CSScanMeta, Invitee types
+    components/      — modular UI (DiscoverTab, ExportTab, ApiKeyModal, etc.)
   index.html
   vite.config.ts
   package.json
@@ -266,7 +268,7 @@ ContactScout calls the Anthropic API directly from the browser.
 3. In the app, click **Key** in the header and paste the key.
 4. The key is stored in `sessionStorage` only — never persisted to `localStorage`.
 5. Required header: `anthropic-dangerous-direct-browser-access: true`.
-6. Model: `claude-sonnet-4-20250514` with the `web_search_20250305` tool.
+6. Model and tools configured in `src/constants.ts` — check `MODEL_ID` and tool definitions. Update when new Sonnet/Opus versions release.
 
 **Export formats**
 - **InviteFlow JSON** (`export_invitees`): `{ exportedAt, source, count, invitees[] }` in InviteFlow's schema for direct import
