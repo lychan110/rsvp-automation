@@ -87,7 +87,22 @@ body{background:var(--bg);color:var(--text-1);font-family:var(--ff-b);min-height
   <div class="footer">
     <div>Open directly in any browser &nbsp;·&nbsp; No installation &nbsp;·&nbsp; No server required</div>
     <div>InviteFlow Suite &nbsp;·&nbsp; Lenya Chan</div>
+    <button class="admin-link" onclick="openScout()" style="margin-top:16px;font-size:11px;color:#9c9890;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;transition:color .15s" onmouseover="this.style.color='#5c5852'" onmouseout="this.style.color='#9c9890'">Internal tools</button>
   </div>
 </div>
+<script>
+// ContactScout is an internal research tool (Claude API + web search).
+// Password: change atob value below to atob(btoa('yournewpassword'))
+const _sc = atob('c2NvdXQyMDI1'); // scout2025
+async function openScout() {
+  const pw = prompt('Internal access code:');
+  if (pw === null) return;
+  if (pw.trim() === _sc) {
+    window.location.href = 'src/contact-scout/index.html';
+  } else {
+    alert('Incorrect access code.');
+  }
+}
+</script>
 </body>
 </html>
