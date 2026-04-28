@@ -1,7 +1,7 @@
 # ContactScout — Claude Guide
 
 Author: Lenya Chan
-Updated: 2026-04-25
+Updated: 2026-04-27
 
 ## Purpose
 
@@ -10,6 +10,42 @@ using the Claude API (with web_search tool). It exports invitee lists in InviteF
 schema for direct import into the InviteFlow invite automation suite.
 
 This app is Lenya-only. Password gate uses the constant `SCOUT_PW = 'scout2025'`.
+
+---
+
+## UI/UX Development Approach
+
+ContactScout is a single-screen tool used in short, focused sessions. UI/UX improvements
+should be:
+
+- **Incremental** — one interaction at a time. Avoid large visual overhauls in a single change.
+- **Feedback-first** — every user action must produce immediate, visible feedback (loading
+  spinners, inline status messages, button state changes). Never leave the user wondering if
+  something worked.
+- **Mobile-aware** — even though the primary user is desktop, components must not break below
+  1024 px. Inline styles should use percentage widths and `max-width` rather than fixed px
+  widths for containers.
+- **Dark theme consistent** — all new UI follows the existing dark GitHub-style palette.
+  Reference the existing color variables before introducing new ones.
+
+### Iteration workflow
+
+1. Identify the smallest testable UI change (a single button, a label, an empty state).
+2. Implement it, verify it renders correctly at 1280 px and 768 px viewport widths.
+3. Confirm the change doesn't regress any adjacent panel or tab.
+4. Ship. Do not bundle unrelated improvements into the same commit.
+
+### UX principles to follow
+
+| Principle | What it means in practice |
+|-----------|---------------------------|
+| Empty states are never passive | Every empty list/panel includes an action button or next-step guidance |
+| Status is always visible | Scan progress, error messages, and confirmation toasts appear inline — no browser alerts |
+| Destructive actions require confirmation | Delete or clear operations show an inline confirm prompt before executing |
+| Labels describe outcomes, not mechanics | Use "Find Officials" not "Run Query"; "Save to List" not "Append Array" |
+| Loading states are scoped | Show a spinner only on the affected element, not a full-screen overlay |
+
+---
 
 ## Schema contract with InviteFlow
 
@@ -47,6 +83,8 @@ Rules:
 - `notes` = `"district · county"` where available.
 - `inviteStatus` defaults to `"pending"`.
 
+---
+
 ## Architecture
 
 Single React app with Vite. No router. State lives in the top-level `App` component.
@@ -67,6 +105,8 @@ package.json
 - `sessionStorage` key: `cs_api_key` — stores Claude API key for this browser session
 - `sessionStorage` key: `cs_unlocked` — set to `'1'` after password gate is passed
 
+---
+
 ## Claude API key setup
 
 ContactScout calls the Anthropic API directly from the browser. No backend required.
@@ -82,6 +122,8 @@ browser-direct usage).
 
 Model used: `claude-sonnet-4-20250514` with the `web_search_20250305` tool.
 
+---
+
 ## Customization before first use
 
 The scan prompts in `src/App.tsx` (`SCAN_PROMPTS`) contain placeholder text:
@@ -90,6 +132,8 @@ The scan prompts in `src/App.tsx` (`SCAN_PROMPTS`) contain placeholder text:
 Replace these with the actual state, counties, and cities before scanning.
 `needsCustomization()` detects these placeholders and shows a banner in the Scan tab.
 
+---
+
 ## Dev setup
 
 ```bash
@@ -97,6 +141,8 @@ npm install
 npm run dev      # http://localhost:5174
 npm run build    # dist/
 ```
+
+---
 
 ## Scan targets
 
@@ -110,6 +156,8 @@ Each of the 7 scan targets calls Claude with a web-search-enabled prompt:
 After scanning, new officials surface as add candidates. Accepted candidates move to the
 Verify Existing tab. Run re-scans after each election cycle.
 
+---
+
 ## Export formats
 
 | Button | Format | Purpose |
@@ -118,9 +166,13 @@ Verify Existing tab. Run re-scans after each election cycle.
 | ↓ Backup | `.json` with full state | Restore/backup |
 | ↓ CSV | `.csv` with all official fields | Spreadsheet analysis |
 
+---
+
 ## Conventions
 
 - No framework other than React + Vite.
 - Inline styles throughout (matches InviteFlow's visual language — dark GitHub-style).
 - `saveState()` called in a `useEffect` whenever `officials / newOfficials / scanStatus / scanMeta` change.
 - Author credit "by Lenya Chan" visible in the welcome banner.
+- When editing UI components, verify layout at both 1280 px and 768 px before committing.
+- Keep `needsCustomization()` in sync if placeholder patterns in `SCAN_PROMPTS` change.
