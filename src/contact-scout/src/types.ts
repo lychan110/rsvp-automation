@@ -1,6 +1,14 @@
 export type CSStatus = 'pending' | 'checking' | 'done' | 'changed' | 'left_office' | 'error';
 export type ScanState = 'idle' | 'scanning' | 'done' | 'error';
 
+export interface CSJurisdiction {
+  state: string;
+  counties: string;
+  city1: string;
+  city2: string;
+  city3: string;
+}
+
 export interface CSOfficial {
   name: string;
   title: string;
