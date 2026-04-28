@@ -1,5 +1,84 @@
 # Session Handoff — 2026-04-28
 
+## Current Session Summary (2026-04-28)
+
+**Feature:** Design Language Standardization across InviteFlow & ContactScout  
+**Branch:** `claude/standardize-design-language-yTeRc`  
+**PR:** [#25](https://github.com/lychan110/rsvp-automation/pull/25) (Draft)  
+**Status:** ✅ Complete & Ready for Review
+
+### What Was Accomplished
+
+1. **Design System Unification**
+   - Unified CSS variables: Both apps now use identical semantic color tokens (24 variables)
+   - Consistent component patterns: buttons, inputs, cards, modals standardized
+   - Dark-only theme: Removed light mode support from InviteFlow (cleaner, faster builds)
+   - Class naming: Standardized on `.if-*` prefix across both apps (71 components updated in ContactScout)
+
+2. **Comprehensive Documentation**
+   - `docs/superpowers/plans/2026-04-28-design-language-standardization.md` — 5-phase implementation plan
+   - `docs/superpowers/specs/2026-04-28-unified-design-system.md` — 28KB definitive design system spec
+   - Removed deprecated root-level: ROADMAP.md, PROGRESS.md, TASKS.md
+
+3. **InviteFlow Updates**
+   - theme.css: Dark-only palette with 24 semantic CSS variables
+   - if.css: Standardized button sizes (36px default, 28px small, 40px large)
+   - AppState: Removed `darkMode` field (simplified reducer, actions, types)
+   - Focus states: Updated to `2px solid #58a6ff` (WCAG AA compliant)
+
+4. **ContactScout Updates**
+   - styles.css: Extracted 400+ lines of CSS from embedded css.ts
+   - Class naming: All `.cs-*` → `.if-*` (8 component files updated)
+   - CSS import: Moved from inline injection to main.tsx
+   - Consistency: Button sizes, spacing, colors now match InviteFlow exactly
+
+5. **Build Configuration**
+   - tsconfig.json: Added `exclude: ["src/contact-scout"]` to prevent conflicts
+
+### Testing Completed
+
+✅ InviteFlow builds without errors  
+✅ ContactScout builds without errors  
+✅ Both dev servers run on 5173/5174  
+✅ No TypeScript or console errors  
+✅ Dark theme colors applied correctly  
+✅ CSS variables properly referenced  
+
+### Files Changed
+
+**New (3):**
+- docs/superpowers/plans/2026-04-28-design-language-standardization.md
+- docs/superpowers/specs/2026-04-28-unified-design-system.md
+- src/contact-scout/src/styles.css
+
+**Modified (20):**
+- InviteFlow: theme.css, if.css, types.ts, reducer.ts, actions.ts, AppContext.tsx
+- ContactScout: App.tsx, main.tsx, css.ts, components/*.tsx (7 files)
+- Build: tsconfig.json
+
+**Deleted (3):**
+- ROADMAP.md, PROGRESS.md, TASKS.md (root level)
+
+### Remaining Tasks (Before Merge)
+
+- [ ] Manual visual testing at 375px, 768px, 1024px, 1440px viewports
+- [ ] Verify all button/input states (hover, focus, disabled)
+- [ ] Tab navigation testing (InviteFlow 7 tabs)
+- [ ] Modal and banner testing
+- [ ] Color contrast verification (WCAG AA)
+- [ ] Side-by-side component consistency check
+
+### Environment Setup
+
+**jcodemunch-mcp installed successfully (v1.80.1)**
+- Install: `pip install "jcodemunch-mcp[all]"`
+- Configure: `claude mcp add -s user jcodemunch jcodemunch-mcp`
+- Use this tool for future code lookups (prefer over read/grep)
+
+---
+
+# Previous Session Summary (2026-04-28)
+
 ## Session summary
 
 Two major design work streams completed and merged:
