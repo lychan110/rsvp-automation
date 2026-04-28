@@ -53,5 +53,4 @@ export interface AppState {
   sending: boolean;
   sendProgress: { current: number; total: number };
   unsaved: boolean;
-  darkMode: boolean;
 }

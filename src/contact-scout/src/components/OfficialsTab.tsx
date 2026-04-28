@@ -42,12 +42,12 @@ export default function OfficialsTab({
 
   if (allOfficials.length === 0) {
     return (
-      <div className="cs-empty">
-        <div className="cs-empty-title">No officials in your list yet.</div>
-        <div className="cs-empty-sub">Use Discover to scan for officials, then add them here.</div>
+      <div className="if-empty">
+        <div className="if-empty-title">No officials in your list yet.</div>
+        <div className="if-empty-sub">Use Discover to scan for officials, then add them here.</div>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
-          <button className="cs-btn pri" onClick={onGoDiscover}>Go to Discover</button>
-          <button className="cs-btn" onClick={addManually}>+ Add Manually</button>
+          <button className="if-btn pri" onClick={onGoDiscover}>Go to Discover</button>
+          <button className="if-btn" onClick={addManually}>+ Add Manually</button>
         </div>
       </div>
     );
@@ -65,7 +65,7 @@ export default function OfficialsTab({
           {CATS.map(c => (
             <button
               key={c}
-              className={`cs-pill${activeCat === c ? ' active' : ''}`}
+              className={`if-pill${activeCat === c ? ' active' : ''}`}
               onClick={() => setActiveCat(c)}
             >
               {c.toUpperCase()}
@@ -73,12 +73,12 @@ export default function OfficialsTab({
           ))}
         </div>
         <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
-          <button className="cs-btn sm" onClick={() => setSelected(new Set(names))} disabled={running}>Sel All</button>
-          <button className="cs-btn sm" onClick={() => setSelected(new Set())} disabled={running}>Clear</button>
-          <button className="cs-btn sm pri" onClick={() => runVerify([...selected])} disabled={running || selected.size === 0}>
+          <button className="if-btn sm" onClick={() => setSelected(new Set(names))} disabled={running}>Sel All</button>
+          <button className="if-btn sm" onClick={() => setSelected(new Set())} disabled={running}>Clear</button>
+          <button className="if-btn sm pri" onClick={() => runVerify([...selected])} disabled={running || selected.size === 0}>
             ▶ ({selected.size})
           </button>
-          <button className="cs-btn sm pri" onClick={() => runVerify(names)} disabled={running}>▶ All</button>
+          <button className="if-btn sm pri" onClick={() => runVerify(names)} disabled={running}>▶ All</button>
         </div>
       </div>
 
@@ -93,7 +93,7 @@ export default function OfficialsTab({
         const r = o.result;
         return (
           <div key={o.name}>
-            <div className="cs-official-row" onClick={() => toggleExpand(o.name)}>
+            <div className="if-official-row" onClick={() => toggleExpand(o.name)}>
               <input
                 type="checkbox"
                 checked={selected.has(o.name)}
@@ -112,7 +112,7 @@ export default function OfficialsTab({
                   {o.directEmail || o.officeEmail || 'no email'}
                 </div>
               </div>
-              <div className="cs-official-cat">
+              <div className="if-official-cat">
                 <span style={{ fontSize: 9, color: '#8b949e' }}>{o.category}</span>
               </div>
               <div><span style={tagStyle(o.status)}>{STATUS_LABEL[o.status]}</span></div>
@@ -120,7 +120,7 @@ export default function OfficialsTab({
             </div>
 
             {isOpen && r && (
-              <div className="cs-official-expand">
+              <div className="if-official-expand">
                 {r.error
                   ? <span style={{ color: '#e3b341' }}>Error: {r.error as string}</span>
                   : <>
@@ -158,7 +158,7 @@ export default function OfficialsTab({
       })}
 
       <div style={{ padding: '10px 18px', borderTop: '1px solid #161b22' }}>
-        <button className="cs-btn sm" onClick={addManually}>+ Add Manually</button>
+        <button className="if-btn sm" onClick={addManually}>+ Add Manually</button>
       </div>
     </div>
   );

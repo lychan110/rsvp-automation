@@ -26,18 +26,18 @@ export default function JurisdictionModal({ jx, onSave, onClose }: Props) {
   }
 
   return (
-    <div className="cs-modal-backdrop" onClick={onClose}>
-      <div className="cs-modal" onClick={e => e.stopPropagation()}>
-        <div className="cs-modal-title">Jurisdiction Settings</div>
-        <div className="cs-modal-sub">
+    <div className="if-modal-backdrop" onClick={onClose}>
+      <div className="if-modal" onClick={e => e.stopPropagation()}>
+        <div className="if-modal-title">Jurisdiction Settings</div>
+        <div className="if-modal-sub">
           These values replace [YOUR STATE] and [CITY N] placeholders in scan prompts.
           Saved locally in your browser.
         </div>
         {FIELDS.map(f => (
-          <div className="cs-field" key={f.key}>
-            <div className="cs-field-label">{f.label}</div>
+          <div className="if-field" key={f.key}>
+            <div className="if-field-label">{f.label}</div>
             <input
-              className="cs-input"
+              className="if-input"
               placeholder={f.placeholder}
               value={draft[f.key]}
               onChange={e => setDraft(prev => ({ ...prev, [f.key]: e.target.value }))}
@@ -45,8 +45,8 @@ export default function JurisdictionModal({ jx, onSave, onClose }: Props) {
           </div>
         ))}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 8 }}>
-          <button className="cs-btn" onClick={onClose}>Cancel</button>
-          <button className="cs-btn pri" onClick={save}>Save</button>
+          <button className="if-btn" onClick={onClose}>Cancel</button>
+          <button className="if-btn pri" onClick={save}>Save</button>
         </div>
       </div>
     </div>

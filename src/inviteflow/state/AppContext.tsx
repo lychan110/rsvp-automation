@@ -6,7 +6,7 @@ import { reducer, INITIAL_STATE } from './reducer';
 const STORAGE_KEY = 'inviteflow_v3_state';
 
 function saveState(state: AppState) {
-  const { sendLog: _sl, sending: _s, sendProgress: _sp, darkMode: _d, ...rest } = state;
+  const { sendLog: _sl, sending: _s, sendProgress: _sp, ...rest } = state;
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(rest)); } catch { /* quota */ }
 }
 
@@ -27,14 +27,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }));
 
   useEffect(() => { saveState(state); }, [state]);
-
-  useEffect(() => {
-    if (state.darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [state.darkMode]);
 
   return (
     <StateCtx.Provider value={state}>

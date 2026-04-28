@@ -26,7 +26,7 @@ export default function PasswordGate({ onUnlock }: Props) {
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <input
-            className={`cs-input${err ? ' err' : ''}`}
+            className={`if-input${err ? ' err' : ''}`}
             type="password"
             placeholder="Access code"
             value={pw}
@@ -35,7 +35,7 @@ export default function PasswordGate({ onUnlock }: Props) {
             autoFocus
             style={{ flex: 1 }}
           />
-          <button className="cs-btn pri" onClick={attempt}>Unlock</button>
+          <button className="if-btn pri" onClick={attempt}>Unlock</button>
         </div>
         {err && <div style={{ fontSize: 10, color: '#f85149', marginTop: 8 }}>Incorrect access code.</div>}
       </div>

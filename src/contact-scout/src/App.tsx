@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { CSS } from './css';
 import { CS_APIKEY_SK, VERIFY_SYS, SCAN_SYS, SCAN_TARGETS } from './constants';
 import { loadCSState, saveCSState, loadJurisdiction } from './storage';
 import { sleep, officialToInvitee, buildScanPrompts, downloadBlob, todaySlug } from './utils';
@@ -298,8 +297,7 @@ function ContactScoutInner() {
   // ── Render ─────────────────────────────────────────────────────────────────
 
   return (
-    <div className="cs-root">
-      <style>{CSS}</style>
+    <div className="if-root">
       <input
         ref={importFileRef} type="file" accept=".json" style={{ display: 'none' }}
         onChange={e => { const f = e.target.files?.[0]; if (f) { importBackup(f); e.target.value = ''; } }}
@@ -312,9 +310,9 @@ function ContactScoutInner() {
           <div style={{ fontSize: 9, color: '#7d8590', letterSpacing: '0.1em', marginTop: 1 }}>by Lenya Chan</div>
         </div>
         <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-          <button className="cs-btn sm cs-log-btn" onClick={() => setShowLog(v => !v)}>☰ Log</button>
+          <button className="if-btn sm if-log-btn" onClick={() => setShowLog(v => !v)}>☰ Log</button>
           <button
-            className="cs-btn sm"
+            className="if-btn sm"
             onClick={() => setShowJxModal(true)}
             style={jxMissing ? { borderColor: '#bb8009', color: '#e3b341' } : {}}
             title={jxMissing ? 'Configure jurisdiction' : `Jurisdiction: ${jx.state}`}
@@ -322,38 +320,38 @@ function ContactScoutInner() {
             ⊙ {jxMissing ? 'Jurisdiction' : jx.state}
           </button>
           <button
-            className={`cs-btn sm${apiKey ? ' grn' : ' del'}`}
+            className={`if-btn sm${apiKey ? ' grn' : ' del'}`}
             onClick={() => openKeyModal()}
           >
             ⚙ Key{apiKey ? ' ✓' : ''}
           </button>
           {running && (
-            <button className="cs-btn sm del" onClick={() => { abortRef.current = true; }}>■ Stop</button>
+            <button className="if-btn sm del" onClick={() => { abortRef.current = true; }}>■ Stop</button>
           )}
         </div>
       </div>
 
       {/* Onboarding banners */}
       {!apiKey && (
-        <div className="cs-banner info">
-          <div className="cs-banner-body">
-            <div className="cs-banner-title">Welcome to ContactScout</div>
-            <div className="cs-banner-text">
+        <div className="if-banner info">
+          <div className="if-banner-body">
+            <div className="if-banner-title">Welcome to ContactScout</div>
+            <div className="if-banner-text">
               Add your Claude API key to start discovering officials.
               Get a free key at console.anthropic.com → API Keys → Create Key.
             </div>
-            <button className="cs-btn pri sm" onClick={() => openKeyModal()}>Add Claude API Key</button>
+            <button className="if-btn pri sm" onClick={() => openKeyModal()}>Add Claude API Key</button>
           </div>
         </div>
       )}
       {apiKey && jxMissing && (
-        <div className="cs-banner warn">
-          <div className="cs-banner-body">
-            <div className="cs-banner-title">Jurisdiction not configured</div>
-            <div className="cs-banner-text">
+        <div className="if-banner warn">
+          <div className="if-banner-body">
+            <div className="if-banner-title">Jurisdiction not configured</div>
+            <div className="if-banner-text">
               Configure your state, counties, and cities so scan prompts target the right officials.
             </div>
-            <button className="cs-btn sm" style={{ borderColor: '#bb8009', color: '#e3b341' }} onClick={() => setShowJxModal(true)}>
+            <button className="if-btn sm" style={{ borderColor: '#bb8009', color: '#e3b341' }} onClick={() => setShowJxModal(true)}>
               Configure Jurisdiction
             </button>
           </div>
@@ -362,18 +360,18 @@ function ContactScoutInner() {
 
       {/* Stats bar */}
       {officials.length > 0 && (
-        <div className="cs-stats">
+        <div className="if-stats">
           {STAT_ROWS.map(([label, n, col]) => (
-            <div className="cs-stat" key={label}>
-              <span className="cs-stat-dot" style={{ background: col }} />
-              <span className="cs-stat-label">{label}</span>
-              <span className="cs-stat-val" style={{ color: col }}>{n}</span>
+            <div className="if-stat" key={label}>
+              <span className="if-stat-dot" style={{ background: col }} />
+              <span className="if-stat-label">{label}</span>
+              <span className="if-stat-val" style={{ color: col }}>{n}</span>
             </div>
           ))}
           {running && (
-            <div className="cs-progress-wrap">
-              <div className="cs-progress-track">
-                <div className="cs-progress-fill" style={{ width: `${pct}%` }} />
+            <div className="if-progress-wrap">
+              <div className="if-progress-track">
+                <div className="if-progress-fill" style={{ width: `${pct}%` }} />
               </div>
               <span style={{ fontSize: 10, color: '#58a6ff' }}>{progress.done}/{progress.total}</span>
             </div>
@@ -382,11 +380,11 @@ function ContactScoutInner() {
       )}
 
       {/* Tab bar */}
-      <div className="cs-tab-bar">
+      <div className="if-tab-bar">
         {TABS.map((label, i) => (
           <button
             key={i}
-            className={`cs-tab${tab === i ? ' active' : ''}`}
+            className={`if-tab${tab === i ? ' active' : ''}`}
             onClick={() => setTab(i as 0 | 1 | 2)}
           >
             {label}
@@ -395,8 +393,8 @@ function ContactScoutInner() {
       </div>
 
       {/* Main content + log */}
-      <div className="cs-layout">
-        <div className="cs-main">
+      <div className="if-layout">
+        <div className="if-main">
           {tab === 0 && (
             <DiscoverTab
               jx={jx}
