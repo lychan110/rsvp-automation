@@ -33,13 +33,15 @@ Both run entirely in the browser. InviteFlow uses Gmail + Google Sheets; Contact
 
 ## File structure
 
-**InviteFlow** (vanilla JS, ~75 KB)
-- Production file: `inviteflow.html`
-- Iterations use the pattern `inviteflow_v{N:02d}.html` (e.g. `inviteflow_v02.html`)
+**InviteFlow** (React + Vite, v3.1)
+- Source: `src/inviteflow/` (React + TypeScript + Tailwind v4 + PrimeReact)
+- Built from root: `npm run build` → `dist/src/inviteflow/`
+- Entry: `src/inviteflow/index.html`, mounts `src/inviteflow/main.tsx`
+- Design system: `src/inviteflow/styles/if.css` (`.if-*` classes)
 
-**ContactScout** (React + Vite, `src/contact-scout/`)
-- Built with `npm run build` → deployed to `src/contact-scout/`
-- Source: `src/contact-scout/src/`, config: `src/contact-scout/vite.config.ts`
+**ContactScout** (React + Vite, standalone)
+- Source: `src/contact-scout/src/`
+- Built with `cd src/contact-scout && npm run build` → `src/contact-scout/dist/`
 - Production file: `src/contact-scout/index.html`
 
 **Main entry point** (`index.html`)
@@ -58,11 +60,9 @@ Every UI/UX change must be **purposeful, minimal, and immediately testable**.
 1. **One interaction per change** — fix the confirmation flow, or the empty state, or the
    button label, but not all three at once. Small diffs are easier to review and easier to
    roll back.
-2. **Ship to production file, not just a version file** — a fix that lives only in `_v02.html`
-   isn't shipped. Promote to the production file when approved.
-3. **Always check the full tab sequence** — a change in tab 0 can break layout in tab 4.
-   After any UI edit, walk through all five tabs before committing.
-4. **Reference `docs/TASKS.md`** before starting new UI work — if the task is already listed,
+2. **Always check the full tab sequence** — a change in one tab can break layout in another.
+   After any UI edit, walk through all tabs before committing.
+3. **Reference `docs/TASKS.md`** before starting new UI work — if the task is already listed,
    follow its implementation notes. If it's new, add it before you start.
 
 ### UX principles
@@ -74,23 +74,21 @@ Every UI/UX change must be **purposeful, minimal, and immediately testable**.
 | Destructive actions require confirmation | Delete, clear, and revoke operations show an inline prompt before executing |
 | Labels describe outcomes | Use "Send Invitations" not "Run Loop"; "Import Contacts" not "Load Array" |
 | Progress is always visible | Bulk operations show a progress bar or item-by-item counter, never a spinner alone |
-| First-run is guided | The 3-step welcome card must stay current; add a step if a new required setup action is introduced |
 
 ### Responsive layout guidelines
 
 Both apps are desktop-first but must not break below 900 px width.
 
 - Use `max-width` + `width: 100%` for all containers instead of fixed `px` widths.
-- Tables in the Contacts and Track tabs must become horizontally scrollable (`overflow-x: auto`
+- Tables in the Invitees and Tracker tabs must become horizontally scrollable (`overflow-x: auto`
   on a wrapper div) at narrow viewports — do not let them overflow the page.
-- The Send tab progress area must stack vertically on narrow screens (column flex, not row).
 - Test at 1440 px (desktop) and 900 px (narrow laptop) before committing any layout change.
 
 ### Dark theme consistency
 
-Both apps use a dark GitHub-style palette. Before introducing a new color:
-1. Search the file for the closest existing color value.
-2. Reuse it. Add a new color only if no existing value fits semantically.
+Both apps are dark-only (no light mode toggle). Before introducing a new color:
+1. Check `src/inviteflow/theme.css` for the closest existing CSS custom property.
+2. Reuse it. Add a new value only if no existing property fits semantically.
 3. New interactive elements (buttons, inputs, toggles) must have `:hover` and `:focus` states
    that are visibly distinct from their default state.
 
@@ -98,13 +96,136 @@ Both apps use a dark GitHub-style palette. Before introducing a new color:
 
 ## Architecture
 
-Two self-contained apps with different technology stacks:
+Two self-contained apps, both React + Vite:
 
-### InviteFlow — Vanilla JS, no build step
-Single-file vanilla JS app. State lives in a top-level `S` object. Every user action calls `render()` which regenerates the DOM. No dependencies, no imports.
+### InviteFlow — React + Vite (root package)
+React + TypeScript app. State managed via `useReducer` + React Context (`AppProvider`). Built with the root Vite config; Tailwind v4 handles layout utilities, `.if-*` classes handle design tokens, PrimeReact provides the DataTable.
 
-### ContactScout — React + Vite, compiled
-React app using Vite as the build tool. State managed in the top-level `App` component. Built with `npm run build` and deployed to `src/contact-scout/`.
+### ContactScout — React + Vite (separate package)
+React app in `src/contact-scout/`. Own `package.json`, own Vite config. State managed in the top-level `App` component. Built with `npm run build` inside `src/contact-scout/`.
+
+---
+
+## InviteFlow (React + Vite, v3.1)
+
+**Setup**
+```bash
+npm install          # root — installs all InviteFlow deps
+npm run dev          # http://localhost:5173
+npm run build        # dist/ → deployed from dist/src/inviteflow/
+```
+
+**Source layout**
+```
+src/inviteflow/
+  main.tsx            — mounts <App />, imports theme.css + if.css
+  App.tsx             — shell: header nav (7 tabs), mobile drawer, <AppProvider>
+  theme.css           — CSS custom properties (dark palette tokens)
+  types.ts            — AppEvent, Invitee, SendLogEntry, AppState, TabId
+  styles/
+    if.css            — .if-* design system (see below)
+  state/
+    AppContext.tsx     — AppProvider, useAppState, useAppDispatch; localStorage key: inviteflow_v3_state
+    reducer.ts        — reducer(), INITIAL_STATE; default dark (localStorage !== 'light')
+    actions.ts        — Action union type
+  api/
+    auth.ts           — getToken(scope) — OAuth2 via GSI CDN
+    gmail.ts          — buildMimeRaw(), personalize(), sendEmail()
+    sheets.ts         — sheetsGet(), sheetsUpdate(), sheetsClear(), extractSheetId()
+    drive.ts          — Drive API helpers
+  tabs/
+    EventsTab.tsx     — create/select/delete events
+    SetupTab.tsx      — event details, email config, OAuth, Sheets URLs, RSVP form prefill
+    InviteesTab.tsx   — PrimeReact DataTable; import/export; bulk actions; manual add
+    ComposeTab.tsx    — TipTap rich-text editor; token insert; live preview
+    SendTab.tsx       — bulk send; filter (all/pending/failed); progress bar; send log
+    TrackerTab.tsx    — stat cards; breakdown by category table
+    SyncTab.tsx       — push to master sheet; pull RSVP responses; GAS ingest trigger code
+  index.html
+```
+
+**Tabs (7)**
+| Tab | Id | Purpose |
+|-----|----|---------|
+| Events   | `events`   | Create and switch between named events |
+| Setup    | `setup`    | Event details, OAuth client ID, Sheets URLs |
+| Invitees | `invitees` | Import/export/manage the invitee list |
+| Compose  | `compose`  | Edit email subject + HTML body; preview |
+| Send     | `send`     | Bulk send via Gmail; progress bar; send log |
+| Tracker  | `tracker`  | RSVP stats; category breakdown |
+| Sync     | `sync`     | Push to master sheet; pull RSVP; GAS code |
+
+**State (AppState)**
+```ts
+{
+  activeEventId: string | null,
+  events: AppEvent[],
+  invitees: Invitee[],
+  tab: TabId,
+  textSubject: string,
+  htmlBody: string,
+  sendLog: SendLogEntry[],
+  sending: boolean,
+  sendProgress: { current: number, total: number },
+  unsaved: boolean,
+  darkMode: boolean,
+}
+```
+
+**AppEvent fields**
+`id, name, date, venue, orgName, contactName, contactEmail, formUrl, rsvpResponseUrl, masterSheetUrl, entryEmail, imgEmblemUrl, vipStart, vipEnd, googleClientId`
+
+**Invitee fields**
+`id, firstName, lastName, title, category, email, rsvpLink, inviteStatus ('pending'|'sent'|'failed'), sentAt, rsvpStatus ('No Response'|'Attending'|'Declined'), rsvpDate, notes`
+
+**Persistence**
+- `localStorage` key `inviteflow_v3_state` — persists everything except `sendLog`, `sending`, `sendProgress`, `darkMode`
+- `localStorage` key `inviteflow_theme` — `'light'` to opt out of dark; any other value (or absent) = dark
+
+**Template tokens**
+`{{FirstName}}`, `{{LastName}}`, `{{FullName}}`, `{{FullTitle}}`, `{{EventName}}`, `{{EventDate}}`, `{{Venue}}`, `{{OrgName}}`, `{{ContactName}}`, `{{ContactEmail}}`, `{{VIPStart}}`, `{{VIPEnd}}`, `{{RSVP_Link}}`, `{{Date_Sent}}`
+
+**Master sheet columns**
+`FirstName, LastName, Title, Category, Email, RSVP_Link, InviteSent, InviteSentDate, RSVP_Status, RSVP_Date, Notes`
+
+**Secrets**
+- `googleClientId` stored per event in localStorage only — never hardcode
+- ContactScout's Claude API key uses sessionStorage (not shared with InviteFlow)
+
+---
+
+## InviteFlow design system (`.if-*` classes)
+
+All design tokens come from CSS custom properties in `theme.css`. The `.if-*` classes in `src/inviteflow/styles/if.css` consume them exclusively. Tailwind is used only for layout utilities (flex, grid, padding, overflow, etc.).
+
+**Class reference**
+
+| Class | Purpose |
+|-------|---------|
+| `.if-btn` | Base button — transparent bg, `var(--border)` border, monospace 10px |
+| `.if-btn.pri` | Primary — `var(--accent)` fill |
+| `.if-btn.grn` | Confirm/send — `var(--success-bg)` fill, `var(--success)` text |
+| `.if-btn.del` | Destructive — `var(--danger-dark)` border, `var(--danger)` text |
+| `.if-btn.ghost` | Outline blue — `var(--blue)` border + text |
+| `.if-btn.sm` | Compact (24px height, 9px font) |
+| `.if-btn.lg` | Large (40px height, 11px font) |
+| `.if-card` | Surface card — `var(--bg-surface)`, 1px border, 8px radius, 16px padding |
+| `.if-section-label` | ALL-CAPS section heading — 10px monospace, wide tracking, muted |
+| `.if-page-title` | Tab title — 13px bold monospace |
+| `.if-input` | Text input — `var(--bg-surface)` bg, `#30363d` border, focus turns blue |
+| `.if-label` | Field label above an input — 10px monospace, uppercase, muted |
+| `.if-pill` | Filter pill — transparent until `.active` (accent color + tint bg) |
+| `.if-stat` | Stat card — surface bg, 3px left accent border |
+| `.if-stat-label` | Label inside stat card — 9px uppercase muted |
+| `.if-stat-value` | Number inside stat card — 24px bold |
+| `.if-code` | Code/pre block — `var(--bg-subtle)` bg, 10px monospace, scrollable |
+| `.if-empty` | Empty state message — centered, 48px vertical padding, muted |
+| `.if-status` | Inline status text; add `.ok` (green) or `.err` (red) or `.info` (blue) |
+| `.if-nav-tab` | Header nav button — uppercase 10px, `.active` gets accent fill |
+| `.if-bulk-bar` | Bulk action toolbar — surface bg, wrapping flex row |
+| `.if-tag` | Inline status badge — border matches current color |
+
+Mobile breakpoint (`max-width: 767px`): `.if-btn` scales to `min-height: 44px`, `.if-btn.sm` to 36px, `.if-nav-tab` to 44px.
 
 ---
 
@@ -142,7 +263,7 @@ The scan prompts in `src/App.tsx` (`SCAN_PROMPTS`) contain placeholder text: `[Y
 ContactScout calls the Anthropic API directly from the browser.
 1. Go to https://console.anthropic.com/ → API Keys → Create Key.
 2. Copy the key (starts with `sk-ant-`).
-3. In the app, click **⚙ Key** in the header and paste the key.
+3. In the app, click **Key** in the header and paste the key.
 4. The key is stored in `sessionStorage` only — never persisted to `localStorage`.
 5. Required header: `anthropic-dangerous-direct-browser-access: true`.
 6. Model: `claude-sonnet-4-20250514` with the `web_search_20250305` tool.
@@ -162,7 +283,7 @@ Each calls Claude with a web-search-enabled prompt:
 - State Executive Branch
 - State Senate (all seats)
 - State House (tracked counties)
-- City Council ×3
+- City Council x3
 
 **UI/UX conventions for ContactScout**
 - Incremental changes — one interaction at a time
@@ -172,77 +293,21 @@ Each calls Claude with a web-search-enabled prompt:
 
 ---
 
-## InviteFlow (Vanilla JS)
-
----
-
-**inviteflow.html (~75 KB)**
-
-Single vanilla JS file. No build step, no dependencies.
-
-**State object `S`**
-```
-{
-  event: { name, date, venue, orgName, contactName, contactEmail, contactTitle,
-           vipStart, vipEnd, formUrl, entryName, entryEmail, inviteeSheetUrl,
-           masterSheetUrl, rsvpResponseUrl, replyTo, senderName, images },
-  invitees: [{ firstName, lastName, title, category, email, rsvpLink, inviteStatus,
-               sentAt, rsvpStatus, rsvpDate, notes }, ...],
-  tab, tplMode, textSubject, textBody, htmlBody, sendLog[], schemas[],
-  activeSchemaId, schemaNameDraft, googleClientId, sending, sendProgress{},
-  previewName, unsaved, log[]
-}
-```
-
-**Key functions**
-- `render()` — regenerate DOM on every state change
-- `buildEmail()`, `personalize()` — template composition
-- `saveState()`, `loadState()`, `clearSavedState()` — persistence
-- `getGoogleToken(scope)` — OAuth2 via GSI CDN, scopes: 'spreadsheets', 'gmail.send'
-- `importFromSheet()`, `syncToMasterSheet()`, `syncRsvpResponses()` — Google Sheets integration
-- `sendBulkEmails(filter)`, `buildMimeRaw()`, `toBase64Url()` — Gmail integration
-- `buildRsvpLink(inv)`, `generateAllRsvpLinks()` — RSVP link generation
-- `saveSchema()`, `loadSchema()`, `deleteSchema()`, `exportSchema()` — email template persistence
-
-**Persistence**
-- `localStorage` key `inviteflow_state` — stores googleClientId, tplMode, htmlBody, schemas
-
-**Template tokens**
-`{{FirstName}}`, `{{LastName}}`, `{{FullName}}`, `{{EventName}}`, `{{EventDate}}`, `{{Venue}}`, `{{RSVP_Link}}`, `{{FullTitle}}`, `{{OrgName}}`, `{{ContactName}}`, `{{ContactEmail}}`, `{{ContactTitle}}`, `{{VIPStart}}`, `{{VIPEnd}}`, `{{Date_Sent}}`
-
-**Tabs (5)**
-- Settings (tab 0): event details, email config, Google OAuth, Sheets URLs, RSVP form prefill, images, saved configs, data management
-- Contacts (tab 1): import from Sheet/ContactScout/CSV, manual add, status table
-- Email (tab 2): HTML/plain-text template editor, live preview
-- Send (tab 3): bulk send via Gmail, progress, manual fallback
-- Track (tab 4): RSVP stats, bar chart, sync RSVP responses, sync to master sheet
-
-**Master sheet columns**
-FirstName, LastName, Title, Category, Email, RSVP_Link, InviteSent, InviteSentDate, RSVP_Status, RSVP_Date, Notes
-
-**Secrets**
-- googleClientId stored in localStorage only — never hardcode
-- ContactScout's Claude API key uses sessionStorage (not shared with InviteFlow)
-
----
-
 ## Cross-app conventions
 
 **Code style**
-- InviteFlow: Single `<script>` block, state at top, `render()` called on every mutation. `saveState()` called at end of `render()`.
+- InviteFlow: React + TypeScript. State in `AppContext` via `useReducer`. Dispatch actions; never mutate state directly.
 - ContactScout: React component lifecycle. State changes trigger re-renders automatically.
 - No fetch except: Claude API (ContactScout) + Google APIs (InviteFlow)
-- Google APIs called with OAuth2 Bearer token from `getGoogleToken()` — never API keys in source
+- Google APIs called with OAuth2 Bearer token from `getToken(scope)` — never API keys in source
 
 **UX conventions**
 - Empty states must include actionable buttons; passive "nothing here" messages are not acceptable
-- All tab index references must be updated together: TABS array, render() switch, any onclick="S.tab=N", render checks like `if (S.tab===N)` (InviteFlow)
-- First-run experience: InviteFlow shows a 3-step welcome card (`setupComplete()` hides it) — keep it updated if new required steps are added
-- Google OAuth section in `renderSetup()` has two states: 5-step guide (no clientId) and compact confirmed state (clientId set) (InviteFlow)
+- All tab additions require updating: the `TABS` array in `App.tsx`, the `TabId` union in `types.ts`, the switch in `TabContent`, and adding a new tab file
 - ContactScout: `needsCustomization()` detects `[YOUR STATE]` placeholders — keep it in sync if placeholder patterns change
 - Dates: YYYY-MM-DD in all docs and filenames
 
 **Deployment**
-- InviteFlow: Edit `inviteflow.html` directly (or iterate as `inviteflow_vNN.html` then promote)
-- ContactScout: Edit source in `src/contact-scout/src/`, run `npm run build`, commit built files to `src/contact-scout/`
+- InviteFlow: Edit source in `src/inviteflow/`, run `npm run build` from root, commit `dist/`
+- ContactScout: Edit source in `src/contact-scout/src/`, run `npm run build` inside that directory, commit built files to `src/contact-scout/`
 - Public-facing files carry author credit "by Lenya Chan" near their title

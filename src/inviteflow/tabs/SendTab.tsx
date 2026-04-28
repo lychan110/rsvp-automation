@@ -8,13 +8,6 @@ type Filter = 'all' | 'pending' | 'failed';
 const BATCH_SIZE = 80;
 const BATCH_DELAY_MS = 61000;
 
-const FILTER_BTN = (active: boolean) =>
-  `min-h-[36px] px-3 py-1 rounded border text-[10px] font-mono tracking-wide cursor-pointer ${
-    active
-      ? 'border-blue-600 bg-blue-600 text-white dark:border-[#1f6feb] dark:bg-[#1f6feb]'
-      : 'border-gray-300 bg-transparent text-gray-600 hover:border-gray-500 dark:border-[#21262d] dark:text-[#8b949e] dark:hover:border-[#484f58]'
-  }`;
-
 export default function SendTab() {
   const state = useAppState();
   const dispatch = useAppDispatch();
@@ -46,7 +39,7 @@ export default function SendTab() {
 
     for (let i = 0; i < filtered.length; i++) {
       const inv = filtered[i];
-      const personalizedHtml = personalize(state.htmlBody, inv, ev);
+      const personalizedHtml    = personalize(state.htmlBody, inv, ev);
       const personalizedSubject = personalize(state.textSubject, inv, ev);
       const raw = buildMimeRaw(from, inv.email, personalizedSubject, personalizedHtml);
 
@@ -76,34 +69,50 @@ export default function SendTab() {
 
   return (
     <div className="p-5 max-w-[800px] mx-auto w-full">
-      <div className="text-sm font-bold tracking-[0.08em] text-gray-900 mb-4 dark:text-[#f0f6fc]">SEND</div>
+      <div className="if-page-title mb-4">SEND</div>
 
       {/* Filter + Send controls */}
       <div className="flex flex-wrap gap-2 items-center mb-4">
-        <span className="text-[10px] text-gray-500 tracking-widest font-mono uppercase dark:text-[#6e7681]">Filter</span>
+        <span className="if-section-label">Filter</span>
         {(['all', 'pending', 'failed'] as Filter[]).map(f => (
-          <button key={f} className={FILTER_BTN(filter === f)} onClick={() => setFilter(f)}>{f.toUpperCase()}</button>
+          <button
+            key={f}
+            className={`if-pill${filter === f ? ' active' : ''}`}
+            onClick={() => setFilter(f)}
+          >
+            {f.toUpperCase()}
+          </button>
         ))}
-        <span className="text-[10px] text-gray-500 font-mono ml-2 dark:text-[#6e7681]">{filtered.length} invitees</span>
+        <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'monospace', marginLeft: 4 }}>
+          {filtered.length} invitees
+        </span>
         <button
-          className="min-h-[36px] px-3 py-1 rounded border border-green-600 bg-green-600 text-white text-[10px] font-mono tracking-wide cursor-pointer hover:bg-green-700 ml-auto disabled:opacity-50 disabled:cursor-not-allowed dark:border-[#238636] dark:bg-[#238636]"
+          className="if-btn grn ml-auto"
           onClick={sendBulk}
           disabled={state.sending}
         >
-          {state.sending ? 'Sending…' : `Send to ${filtered.length} →`}
+          {state.sending ? 'Sending...' : `Send to ${filtered.length} →`}
         </button>
       </div>
 
-      {err && <div className="text-xs text-red-600 mb-3 dark:text-[#f85149]">{err}</div>}
+      {err && <div className="if-status err mb-3">{err}</div>}
 
       {/* Progress bar */}
       {state.sending && (
         <div className="mb-4">
-          <div className="text-[10px] text-gray-500 mb-1.5 dark:text-[#6e7681]">
+          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'monospace', marginBottom: 6 }}>
             {state.sendProgress.current} / {state.sendProgress.total} sent ({progress}%)
           </div>
-          <div className="h-1 bg-gray-200 rounded overflow-hidden dark:bg-[#161b22]">
-            <div className="h-full bg-[#C8A84B] rounded transition-[width] duration-300" style={{ width: `${progress}%` }} />
+          <div style={{ height: 3, background: 'var(--bg-subtle)', borderRadius: 2, overflow: 'hidden' }}>
+            <div
+              style={{
+                height: '100%',
+                background: 'var(--gold)',
+                borderRadius: 2,
+                transition: 'width 0.3s',
+                width: `${progress}%`,
+              }}
+            />
           </div>
         </div>
       )}
@@ -111,16 +120,34 @@ export default function SendTab() {
       {/* Send log */}
       {state.sendLog.length > 0 && (
         <div>
-          <div className="text-[10px] text-gray-500 tracking-widest font-mono uppercase mb-2 dark:text-[#6e7681]">SEND LOG</div>
-          <div className="max-h-96 overflow-y-auto border border-gray-200 rounded-lg dark:border-[#21262d]">
+          <div className="if-section-label mb-2">SEND LOG</div>
+          <div
+            style={{
+              maxHeight: 384,
+              overflowY: 'auto',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+            }}
+          >
             {state.sendLog.map(entry => (
-              <div key={entry.id} className="flex gap-2.5 items-baseline px-3 py-1.5 border-b border-gray-100 text-xs last:border-0 dark:border-[#161b22]">
-                <span className={`min-w-[40px] text-[10px] tracking-[0.07em] font-mono ${entry.status === 'sent' ? 'text-green-600 dark:text-[#3fb950]' : 'text-red-600 dark:text-[#f85149]'}`}>
+              <div
+                key={entry.id}
+                style={{
+                  display: 'flex',
+                  gap: 10,
+                  alignItems: 'baseline',
+                  padding: '6px 12px',
+                  borderBottom: '1px solid var(--bg-subtle)',
+                  fontFamily: 'monospace',
+                  fontSize: 11,
+                }}
+              >
+                <span style={{ minWidth: 40, fontSize: 10, letterSpacing: '0.07em', color: entry.status === 'sent' ? 'var(--success)' : 'var(--danger)' }}>
                   {entry.status.toUpperCase()}
                 </span>
-                <span className="text-gray-900 min-w-[160px] dark:text-[#c9d1d9]">{entry.name}</span>
-                <span className="text-gray-500 flex-1 dark:text-[#6e7681]">{entry.email}</span>
-                {entry.error && <span className="text-[10px] text-red-600 dark:text-[#f85149]">{entry.error}</span>}
+                <span style={{ color: 'var(--text-base)', minWidth: 160 }}>{entry.name}</span>
+                <span style={{ color: 'var(--text-muted)', flex: 1 }}>{entry.email}</span>
+                {entry.error && <span style={{ fontSize: 10, color: 'var(--danger)' }}>{entry.error}</span>}
               </div>
             ))}
           </div>
@@ -128,9 +155,7 @@ export default function SendTab() {
       )}
 
       {state.sendLog.length === 0 && !state.sending && (
-        <div className="text-gray-500 text-xs text-center py-10 dark:text-[#6e7681]">
-          No sends yet. Choose a filter and click Send.
-        </div>
+        <div className="if-empty">No sends yet. Choose a filter and click Send.</div>
       )}
     </div>
   );

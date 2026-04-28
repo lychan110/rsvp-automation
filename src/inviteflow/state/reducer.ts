@@ -2,7 +2,7 @@ import type { AppState } from '../types';
 import type { Action } from './actions';
 
 function loadDarkPref(): boolean {
-  return localStorage.getItem('inviteflow_theme') === 'dark';
+  return localStorage.getItem('inviteflow_theme') !== 'light';
 }
 
 export const INITIAL_STATE: AppState = {

@@ -45,8 +45,6 @@ function onFormSubmit(e) {
   }
 }`;
 
-const SECTION = "text-[10px] text-gray-500 tracking-widest font-mono uppercase mt-5 mb-2.5 border-b border-gray-200 pb-1.5 dark:text-[#6e7681] dark:border-[#21262d]";
-
 export default function SyncTab() {
   const state = useAppState();
   const dispatch = useAppDispatch();
@@ -88,9 +86,9 @@ export default function SyncTab() {
       const rows = await sheetsGet(token, id, 'Sheet1!A:K');
       if (rows.length < 2) { setStatus('RSVP sheet appears empty.'); return; }
       const [header, ...data] = rows;
-      const emailCol = header.findIndex(h => h.toLowerCase().includes('email'));
+      const emailCol  = header.findIndex(h => h.toLowerCase().includes('email'));
       const statusCol = header.findIndex(h => h.toLowerCase().includes('attend') || h.toLowerCase().includes('rsvp'));
-      const dateCol = header.findIndex(h => h.toLowerCase().includes('date'));
+      const dateCol   = header.findIndex(h => h.toLowerCase().includes('date'));
       if (emailCol < 0) { setStatus('Cannot find Email column in RSVP sheet.'); return; }
 
       let updated = 0;
@@ -98,11 +96,12 @@ export default function SyncTab() {
         const match = data.find(r => r[emailCol]?.toLowerCase() === inv.email.toLowerCase());
         if (!match) return inv;
         const rawStatus = match[statusCol] ?? '';
-        const rsvpStatus: Invitee['rsvpStatus'] = rawStatus.toLowerCase().includes('yes') || rawStatus.toLowerCase().includes('attend')
-          ? 'Attending'
-          : rawStatus.toLowerCase().includes('no') || rawStatus.toLowerCase().includes('declin')
-            ? 'Declined'
-            : 'No Response';
+        const rsvpStatus: Invitee['rsvpStatus'] =
+          rawStatus.toLowerCase().includes('yes') || rawStatus.toLowerCase().includes('attend')
+            ? 'Attending'
+            : rawStatus.toLowerCase().includes('no') || rawStatus.toLowerCase().includes('declin')
+              ? 'Declined'
+              : 'No Response';
         const rsvpDate = dateCol >= 0 ? (match[dateCol] ?? '') : new Date().toISOString().slice(0, 10);
         updated++;
         return { ...inv, rsvpStatus, rsvpDate };
@@ -118,70 +117,65 @@ export default function SyncTab() {
 
   return (
     <div className="p-5 max-w-[760px] mx-auto w-full">
-      <div className="text-sm font-bold tracking-[0.08em] text-gray-900 mb-4 dark:text-[#f0f6fc]">SYNC</div>
+      <div className="if-page-title mb-4">SYNC</div>
 
       {status && (
-        <div className={`text-xs mb-4 ${status.startsWith('Error') ? 'text-red-600 dark:text-[#f85149]' : 'text-green-600 dark:text-[#3fb950]'}`}>
-          {status}
-        </div>
+        <div className={`if-status mb-4 ${status.startsWith('Error') ? 'err' : 'ok'}`}>{status}</div>
       )}
 
       {/* Action cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-7">
         {/* Push card */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5 dark:bg-[#0d1117] dark:border-[#21262d]">
-          <div className={SECTION}>PUSH TO MASTER SHEET</div>
-          <p className="text-xs text-gray-500 mb-4 leading-relaxed dark:text-[#6e7681]">
+        <div className="if-card">
+          <div className="if-section-label mb-2.5 pb-1.5 border-b" style={{ borderColor: 'var(--border)' }}>
+            PUSH TO MASTER SHEET
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 12, fontFamily: 'monospace' }}>
             Clears and rewrites all {state.invitees.length} invitees to your master Google Sheet.
           </p>
           {ev?.masterSheetUrl
-            ? <a href={ev.masterSheetUrl} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 dark:text-[#58a6ff] mb-3 block">Open sheet ↗</a>
-            : <span className="text-[10px] text-red-600 dark:text-[#f85149] mb-3 block">Master Sheet URL not set in Setup.</span>
+            ? <a href={ev.masterSheetUrl} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: 'var(--blue)', display: 'block', marginBottom: 10 }}>Open sheet &uarr;</a>
+            : <span style={{ fontSize: 10, color: 'var(--danger)', display: 'block', marginBottom: 10 }}>Master Sheet URL not set in Setup.</span>
           }
-          <button
-            className="min-h-[44px] px-3 py-1 rounded border border-green-600 bg-green-600 text-white text-xs font-mono tracking-wide cursor-pointer hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed dark:border-[#238636] dark:bg-[#238636]"
-            onClick={pushToSheets}
-            disabled={pushing}
-          >
-            {pushing ? 'Pushing…' : `Push ${state.invitees.length} rows`}
+          <button className="if-btn grn" onClick={pushToSheets} disabled={pushing}>
+            {pushing ? 'Pushing...' : `Push ${state.invitees.length} rows`}
           </button>
         </div>
 
         {/* Pull card */}
-        <div className="bg-white border border-gray-200 rounded-lg p-5 dark:bg-[#0d1117] dark:border-[#21262d]">
-          <div className={SECTION}>PULL RSVP RESPONSES</div>
-          <p className="text-xs text-gray-500 mb-4 leading-relaxed dark:text-[#6e7681]">
+        <div className="if-card">
+          <div className="if-section-label mb-2.5 pb-1.5 border-b" style={{ borderColor: 'var(--border)' }}>
+            PULL RSVP RESPONSES
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 12, fontFamily: 'monospace' }}>
             Reads RSVP statuses from your response sheet and updates invitee records.
           </p>
           {ev?.rsvpResponseUrl
-            ? <a href={ev.rsvpResponseUrl} target="_blank" rel="noreferrer" className="text-[10px] text-blue-600 dark:text-[#58a6ff] mb-3 block">Open sheet ↗</a>
-            : <span className="text-[10px] text-red-600 dark:text-[#f85149] mb-3 block">RSVP Response Sheet URL not set in Setup.</span>
+            ? <a href={ev.rsvpResponseUrl} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: 'var(--blue)', display: 'block', marginBottom: 10 }}>Open sheet &uarr;</a>
+            : <span style={{ fontSize: 10, color: 'var(--danger)', display: 'block', marginBottom: 10 }}>RSVP Response Sheet URL not set in Setup.</span>
           }
-          <button
-            className="min-h-[44px] px-3 py-1 rounded border border-blue-400 bg-transparent text-blue-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-[#58a6ff] dark:text-[#58a6ff] dark:hover:bg-[#0d1f3c]"
-            onClick={pullRsvp}
-            disabled={pulling}
-          >
-            {pulling ? 'Pulling…' : 'Pull RSVP Responses'}
+          <button className="if-btn ghost" onClick={pullRsvp} disabled={pulling}>
+            {pulling ? 'Pulling...' : 'Pull RSVP Responses'}
           </button>
         </div>
       </div>
 
       {/* GAS section */}
-      <div className={SECTION}>GAS RSVP INGEST TRIGGER</div>
-      <p className="text-xs text-gray-500 leading-relaxed mb-3 dark:text-[#6e7681]">
-        Paste this script into your Google Form's Apps Script project. Add a trigger on{' '}
-        <code className="bg-gray-100 px-1 rounded text-[10px] dark:bg-[#161b22]">onFormSubmit</code>{' '}
+      <div className="if-section-label mb-2.5 pb-1.5 border-b" style={{ borderColor: 'var(--border)' }}>
+        GAS RSVP INGEST TRIGGER
+      </div>
+      <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 10, fontFamily: 'monospace' }}>
+        Paste this script into your Google Form&apos;s Apps Script project. Add a trigger on{' '}
+        <code style={{ background: 'var(--bg-subtle)', padding: '1px 4px', borderRadius: 3, fontSize: 10 }}>onFormSubmit</code>{' '}
         (Form Submit event). Set script property{' '}
-        <code className="bg-gray-100 px-1 rounded text-[10px] dark:bg-[#161b22]">MASTER_SHEET_URL</code>{' '}
+        <code style={{ background: 'var(--bg-subtle)', padding: '1px 4px', borderRadius: 3, fontSize: 10 }}>MASTER_SHEET_URL</code>{' '}
         to your master sheet URL.
       </p>
-      <div className="relative">
-        <pre className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-[10px] text-gray-800 overflow-x-auto leading-relaxed dark:bg-[#0d1117] dark:border-[#21262d] dark:text-[#c9d1d9]">
-          {GAS_CODE}
-        </pre>
+      <div style={{ position: 'relative' }}>
+        <pre className="if-code">{GAS_CODE}</pre>
         <button
-          className="absolute top-2 right-2 min-h-[32px] px-2.5 py-1 rounded border border-gray-300 bg-white text-gray-600 text-[10px] font-mono cursor-pointer hover:border-gray-500 dark:bg-[#161b22] dark:border-[#21262d] dark:text-[#8b949e]"
+          className="if-btn sm"
+          style={{ position: 'absolute', top: 8, right: 8 }}
           onClick={() => { navigator.clipboard.writeText(GAS_CODE); setStatus('Copied GAS code to clipboard.'); }}
         >
           Copy
