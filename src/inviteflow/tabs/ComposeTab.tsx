@@ -11,20 +11,6 @@ const TOKENS = [
   'VIPStart', 'VIPEnd', 'RSVP_Link', 'Date_Sent',
 ];
 
-const TOKEN_BTN = "px-1.5 py-0.5 rounded border border-gray-300 bg-transparent text-gray-600 text-[9px] font-mono tracking-wide cursor-pointer hover:border-[#C8A84B] hover:text-[#C8A84B] dark:border-[#21262d] dark:text-[#8b949e] dark:hover:border-[#C8A84B] dark:hover:text-[#C8A84B]";
-const FMT_BTN = (active: boolean) =>
-  `min-h-[36px] px-2.5 py-1 rounded border text-[10px] font-mono cursor-pointer ${
-    active
-      ? 'border-[#C8A84B] bg-[#2a1a00] text-[#C8A84B]'
-      : 'border-gray-300 bg-transparent text-gray-600 hover:border-gray-500 dark:border-[#21262d] dark:text-[#8b949e] dark:hover:border-[#484f58]'
-  }`;
-const PANE_BTN = (active: boolean) =>
-  `min-h-[36px] px-3 py-1 rounded border text-[10px] font-mono tracking-wide cursor-pointer ${
-    active
-      ? 'border-blue-600 bg-blue-600 text-white dark:border-[#1f6feb] dark:bg-[#1f6feb]'
-      : 'border-gray-300 bg-transparent text-gray-600 dark:border-[#21262d] dark:text-[#8b949e]'
-  }`;
-
 export default function ComposeTab() {
   const state = useAppState();
   const dispatch = useAppDispatch();
@@ -54,19 +40,20 @@ export default function ComposeTab() {
     dispatch({ type: 'SET_COMPOSE', subject: val, html: state.htmlBody });
   }
 
-  const preview = ev && sample
-    ? personalize(state.htmlBody, sample, ev)
-    : state.htmlBody;
+  const preview = ev && sample ? personalize(state.htmlBody, sample, ev) : state.htmlBody;
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* Top bar */}
-      <div className="px-4 py-3 border-b border-gray-200 flex flex-col gap-2.5 shrink-0 dark:border-[#21262d]">
+      <div
+        className="px-4 py-3 flex flex-col gap-2.5 shrink-0"
+        style={{ borderBottom: '1px solid var(--border)' }}
+      >
         {/* Subject */}
         <div className="flex items-center gap-2.5">
-          <span className="text-[10px] text-gray-500 tracking-widest font-mono uppercase shrink-0 dark:text-[#6e7681]">Subject</span>
+          <span className="if-section-label shrink-0">Subject</span>
           <input
-            className="flex-1 min-w-0 bg-white border border-gray-300 text-gray-900 text-xs font-mono px-2.5 py-1.5 rounded outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:bg-[#0d1117] dark:border-[#21262d] dark:text-[#c9d1d9] dark:focus:border-[#58a6ff]"
+            className="if-input"
             value={state.textSubject}
             onChange={e => updateSubject(e.target.value)}
             placeholder="You are cordially invited to {{EventName}}"
@@ -75,24 +62,69 @@ export default function ComposeTab() {
 
         {/* Token insert row */}
         <div className="flex gap-1 flex-wrap items-center">
-          <span className="text-[10px] text-gray-500 tracking-widest font-mono uppercase mr-1 dark:text-[#6e7681]">Insert</span>
+          <span className="if-section-label mr-1">Insert</span>
           {TOKENS.map(t => (
-            <button key={t} className={TOKEN_BTN} onClick={() => insertToken(t)}>{`{{${t}}}`}</button>
+            <button
+              key={t}
+              onClick={() => insertToken(t)}
+              style={{
+                padding: '2px 6px',
+                borderRadius: 3,
+                border: '1px solid var(--border)',
+                background: 'transparent',
+                color: 'var(--text-muted)',
+                fontFamily: 'monospace',
+                fontSize: 9,
+                letterSpacing: '0.04em',
+                cursor: 'pointer',
+              }}
+              onMouseEnter={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--gold)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--gold)';
+              }}
+              onMouseLeave={e => {
+                (e.currentTarget as HTMLButtonElement).style.borderColor = 'var(--border)';
+                (e.currentTarget as HTMLButtonElement).style.color = 'var(--text-muted)';
+              }}
+            >
+              {`{{${t}}}`}
+            </button>
           ))}
         </div>
 
         {/* Format bar + mobile pane toggle */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex gap-1">
-            <button className={FMT_BTN(!!editor?.isActive('bold'))} onClick={() => editor?.chain().focus().toggleBold().run()}>B</button>
-            <button className={FMT_BTN(!!editor?.isActive('italic'))} onClick={() => editor?.chain().focus().toggleItalic().run()}>I</button>
-            <button className={FMT_BTN(!!editor?.isActive('bulletList'))} onClick={() => editor?.chain().focus().toggleBulletList().run()}>• List</button>
-            <button className={FMT_BTN(!!editor?.isActive('orderedList'))} onClick={() => editor?.chain().focus().toggleOrderedList().run()}>1. List</button>
+            {[
+              { label: 'B', action: () => editor?.chain().focus().toggleBold().run(),         active: () => !!editor?.isActive('bold') },
+              { label: 'I', action: () => editor?.chain().focus().toggleItalic().run(),       active: () => !!editor?.isActive('italic') },
+              { label: '• List', action: () => editor?.chain().focus().toggleBulletList().run(),  active: () => !!editor?.isActive('bulletList') },
+              { label: '1. List', action: () => editor?.chain().focus().toggleOrderedList().run(), active: () => !!editor?.isActive('orderedList') },
+            ].map(({ label, action, active }) => (
+              <button
+                key={label}
+                className="if-btn sm"
+                style={active() ? { borderColor: 'var(--gold)', color: 'var(--gold)', background: 'var(--gold-bg)' } : {}}
+                onClick={action}
+              >
+                {label}
+              </button>
+            ))}
           </div>
           {/* Pane toggle — mobile only */}
           <div className="flex gap-1 md:hidden">
-            <button className={PANE_BTN(activePane === 'editor')} onClick={() => setActivePane('editor')}>Editor</button>
-            <button className={PANE_BTN(activePane === 'preview')} onClick={() => setActivePane('preview')}>Preview</button>
+            <button
+              className={`if-btn sm${activePane === 'editor' ? ' pri' : ''}`}
+              onClick={() => setActivePane('editor')}
+            >
+              Editor
+            </button>
+            <button
+              className={`if-btn sm${activePane === 'preview' ? ' pri' : ''}`}
+              onClick={() => setActivePane('preview')}
+            >
+              Preview
+            </button>
           </div>
         </div>
       </div>
@@ -100,21 +132,29 @@ export default function ComposeTab() {
       {/* Editor + Preview */}
       <div className="flex-1 overflow-hidden md:grid md:grid-cols-2">
         {/* Editor pane */}
-        <div className={`h-full overflow-auto p-4 border-gray-200 dark:border-[#21262d] md:border-r ${activePane === 'editor' ? 'block' : 'hidden'} md:block`}>
-          <div className="text-[10px] text-gray-500 tracking-widest font-mono uppercase mb-2 dark:text-[#6e7681]">EDITOR</div>
+        <div
+          className={`h-full overflow-auto p-4 ${activePane === 'editor' ? 'block' : 'hidden'} md:block`}
+          style={{ borderRight: '1px solid var(--border)' }}
+        >
+          <div className="if-section-label mb-2">EDITOR</div>
           <EditorContent
             editor={editor}
-            className="text-gray-900 text-sm leading-relaxed min-h-[200px] dark:text-[#c9d1d9]"
+            className="text-sm leading-relaxed min-h-[200px]"
+            style={{ color: 'var(--text-base)' }}
           />
         </div>
 
         {/* Preview pane */}
-        <div className={`h-full overflow-auto p-4 bg-gray-50 dark:bg-[#080c10] ${activePane === 'preview' ? 'block' : 'hidden'} md:block`}>
-          <div className="text-[10px] text-gray-500 tracking-widest font-mono uppercase mb-2 dark:text-[#6e7681]">
+        <div
+          className={`h-full overflow-auto p-4 ${activePane === 'preview' ? 'block' : 'hidden'} md:block`}
+          style={{ background: 'var(--bg-subtle)' }}
+        >
+          <div className="if-section-label mb-2">
             PREVIEW {sample ? `(${sample.firstName} ${sample.lastName})` : '(no invitees)'}
           </div>
           <div
-            className="bg-white rounded p-4 text-[#1a1a1a] text-sm leading-relaxed"
+            className="rounded p-4 text-sm leading-relaxed"
+            style={{ background: '#fff', color: '#1a1a1a' }}
             dangerouslySetInnerHTML={{ __html: preview }}
           />
         </div>

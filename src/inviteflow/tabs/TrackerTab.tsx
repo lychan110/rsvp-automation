@@ -9,35 +9,35 @@ interface CategoryRow {
   noResponse: number;
 }
 
-const STAT_COLORS: Record<string, string> = {
-  TOTAL: 'border-l-gray-400 dark:border-l-[#8b949e]',
-  PENDING: 'border-l-gray-400 dark:border-l-[#6e7681]',
-  SENT: 'border-l-green-500 dark:border-l-[#3fb950]',
-  FAILED: 'border-l-red-500 dark:border-l-[#f85149]',
-  ATTENDING: 'border-l-[#C8A84B]',
-  DECLINED: 'border-l-red-500 dark:border-l-[#f85149]',
-  'NO RESPONSE': 'border-l-gray-400 dark:border-l-[#6e7681]',
+const STAT_BORDER: Record<string, string> = {
+  TOTAL:       'var(--text-secondary)',
+  PENDING:     'var(--text-muted)',
+  SENT:        'var(--success)',
+  FAILED:      'var(--danger)',
+  ATTENDING:   'var(--gold)',
+  DECLINED:    'var(--danger)',
+  'NO RESPONSE': 'var(--text-muted)',
 };
-const STAT_VALUE_COLORS: Record<string, string> = {
-  TOTAL: 'text-gray-500 dark:text-[#8b949e]',
-  PENDING: 'text-gray-500 dark:text-[#6e7681]',
-  SENT: 'text-green-600 dark:text-[#3fb950]',
-  FAILED: 'text-red-600 dark:text-[#f85149]',
-  ATTENDING: 'text-[#C8A84B]',
-  DECLINED: 'text-red-600 dark:text-[#f85149]',
-  'NO RESPONSE': 'text-gray-400 dark:text-[#6e7681]',
+const STAT_VALUE: Record<string, string> = {
+  TOTAL:       'var(--text-secondary)',
+  PENDING:     'var(--text-muted)',
+  SENT:        'var(--success)',
+  FAILED:      'var(--danger)',
+  ATTENDING:   'var(--gold)',
+  DECLINED:    'var(--danger)',
+  'NO RESPONSE': 'var(--text-muted)',
 };
 
 export default function TrackerTab() {
   const state = useAppState();
   const inv = state.invitees;
 
-  const total = inv.length;
-  const sent = inv.filter(i => i.inviteStatus === 'sent').length;
-  const pending = inv.filter(i => i.inviteStatus === 'pending').length;
-  const failed = inv.filter(i => i.inviteStatus === 'failed').length;
-  const attending = inv.filter(i => i.rsvpStatus === 'Attending').length;
-  const declined = inv.filter(i => i.rsvpStatus === 'Declined').length;
+  const total      = inv.length;
+  const sent       = inv.filter(i => i.inviteStatus === 'sent').length;
+  const pending    = inv.filter(i => i.inviteStatus === 'pending').length;
+  const failed     = inv.filter(i => i.inviteStatus === 'failed').length;
+  const attending  = inv.filter(i => i.rsvpStatus === 'Attending').length;
+  const declined   = inv.filter(i => i.rsvpStatus === 'Declined').length;
   const noResponse = inv.filter(i => i.rsvpStatus === 'No Response').length;
 
   const stats: [string, number][] = [
@@ -49,36 +49,33 @@ export default function TrackerTab() {
   const byCategory: CategoryRow[] = cats.map(cat => {
     const rows = inv.filter(i => i.category === cat);
     return {
-      category: cat,
-      total: rows.length,
-      sent: rows.filter(i => i.inviteStatus === 'sent').length,
-      attending: rows.filter(i => i.rsvpStatus === 'Attending').length,
-      declined: rows.filter(i => i.rsvpStatus === 'Declined').length,
+      category:   cat,
+      total:      rows.length,
+      sent:       rows.filter(i => i.inviteStatus === 'sent').length,
+      attending:  rows.filter(i => i.rsvpStatus === 'Attending').length,
+      declined:   rows.filter(i => i.rsvpStatus === 'Declined').length,
       noResponse: rows.filter(i => i.rsvpStatus === 'No Response').length,
     };
   });
 
   if (total === 0) {
-    return (
-      <div className="p-10 text-gray-500 text-xs text-center dark:text-[#6e7681]">
-        No invitees yet. Add them in the Invitees tab.
-      </div>
-    );
+    return <div className="if-empty">No invitees yet. Add them in the Invitees tab.</div>;
   }
 
   return (
     <div className="p-5 max-w-[900px] mx-auto w-full">
-      <div className="text-sm font-bold tracking-[0.08em] text-gray-900 mb-5 dark:text-[#f0f6fc]">TRACKER</div>
+      <div className="if-page-title mb-5">TRACKER</div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5 mb-7">
         {stats.map(([label, value]) => (
           <div
             key={label}
-            className={`bg-white border border-gray-200 border-l-4 rounded-lg px-4 py-3 dark:bg-[#0d1117] dark:border-[#21262d] ${STAT_COLORS[label]}`}
+            className="if-stat"
+            style={{ borderLeftColor: STAT_BORDER[label] }}
           >
-            <div className="text-[9px] text-gray-500 tracking-[0.12em] font-mono mb-1.5 dark:text-[#6e7681]">{label}</div>
-            <div className={`text-2xl font-bold ${STAT_VALUE_COLORS[label]}`}>{value}</div>
+            <div className="if-stat-label">{label}</div>
+            <div className="if-stat-value" style={{ color: STAT_VALUE[label] }}>{value}</div>
           </div>
         ))}
       </div>
@@ -86,14 +83,21 @@ export default function TrackerTab() {
       {/* By category table */}
       {byCategory.length > 0 && (
         <>
-          <div className="text-[10px] text-gray-500 tracking-widest font-mono uppercase mb-2.5 dark:text-[#6e7681]">BY CATEGORY</div>
-          <div className="border border-gray-200 rounded-lg overflow-hidden dark:border-[#21262d]">
+          <div className="if-section-label mb-2.5">BY CATEGORY</div>
+          <div style={{ border: '1px solid var(--border)', borderRadius: 6, overflow: 'hidden' }}>
             <div className="overflow-x-auto" role="region" aria-label="Category breakdown" tabIndex={0}>
-              <table className="w-full border-collapse">
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'monospace' }}>
                 <thead>
                   <tr>
                     {['Category', 'Total', 'Sent', 'Attending', 'Declined', 'No Response'].map(h => (
-                      <th key={h} className="text-[10px] text-gray-500 tracking-widest font-mono uppercase text-left px-3 py-2 border-b border-gray-200 dark:text-[#6e7681] dark:border-[#21262d]">
+                      <th
+                        key={h}
+                        style={{
+                          fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.1em',
+                          textTransform: 'uppercase', textAlign: 'left', padding: '6px 12px',
+                          borderBottom: '1px solid var(--border)',
+                        }}
+                      >
                         {h}
                       </th>
                     ))}
@@ -101,13 +105,13 @@ export default function TrackerTab() {
                 </thead>
                 <tbody>
                   {byCategory.map(row => (
-                    <tr key={row.category} className="border-b border-gray-100 last:border-0 dark:border-[#161b22]">
-                      <td className="text-xs text-gray-900 px-3 py-1.5 dark:text-[#c9d1d9]">{row.category}</td>
-                      <td className="text-xs text-gray-700 px-3 py-1.5 dark:text-[#c9d1d9]">{row.total}</td>
-                      <td className="text-xs text-green-600 px-3 py-1.5 dark:text-[#3fb950]">{row.sent}</td>
-                      <td className="text-xs text-[#C8A84B] px-3 py-1.5">{row.attending}</td>
-                      <td className="text-xs text-red-600 px-3 py-1.5 dark:text-[#f85149]">{row.declined}</td>
-                      <td className="text-xs text-gray-500 px-3 py-1.5 dark:text-[#6e7681]">{row.noResponse}</td>
+                    <tr key={row.category} style={{ borderBottom: '1px solid var(--bg-subtle)' }}>
+                      <td style={{ fontSize: 11, color: 'var(--text-base)', padding: '5px 12px' }}>{row.category}</td>
+                      <td style={{ fontSize: 11, color: 'var(--text-secondary)', padding: '5px 12px' }}>{row.total}</td>
+                      <td style={{ fontSize: 11, color: 'var(--success)', padding: '5px 12px' }}>{row.sent}</td>
+                      <td style={{ fontSize: 11, color: 'var(--gold)', padding: '5px 12px' }}>{row.attending}</td>
+                      <td style={{ fontSize: 11, color: 'var(--danger)', padding: '5px 12px' }}>{row.declined}</td>
+                      <td style={{ fontSize: 11, color: 'var(--text-muted)', padding: '5px 12px' }}>{row.noResponse}</td>
                     </tr>
                   ))}
                 </tbody>

@@ -1,0 +1,242 @@
+/* InviteFlow design system — mirrors ContactScout dark language */
+
+/* === BUTTONS === */
+.if-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 12px;
+  border-radius: 5px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  white-space: nowrap;
+}
+.if-btn:hover:not(:disabled) { border-color: var(--text-secondary); color: var(--text-base); }
+.if-btn:disabled { opacity: 0.38; cursor: not-allowed; }
+
+/* Primary — blue */
+.if-btn.pri {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+.if-btn.pri:hover:not(:disabled) { background: #388bfd; border-color: #388bfd; }
+
+/* Green */
+.if-btn.grn {
+  border-color: var(--success-bg);
+  background: var(--success-bg);
+  color: var(--success);
+}
+.if-btn.grn:hover:not(:disabled) { background: #2ea043; border-color: #2ea043; color: #fff; }
+
+/* Destructive */
+.if-btn.del {
+  border-color: var(--danger-dark);
+  background: transparent;
+  color: var(--danger);
+}
+.if-btn.del:hover:not(:disabled) { background: #2d0f0e; }
+
+/* Ghost blue */
+.if-btn.ghost {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+.if-btn.ghost:hover:not(:disabled) { background: rgba(88, 166, 255, 0.08); }
+
+/* Small */
+.if-btn.sm { min-height: 24px; padding: 0 9px; font-size: 9px; }
+
+/* Large (mobile tap target) */
+.if-btn.lg { min-height: 40px; padding: 0 18px; font-size: 11px; }
+
+/* === CARDS === */
+.if-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+
+/* === SECTION LABEL === */
+.if-section-label {
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* === PAGE TITLE === */
+.if-page-title {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-heading);
+  letter-spacing: 0.08em;
+}
+
+/* === INPUTS === */
+.if-input {
+  width: 100%;
+  background: var(--bg-surface);
+  border: 1px solid #30363d;
+  color: var(--text-base);
+  padding: 5px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  outline: none;
+  transition: border-color 0.12s;
+}
+.if-input:focus { border-color: var(--blue); }
+.if-input::placeholder { color: var(--text-muted); }
+
+/* === FIELD LABEL === */
+.if-label {
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* === FILTER PILLS === */
+.if-pill {
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: monospace;
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.if-pill:hover:not(.active) { color: var(--text-secondary); border-color: var(--border); }
+.if-pill.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(31, 111, 235, 0.1);
+}
+
+/* === STATUS TAG === */
+.if-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid currentColor;
+  font-family: monospace;
+  font-size: 9px;
+  letter-spacing: 0.07em;
+}
+
+/* === STAT CARD === */
+.if-stat {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 6px;
+  padding: 12px 14px;
+}
+.if-stat-label {
+  font-family: monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.if-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+  font-family: monospace;
+}
+
+/* === CODE BLOCK === */
+.if-code {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-family: monospace;
+  font-size: 10px;
+  color: var(--text-base);
+  overflow-x: auto;
+  line-height: 1.6;
+  white-space: pre;
+}
+
+/* === EMPTY STATE === */
+.if-empty {
+  padding: 48px 20px;
+  text-align: center;
+  color: var(--text-muted);
+  font-family: monospace;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* === INLINE STATUS === */
+.if-status { font-family: monospace; font-size: 10px; }
+.if-status.ok  { color: var(--success); }
+.if-status.err { color: var(--danger); }
+.if-status.info { color: var(--blue); }
+
+/* === NAV TABS === */
+.if-nav-tab {
+  min-height: 36px;
+  padding: 0 10px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  font-family: monospace;
+  font-size: 10px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.12s, border-color 0.12s, background 0.12s;
+}
+.if-nav-tab:hover:not(.active) { color: var(--text-base); }
+.if-nav-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* === BULK ACTION BAR === */
+.if-bulk-bar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px 12px;
+  flex-wrap: wrap;
+}
+
+/* === MOBILE RESPONSIVE === */
+@media (max-width: 767px) {
+  .if-btn     { min-height: 44px; padding: 0 18px; font-size: 12px; border-radius: 8px; }
+  .if-btn.sm  { min-height: 36px; padding: 0 14px; font-size: 10px; }
+  .if-btn.lg  { min-height: 48px; }
+  .if-nav-tab { min-height: 44px; font-size: 11px; }
+  .if-pill    { min-height: 36px; font-size: 10px; }
+}

@@ -85,61 +85,54 @@ export default function EventsTab() {
   return (
     <div className="p-5 max-w-[860px] mx-auto w-full">
       <div className="flex items-center justify-between mb-5">
-        <span className="text-sm font-bold tracking-[0.08em] text-gray-900 dark:text-[#f0f6fc]">EVENTS</span>
+        <span className="if-page-title">EVENTS</span>
         <div className="flex gap-2">
-          <button
-            onClick={loadEvents}
-            disabled={loading}
-            className="min-h-[44px] px-3 py-1 rounded border border-gray-300 bg-transparent text-gray-700 text-xs font-mono tracking-wide cursor-pointer hover:bg-gray-100 dark:border-[#21262d] dark:text-[#8b949e] dark:hover:bg-[#161b22] disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? 'Loading…' : 'Refresh'}
+          <button className="if-btn" onClick={loadEvents} disabled={loading}>
+            {loading ? 'Loading...' : 'Refresh'}
           </button>
-          <button
-            onClick={createEvent}
-            className="min-h-[44px] px-3 py-1 rounded border border-blue-600 bg-blue-600 text-white text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-700 dark:border-[#1f6feb] dark:bg-[#1f6feb]"
-          >
-            + New Event
-          </button>
+          <button className="if-btn pri" onClick={createEvent}>+ New Event</button>
         </div>
       </div>
 
-      {err && <div className="text-xs text-red-600 mb-3 dark:text-[#f85149]">{err}</div>}
+      {err && <div className="if-status err mb-3">{err}</div>}
 
       {state.events.length === 0 && !loading && (
-        <div className="text-gray-500 text-xs text-center py-10 dark:text-[#6e7681]">
-          No events yet. Click &ldquo;+ New Event&rdquo; to create one.
-        </div>
+        <div className="if-empty">No events yet. Click &ldquo;+ New Event&rdquo; to create one.</div>
       )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {state.events.map(ev => (
           <div
             key={ev.id}
-            className={[
-              'bg-white border rounded-lg p-4 cursor-pointer transition-colors dark:bg-[#0d1117]',
-              state.activeEventId === ev.id
-                ? 'border-[#C8A84B]'
-                : 'border-gray-200 hover:border-gray-400 dark:border-[#21262d] dark:hover:border-[#484f58]',
-            ].join(' ')}
-            onClick={() => { dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id }); dispatch({ type: 'SET_TAB', tab: 'setup' }); }}
+            className="if-card cursor-pointer"
+            style={state.activeEventId === ev.id
+              ? { borderColor: 'var(--gold)', cursor: 'pointer' }
+              : { cursor: 'pointer' }}
+            onClick={() => {
+              dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id });
+              dispatch({ type: 'SET_TAB', tab: 'setup' });
+            }}
           >
-            <div className="text-sm font-bold text-gray-900 mb-1 dark:text-[#f0f6fc]">{ev.name || 'Unnamed Event'}</div>
-            <div className="text-[10px] text-gray-500 mb-3 dark:text-[#6e7681]">
+            <div
+              className="text-sm font-bold mb-1"
+              style={{ color: 'var(--text-heading)', fontFamily: 'monospace' }}
+            >
+              {ev.name || 'Unnamed Event'}
+            </div>
+            <div className="text-[10px] mb-3" style={{ color: 'var(--text-muted)' }}>
               {ev.date || 'No date'} · {ev.venue || 'No venue'}
             </div>
             <div className="flex gap-2" onClick={e => e.stopPropagation()}>
               <button
-                onClick={() => { dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id }); dispatch({ type: 'SET_TAB', tab: 'setup' }); }}
-                className="min-h-[44px] px-3 py-1 rounded border border-blue-600 bg-blue-600 text-white text-xs font-mono tracking-wide cursor-pointer hover:bg-blue-700 dark:border-[#1f6feb] dark:bg-[#1f6feb]"
+                className="if-btn pri sm"
+                onClick={() => {
+                  dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id });
+                  dispatch({ type: 'SET_TAB', tab: 'setup' });
+                }}
               >
                 {state.activeEventId === ev.id ? '✓ Active' : 'Activate'}
               </button>
-              <button
-                onClick={() => deleteEvent(ev.id)}
-                className="min-h-[44px] px-3 py-1 rounded border border-red-500 bg-transparent text-red-600 text-xs font-mono tracking-wide cursor-pointer hover:bg-red-50 dark:border-[#f85149] dark:text-[#f85149] dark:hover:bg-[#2d0f0e]"
-              >
-                Delete
-              </button>
+              <button className="if-btn del sm" onClick={() => deleteEvent(ev.id)}>Delete</button>
             </div>
           </div>
         ))}
