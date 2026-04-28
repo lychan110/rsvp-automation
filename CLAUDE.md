@@ -3,6 +3,21 @@
 Author: Lenya Chan
 Updated: 2026-04-28
 
+## Approach
+- Read existing files before writing. Don't re-read unless changed.
+- Thorough in reasoning, concise in output.
+- Skip files over 100KB unless required.
+- No sycophantic openers or closing fluff.
+- No emojis or em-dashes.
+- Do not guess APIs, versions, flags, commit SHAs, or package names. Verify by reading code or docs before asserting.
+
+## Code Exploration Policy
+Always use jCodemunch-MCP tools -- never fall back to Read, Grep, Glob, or Bash for code exploration.
+- Before reading a file: use get_file_outline or get_file_content
+- Before searching: use search_symbols or search_text
+- Before exploring structure: use get_file_tree or get_repo_outline
+- Call resolve_repo with the current directory first; if not indexed, call index_folder.
+
 ## Overview
 
 The suite consists of two complementary tools:

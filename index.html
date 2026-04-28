@@ -72,7 +72,7 @@ body{background:var(--bg);color:var(--text-1);font-family:var(--ff-b);min-height
     <div class="fstep"><span class="fnum">3</span>Track RSVPs</div>
   </div>
 
-  <div class="apps" style="grid-template-columns:1fr">
+  <div class="apps">
     <a class="app-card" href="inviteflow.html">
       <div class="ac-top">
         <span class="ac-name">InviteFlow</span>
@@ -82,12 +82,20 @@ body{background:var(--bg);color:var(--text-1);font-family:var(--ff-b);min-height
       <div class="ac-desc">Compose and send personalized invite emails via Gmail. Import contacts, track send status, and follow up on RSVPs.</div>
       <div class="ac-cta">Open InviteFlow →</div>
     </a>
+    <div class="app-card" onclick="openScout()" role="button" tabindex="0" onkeydown="if(event.key==='Enter')openScout()" style="cursor:pointer">
+      <div class="ac-top">
+        <span class="ac-name">ContactScout</span>
+        <span class="badge" style="background:#f0f4ff;color:#2455c2;border:1px solid #c7d4f7">INTERNAL</span>
+      </div>
+      <div class="ac-file">src/contact-scout/index.html</div>
+      <div class="ac-desc">Discover and verify elected officials using Claude AI with web search. Export contact lists directly into InviteFlow.</div>
+      <div class="ac-cta">Open ContactScout →</div>
+    </div>
   </div>
 
   <div class="footer">
     <div>Open directly in any browser &nbsp;·&nbsp; No installation &nbsp;·&nbsp; No server required</div>
     <div>InviteFlow Suite &nbsp;·&nbsp; Lenya Chan</div>
-    <button class="admin-link" onclick="openScout()" style="margin-top:16px;font-size:11px;color:#9c9890;cursor:pointer;background:none;border:none;font-family:inherit;padding:0;transition:color .15s" onmouseover="this.style.color='#5c5852'" onmouseout="this.style.color='#9c9890'">Internal tools</button>
   </div>
 </div>
 <script>
