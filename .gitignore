@@ -1,0 +1,45 @@
+img/
+.remember/
+.claude/worktrees/
+
+# Node / Vite
+node_modules/
+dist/
+
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Streamlit
+.streamlit/secrets.toml
+.streamlit/uploads/
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+.env.local
+.secret_key
+
+# User data and secrets
+user_data/
+html/user_images/
