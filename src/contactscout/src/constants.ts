@@ -6,8 +6,8 @@ export const CS_APIKEY_SK = 'cs_api_key';
 export const SCOUT_PW    = 'scout2025';
 
 // Model IDs — update here when new releases drop; api.ts + App.tsx read these.
-export const MODEL_SCAN   = 'claude-sonnet-4-6';
-export const MODEL_VERIFY = 'claude-sonnet-4-6';
+export const MODEL_SCAN   = 'gemini-2.5-flash';
+export const MODEL_VERIFY = 'gemini-2.5-flash';
 
 export const SCAN_TARGETS = [
   { id: 'us-congress',  label: 'US Congress',          desc: 'All current US reps + senators for your state' },

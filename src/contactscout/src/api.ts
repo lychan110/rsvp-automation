@@ -1,8 +1,8 @@
 import { CS_APIKEY_SK } from './constants';
 
-const API_URL = 'https://api.anthropic.com/v1/messages';
+const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 
-/** Extracts JSON from a Claude response that may contain markdown fences or prose. */
+/** Extracts JSON from a Gemini response that may contain markdown fences or prose. */
 function extractJson(text: string): Record<string, unknown> {
   // Strip markdown fences first
   let clean = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
@@ -21,11 +21,14 @@ function extractJson(text: string): Record<string, unknown> {
 }
 
 /**
- * Calls the Anthropic Messages API with web_search tool enabled.
+ * Calls the Gemini API with Google Search Grounding enabled.
  * Retries up to 3 times on 429 (rate limit) with exponential backoff.
- * Throws on 401 (invalid key) and unrecoverable errors.
+ * Throws on invalid key and unrecoverable errors.
+ *
+ * Note: responseMimeType JSON mode is incompatible with google_search grounding,
+ * so we instruct the model via system prompt and parse the text response.
  */
-export async function callClaude(
+export async function callGemini(
   key: string,
   model: string,
   sys: string,
@@ -34,27 +37,15 @@ export async function callClaude(
   const delays = [2000, 4000, 8000];
 
   for (let attempt = 0; attempt <= delays.length; attempt++) {
-    const res = await fetch(API_URL, {
+    const res = await fetch(`${API_BASE}/${model}:generateContent?key=${key}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        model,
-        max_tokens: 2000,
-        system: sys,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: user }],
+        system_instruction: { parts: [{ text: sys }] },
+        contents: [{ role: 'user', parts: [{ text: user }] }],
+        tools: [{ google_search: {} }],
       }),
     });
-
-    if (res.status === 401) {
-      sessionStorage.removeItem(CS_APIKEY_SK);
-      throw new Error('Invalid API key');
-    }
 
     if (res.status === 429) {
       const wait = delays[attempt];
@@ -64,18 +55,25 @@ export async function callClaude(
     }
 
     const d = await res.json() as {
-      content?: Array<{ type: string; text?: string }>;
+      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
       error?: { message: string };
     };
 
-    if (d.error) throw new Error(d.error.message ?? 'API error');
+    if (d.error) {
+      const msg = d.error.message ?? 'API error';
+      if (msg.toLowerCase().includes('api key not valid') || res.status === 401) {
+        sessionStorage.removeItem(CS_APIKEY_SK);
+        throw new Error('Invalid API key');
+      }
+      throw new Error(msg);
+    }
 
-    const text = d.content?.find(b => b.type === 'text')?.text ?? '';
+    const text = d.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
     if (!text) throw new Error('No text response from model');
 
     return extractJson(text);
   }
 
   // Unreachable but satisfies TypeScript
-  throw new Error('callClaude: exhausted retry loop unexpectedly');
+  throw new Error('callGemini: exhausted retry loop unexpectedly');
 }
