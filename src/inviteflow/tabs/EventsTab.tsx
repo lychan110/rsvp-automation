@@ -29,6 +29,7 @@ export default function EventsTab() {
   const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   async function loadEvents() {
     setLoading(true);
@@ -71,7 +72,6 @@ export default function EventsTab() {
   }
 
   async function deleteEvent(id: string) {
-    if (!confirm('Delete this event? This cannot be undone.')) return;
     setErr('');
     try {
       const token = await getToken('drive.appdata');
@@ -79,64 +79,144 @@ export default function EventsTab() {
       dispatch({ type: 'DELETE_EVENT', id });
     } catch (e) {
       setErr(String(e));
+    } finally {
+      setConfirmDelete(null);
     }
+  }
+
+  function activateEvent(id: string) {
+    dispatch({ type: 'SET_ACTIVE_EVENT', id });
+    dispatch({ type: 'SET_TAB', tab: 'setup' });
   }
 
   return (
     <div className="p-5 max-w-[860px] mx-auto w-full">
-      <div className="flex items-center justify-between mb-5">
-        <span className="if-page-title">EVENTS</span>
-        <div className="flex gap-2">
-          <button className="if-btn" onClick={loadEvents} disabled={loading}>
-            {loading ? 'Loading...' : 'Refresh'}
+      {/* ── Page header ───────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between mb-5">
+        <div>
+          <div className="if-eyebrow mb-1.5">CONVENE · ROSTER</div>
+          <div className="if-page-title">Events</div>
+        </div>
+        <div className="flex gap-2 items-center">
+          <button className="if-btn ghost" onClick={loadEvents} disabled={loading}>
+            {loading ? 'Loading…' : 'Refresh'}
           </button>
           <button className="if-btn pri" onClick={createEvent}>+ New Event</button>
         </div>
       </div>
 
-      {err && <div className="if-status err mb-3">{err}</div>}
+      {err && <div className="if-status err mb-4">{err}</div>}
 
+      {/* ── Empty state ────────────────────────────────────────────────── */}
       {state.events.length === 0 && !loading && (
-        <div className="if-empty">No events yet. Click &ldquo;+ New Event&rdquo; to create one.</div>
+        <div className="if-card padded" style={{ textAlign: 'center', padding: '48px 24px' }}>
+          <div className="if-page-title" style={{ fontSize: 14, color: 'var(--text-secondary)', marginBottom: 8 }}>
+            No events yet
+          </div>
+          <div className="if-section-label" style={{ marginBottom: 16 }}>
+            CREATE YOUR FIRST EVENT TO GET STARTED
+          </div>
+          <button className="if-btn pri" onClick={createEvent}>+ New Event</button>
+        </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {state.events.map(ev => (
-          <div
-            key={ev.id}
-            className="if-card cursor-pointer"
-            style={state.activeEventId === ev.id
-              ? { borderColor: 'var(--gold)', cursor: 'pointer' }
-              : { cursor: 'pointer' }}
-            onClick={() => {
-              dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id });
-              dispatch({ type: 'SET_TAB', tab: 'setup' });
-            }}
-          >
-            <div
-              className="text-sm font-bold mb-1"
-              style={{ color: 'var(--text-heading)', fontFamily: 'monospace' }}
-            >
-              {ev.name || 'Unnamed Event'}
-            </div>
-            <div className="text-[10px] mb-3" style={{ color: 'var(--text-muted)' }}>
-              {ev.date || 'No date'} · {ev.venue || 'No venue'}
-            </div>
-            <div className="flex gap-2" onClick={e => e.stopPropagation()}>
-              <button
-                className="if-btn pri sm"
-                onClick={() => {
-                  dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id });
-                  dispatch({ type: 'SET_TAB', tab: 'setup' });
-                }}
-              >
-                {state.activeEventId === ev.id ? '✓ Active' : 'Activate'}
-              </button>
-              <button className="if-btn del sm" onClick={() => deleteEvent(ev.id)}>Delete</button>
-            </div>
+      {/* ── Event list ─────────────────────────────────────────────────── */}
+      {state.events.length > 0 && (
+        <>
+          <div className="if-section-label mb-2" style={{ padding: '0 0 6px' }}>
+            EVENTS · {state.events.length}
           </div>
-        ))}
-      </div>
+          <div className="if-card">
+            {state.events.map((ev, i) => {
+              const isActive = state.activeEventId === ev.id;
+              const isLast = i === state.events.length - 1;
+              const isConfirmingDelete = confirmDelete === ev.id;
+
+              return (
+                <div
+                  key={ev.id}
+                  className={`if-card-row${isLast ? ' last' : ''}`}
+                  style={{ cursor: 'default' }}
+                  onClick={e => {
+                    if ((e.target as HTMLElement).closest('button')) return;
+                    activateEvent(ev.id);
+                  }}
+                >
+                  {/* Status chip */}
+                  <div
+                    className={`if-row-chip${isActive ? ' filled' : ''}`}
+                    title={isActive ? 'Active event' : 'Activate'}
+                  >
+                    {isActive ? '✓' : String(i + 1).padStart(2, '0')}
+                  </div>
+
+                  {/* Title + meta */}
+                  <div className="if-card-row-body" style={{ cursor: 'pointer' }} onClick={() => activateEvent(ev.id)}>
+                    <div className="if-card-row-title">{ev.name || 'Unnamed Event'}</div>
+                    <div className="if-card-row-sub">
+                      {[ev.date, ev.venue].filter(Boolean).join(' · ') || 'No date or venue set'}
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
+                    {isConfirmingDelete ? (
+                      <>
+                        <span className="if-section-label" style={{ color: 'var(--danger)' }}>Delete?</span>
+                        <button className="if-btn del sm" onClick={() => deleteEvent(ev.id)}>Yes</button>
+                        <button className="if-btn sm" onClick={() => setConfirmDelete(null)}>No</button>
+                      </>
+                    ) : (
+                      <>
+                        {isActive && (
+                          <span className="if-status-pill accent">ACTIVE</span>
+                        )}
+                        {!isActive && (
+                          <button className="if-btn sm" onClick={() => activateEvent(ev.id)}>
+                            Activate
+                          </button>
+                        )}
+                        <button
+                          className="if-btn del sm"
+                          onClick={() => setConfirmDelete(ev.id)}
+                        >
+                          Delete
+                        </button>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Chevron */}
+                  <svg
+                    width="13" height="13" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                    style={{ color: 'var(--text-muted)', flexShrink: 0 }}
+                  >
+                    <path d="M9 6l6 6-6 6"/>
+                  </svg>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      )}
+
+      {/* ── New event CTA ──────────────────────────────────────────────── */}
+      {state.events.length > 0 && (
+        <div style={{ marginTop: 8 }}>
+          <button
+            className="if-btn ghost"
+            style={{ width: '100%', minHeight: 42, justifyContent: 'center', borderRadius: 'var(--rt-card-radius)' }}
+            onClick={createEvent}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            <span>New event</span>
+          </button>
+        </div>
+      )}
     </div>
   );
 }

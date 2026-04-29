@@ -1,19 +1,312 @@
-/* Unified design system — dark-only, terminal-inspired (2026-04-28) */
+/* ══════════════════════════════════════════════════════════════════════════
+   InviteFlow Design System — Roster direction (2026-04-29)
+   All values sourced from var(--*) in theme.css. No hard-coded colors or
+   spacing. For a new component, inherit an existing class rather than
+   writing new primitives; create a new primitive only when inheritance
+   is not sufficient, and document it in the table in CLAUDE.md.
+   ══════════════════════════════════════════════════════════════════════════ */
 
-/* === BUTTONS === */
+
+/* ─── TYPOGRAPHY UTILITIES ───────────────────────────────────────────────── */
+
+.if-serif { font-family: var(--rf-serif); }
+.if-mono  { font-family: var(--rf-mono); }
+
+/* ─── PAGE HEADER ─────────────────────────────────────────────────────────── */
+
+.if-eyebrow {
+  font-family: var(--rf-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+/* Serif italic page title — used in header and as section headings */
+.if-page-title {
+  font-family: var(--rf-serif);
+  font-size: 18px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--text-heading);
+}
+
+/* Square bordered icon button (header actions: back, menu, filter) */
+.if-header-btn {
+  width: var(--rt-header-btn);
+  height: var(--rt-header-btn);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+  font-size: 14px;
+}
+.if-header-btn:hover { border-color: var(--border-input); color: var(--text-heading); }
+
+/* ─── META LINE ───────────────────────────────────────────────────────────── */
+/* Mono caps run directly under a page header — dot · label · label */
+.if-meta-line {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  font-family: var(--rf-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
+.if-meta-sep {
+  margin: 0 8px;
+  color: var(--border-input);
+}
+
+/* ─── SECTION EYEBROW ────────────────────────────────────────────────────── */
+/* Small mono caps label that sits above a Card. */
+.if-section-label {
+  font-family: var(--rf-mono);
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+/* ─── CARD ────────────────────────────────────────────────────────────────── */
+/* Bordered surface container. Children separated by .if-card-row hairlines. */
+.if-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: var(--rt-card-radius);
+  overflow: hidden;
+}
+/* Variant with padding (for non-row content) */
+.if-card.padded { padding: 14px var(--rt-card-pad-x); }
+
+/* ─── CARD ROW ───────────────────────────────────────────────────────────── */
+/* Canonical row inside a Card: chip · title+sub · right · chevron */
+.if-card-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--rt-row-gap);
+  padding: var(--rt-row-pad);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.if-card-row:hover { background: var(--bg-subtle); }
+.if-card-row.last  { border-bottom: none; }
+.if-card-row.no-action { cursor: default; }
+.if-card-row.no-action:hover { background: transparent; }
+
+.if-card-row-body { flex: 1; min-width: 0; }
+
+.if-card-row-title {
+  font-family: var(--rf-serif);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.if-card-row-sub {
+  font-family: var(--rf-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Right-side value text in a CardRow */
+.if-card-row-right {
+  flex-shrink: 0;
+  font-family: var(--rf-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+}
+.if-card-row-right.accent { color: var(--accent); }
+
+/* ─── ROW CHIP ────────────────────────────────────────────────────────────── */
+/* Square chip in the left slot of a CardRow — number, icon, or status. */
+.if-row-chip {
+  width: var(--rt-row-chip);
+  height: var(--rt-row-chip);
+  border-radius: var(--rt-chip-radius);
+  background: var(--bg-root);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--rf-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+.if-row-chip.filled  { background: var(--accent);      border-color: var(--accent);      color: #fff; }
+.if-row-chip.good    { background: var(--success-bg);  border-color: var(--success);     color: var(--success); }
+.if-row-chip.warn    { background: var(--bg-warn-tint); border-color: var(--warning-border); color: var(--warning); }
+.if-row-chip.bad     { background: rgba(163,69,53,0.15); border-color: var(--danger-dark); color: var(--danger); }
+
+/* ─── STAT CHIP ──────────────────────────────────────────────────────────── */
+/* Small bordered tile: mono caps label + serif value.
+   Use in a flex row: <div class="flex gap-2"> <div class="if-stat-chip"> */
+.if-stat-chip {
+  flex: 1;
+  padding: 8px 10px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  min-width: 0;
+}
+.if-stat-chip-label {
+  font-family: var(--rf-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 3px;
+}
+.if-stat-chip-value {
+  font-family: var(--rf-serif);
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-heading);
+  line-height: 1;
+}
+
+/* ─── STATUS PILL ─────────────────────────────────────────────────────────── */
+/* Mono caps pill for right-side status (CardRow right slot, header). */
+.if-status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 5px;
+  border: 1px solid var(--border-input);
+  font-family: var(--rf-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.if-status-pill.good   { color: var(--success);  border-color: var(--success-bg); }
+.if-status-pill.warn   { color: var(--warning);  border-color: var(--warning-border); }
+.if-status-pill.bad    { color: var(--danger);   border-color: var(--danger-dark); }
+.if-status-pill.accent { color: var(--accent);   border-color: var(--accent-border); }
+
+/* ─── TAB SWITCHER ───────────────────────────────────────────────────────── */
+/* Pill toggle for edit/preview, pre-flight/batches/log, etc. */
+.if-tab-switcher {
+  display: flex;
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+}
+.if-tab-option {
+  flex: 1;
+  padding: 7px;
+  border-radius: 5px;
+  font-family: var(--rf-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--text-secondary);
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.if-tab-option.active {
+  background: var(--text-heading);
+  color: var(--bg-root);
+}
+.if-tab-option:hover:not(.active) { color: var(--text-base); }
+
+/* ─── FILTER CHIP ─────────────────────────────────────────────────────────── */
+/* Mono caps pill in a horizontal filter row. */
+.if-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: 1px solid var(--border-input);
+  font-family: var(--rf-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.if-filter-chip:hover:not(.active) { color: var(--text-base); border-color: var(--border-input); }
+.if-filter-chip.active {
+  background: var(--text-heading);
+  color: var(--bg-root);
+  border-color: var(--text-heading);
+}
+.if-filter-chip .count { opacity: 0.6; }
+
+/* ─── PRIMARY BUTTON ─────────────────────────────────────────────────────── */
+/* Sticky-bottom or section CTA — terracotta fill. */
+.if-primary-btn {
+  width: 100%;
+  padding: 13px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--rf-mono);
+  letter-spacing: 0.06em;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.if-primary-btn:hover:not(:disabled) { background: var(--accent-highlight); }
+.if-primary-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ─── BUTTONS ─────────────────────────────────────────────────────────────── */
 .if-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 5px;
-  min-height: 36px;
-  padding: 0 14px;
+  min-height: 34px;
+  padding: 0 13px;
   border-radius: 6px;
   border: 1px solid var(--border-input);
   background: transparent;
   color: var(--text-secondary);
-  font-family: monospace;
-  font-size: 11px;
+  font-family: var(--rf-mono);
+  font-size: 10px;
   letter-spacing: 0.04em;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
@@ -21,105 +314,81 @@
 }
 .if-btn:hover:not(:disabled) { border-color: var(--accent-highlight); color: var(--text-heading); }
 .if-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.if-btn:focus-visible { outline: 2px solid var(--accent-highlight); outline-offset: 2px; }
+.if-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* Primary — blue */
 .if-btn.pri {
   border-color: var(--accent);
   background: var(--accent);
   color: #fff;
 }
-.if-btn.pri:hover:not(:disabled) { background: #388bfd; border-color: #388bfd; }
+.if-btn.pri:hover:not(:disabled) { background: var(--accent-highlight); border-color: var(--accent-highlight); }
 
-/* Constructive — green */
 .if-btn.grn {
   border-color: var(--success-bg);
   background: var(--success-bg);
   color: #fff;
 }
-.if-btn.grn:hover:not(:disabled) { background: #2ea043; border-color: #2ea043; }
+.if-btn.grn:hover:not(:disabled) { background: var(--success); border-color: var(--success); }
 
-/* Destructive */
 .if-btn.del {
   border-color: var(--danger-dark);
   background: transparent;
   color: var(--danger);
 }
-.if-btn.del:hover:not(:disabled) { background: rgba(218, 54, 51, 0.1); }
+.if-btn.del:hover:not(:disabled) { background: rgba(163, 69, 53, 0.12); }
 
-/* Small (compact) */
-.if-btn.sm { min-height: 28px; padding: 0 10px; font-size: 10px; }
-
-/* Large */
-.if-btn.lg { min-height: 40px; padding: 0 18px; font-size: 11px; }
-
-/* === CARDS === */
-.if-card {
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 14px 16px;
-}
-
-/* === SECTION LABEL === */
-.if-section-label {
-  font-family: monospace;
-  font-size: 9px;
-  letter-spacing: 0.14em;
+.if-btn.ghost {
+  border-color: var(--border);
+  background: transparent;
   color: var(--text-secondary);
-  text-transform: uppercase;
 }
+.if-btn.ghost:hover:not(:disabled) { border-color: var(--border-input); color: var(--text-base); }
 
-/* === PAGE TITLE === */
-.if-page-title {
-  font-family: monospace;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-heading);
-  letter-spacing: 0;
-}
+.if-btn.sm  { min-height: 28px; padding: 0 10px; font-size: 9px; }
+.if-btn.lg  { min-height: 40px; padding: 0 18px; font-size: 11px; }
 
-/* === INPUTS === */
+/* ─── INPUTS ──────────────────────────────────────────────────────────────── */
 .if-input {
   width: 100%;
   min-height: 36px;
   background: var(--bg-surface);
   border: 1px solid var(--border-input);
   color: var(--text-base);
-  padding: 8px 10px;
-  border-radius: 5px;
-  font-family: monospace;
-  font-size: 11px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-family: var(--rf-mono);
+  font-size: 12px;
   outline: none;
   transition: border-color 0.15s;
+  line-height: 1.6;
 }
 .if-input:focus { border-color: var(--accent); }
-.if-input:focus-visible { outline: 2px solid var(--accent-highlight); outline-offset: 2px; }
+.if-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .if-input.err { border-color: var(--danger-dark); }
 .if-input::placeholder { color: var(--text-muted); }
 
-/* === FIELD LABEL === */
+/* ─── FIELD LABEL ─────────────────────────────────────────────────────────── */
 .if-label {
-  font-family: monospace;
-  font-size: 10px;
-  color: var(--text-muted);
-  letter-spacing: 0.08em;
+  font-family: var(--rf-mono);
+  font-size: 9px;
+  color: var(--text-secondary);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   display: block;
   margin-bottom: 4px;
 }
 
-/* === FILTER PILLS === */
+/* ─── FILTER PILLS (kept for backward compat; prefer .if-filter-chip) ──── */
 .if-pill {
   display: inline-flex;
   align-items: center;
-  min-height: 36px;
+  min-height: 30px;
   padding: 0 10px;
-  border-radius: 20px;
-  border: 1px solid var(--border);
+  border-radius: 6px;
+  border: 1px solid var(--border-input);
   background: transparent;
   color: var(--text-secondary);
-  font-family: monospace;
+  font-family: var(--rf-mono);
   font-size: 9px;
   letter-spacing: 0.07em;
   cursor: pointer;
@@ -128,55 +397,55 @@
 }
 .if-pill:hover:not(.active) { border-color: var(--border-input); color: var(--text-base); }
 .if-pill.active {
-  border-color: var(--accent);
-  color: var(--accent-highlight);
-  background: #0c2d6b;
+  background: var(--text-heading);
+  color: var(--bg-root);
+  border-color: var(--text-heading);
 }
 
-/* === STATUS TAG === */
+/* ─── STATUS TAG (inline badge) ──────────────────────────────────────────── */
 .if-tag {
   display: inline-flex;
   align-items: center;
-  padding: 2px 7px;
+  padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid;
-  font-family: monospace;
+  font-family: var(--rf-mono);
   font-size: 9px;
   letter-spacing: 0.07em;
 }
 
-/* === STAT CARD === */
+/* ─── STAT CARD (old sidebar stat; prefer .if-stat-chip in new code) ────── */
 .if-stat {
   background: var(--bg-surface);
   border: 1px solid var(--border);
   border-left-width: 3px;
   border-left-color: var(--accent);
   border-radius: 6px;
-  padding: 14px 16px;
+  padding: 12px 14px;
 }
 .if-stat-label {
-  font-family: monospace;
-  font-size: 9px;
+  font-family: var(--rf-mono);
+  font-size: 8px;
   letter-spacing: 0.12em;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
 }
 .if-stat-value {
-  font-size: 24px;
-  font-weight: 700;
+  font-family: var(--rf-serif);
+  font-size: 22px;
+  font-weight: 500;
   line-height: 1;
-  font-family: monospace;
   color: var(--text-heading);
 }
 
-/* === CODE BLOCK === */
+/* ─── CODE BLOCK ──────────────────────────────────────────────────────────── */
 .if-code {
   background: var(--bg-subtle);
   border: 1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 8px;
   padding: 14px 16px;
-  font-family: monospace;
+  font-family: var(--rf-mono);
   font-size: 10px;
   color: var(--text-base);
   overflow-x: auto;
@@ -184,37 +453,41 @@
   white-space: pre;
 }
 
-/* === EMPTY STATE === */
+/* ─── EMPTY STATE ─────────────────────────────────────────────────────────── */
 .if-empty {
   padding: 48px 24px;
   text-align: center;
-  color: var(--text-base);
-  font-family: monospace;
-  font-size: 13px;
+  color: var(--text-secondary);
+  font-family: var(--rf-serif);
+  font-size: 14px;
+  font-style: italic;
   line-height: 1.7;
 }
 .if-empty-sub {
-  font-size: 11px;
-  color: var(--text-secondary);
+  font-size: 10px;
+  font-family: var(--rf-mono);
+  color: var(--text-muted);
+  font-style: normal;
+  letter-spacing: 0.08em;
   margin-bottom: 16px;
 }
 
-/* === INLINE STATUS === */
-.if-status { font-family: monospace; font-size: 10px; }
-.if-status.ok  { color: var(--success); }
-.if-status.err { color: var(--danger); }
-.if-status.info { color: var(--accent-highlight); }
+/* ─── INLINE STATUS ──────────────────────────────────────────────────────── */
+.if-status       { font-family: var(--rf-mono); font-size: 10px; }
+.if-status.ok    { color: var(--success); }
+.if-status.err   { color: var(--danger); }
+.if-status.info  { color: var(--accent-highlight); }
 
-/* === NAV TABS === */
+/* ─── NAV TABS ────────────────────────────────────────────────────────────── */
 .if-nav-tab {
-  min-height: 36px;
-  padding: 0 18px;
+  min-height: 34px;
+  padding: 0 14px;
   border-radius: 0;
   border: none;
   border-bottom: 2px solid transparent;
   background: transparent;
   color: var(--text-secondary);
-  font-family: monospace;
+  font-family: var(--rf-mono);
   font-size: 10px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -226,9 +499,9 @@
   border-bottom-color: var(--accent);
   color: var(--text-heading);
 }
-.if-nav-tab:focus-visible { outline: 2px solid var(--accent-highlight); outline-offset: -2px; }
+.if-nav-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 
-/* === BULK ACTION BAR === */
+/* ─── BULK ACTION BAR ────────────────────────────────────────────────────── */
 .if-bulk-bar {
   display: flex;
   gap: 8px;
@@ -240,7 +513,7 @@
   flex-wrap: wrap;
 }
 
-/* === MODALS === */
+/* ─── MODALS ─────────────────────────────────────────────────────────────── */
 .if-modal-backdrop {
   position: fixed;
   inset: 0;
@@ -254,7 +527,7 @@
 .if-modal {
   background: var(--bg-surface);
   border: 1px solid var(--border-input);
-  border-radius: 10px;
+  border-radius: var(--rt-card-radius);
   padding: 24px;
   width: 100%;
   max-width: 460px;
@@ -262,19 +535,22 @@
   overflow-y: auto;
 }
 .if-modal-title {
-  font-size: 13px;
+  font-family: var(--rf-serif);
+  font-size: 16px;
+  font-weight: 500;
+  font-style: italic;
   color: var(--text-heading);
-  font-weight: 700;
   margin-bottom: 4px;
 }
 .if-modal-sub {
+  font-family: var(--rf-mono);
   font-size: 10px;
   color: var(--text-secondary);
   line-height: 1.7;
   margin-bottom: 16px;
 }
 
-/* === PROGRESS BAR === */
+/* ─── PROGRESS BAR ───────────────────────────────────────────────────────── */
 .if-progress-track {
   height: 3px;
   background: var(--border);
@@ -288,12 +564,33 @@
   transition: width 0.2s;
 }
 
-/* === MOBILE RESPONSIVE === */
+/* ─── STACKED BAR (tracker overview) ────────────────────────────────────── */
+.if-bar-track {
+  display: flex;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--border);
+}
+
+/* ─── ACTIVITY ROW ───────────────────────────────────────────────────────── */
+.if-activity-row {
+  display: flex;
+  gap: 10px;
+  padding: var(--rt-row-pad);
+  border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.if-activity-row.last { border-bottom: none; }
+
+/* ─── MOBILE RESPONSIVE ──────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  .if-btn     { min-height: 44px; padding: 0 18px; font-size: 13px; border-radius: 8px; }
-  .if-btn.sm  { min-height: 36px; padding: 0 14px; font-size: 11px; }
-  .if-btn.lg  { min-height: 48px; }
-  .if-input   { min-height: 44px; padding: 10px 12px; font-size: 13px; }
-  .if-nav-tab { min-height: 44px; font-size: 11px; padding: 0 16px; }
-  .if-pill    { min-height: 36px; font-size: 10px; }
+  .if-btn            { min-height: 44px; padding: 0 18px; font-size: 12px; border-radius: 8px; }
+  .if-btn.sm         { min-height: 36px; padding: 0 14px; font-size: 10px; }
+  .if-btn.lg         { min-height: 48px; }
+  .if-input          { min-height: 44px; padding: 10px 12px; font-size: 13px; }
+  .if-nav-tab        { min-height: 44px; font-size: 11px; padding: 0 16px; }
+  .if-pill           { min-height: 36px; font-size: 10px; }
+  .if-filter-chip    { min-height: 36px; font-size: 10px; }
+  .if-primary-btn    { padding: 15px; font-size: 14px; }
 }
