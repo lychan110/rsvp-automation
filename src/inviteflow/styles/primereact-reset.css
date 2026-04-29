@@ -1,74 +1,86 @@
+/* PrimeReact surface overrides — always dark, warm palette (2026-04-29)
+   Applied at :root since InviteFlow is dark-only. Overrides lara-light-indigo
+   custom properties to match the Roster palette from theme.css. */
 :root {
-  color-scheme: light;
-}
-
-/* Override PrimeReact lara-light-indigo vars for dark mode */
-.dark {
-  --highlight-bg: #1f3a5f;
-  --highlight-text-color: #58a6ff;
-  --surface-ground: #080c10;
-  --surface-section: #080c10;
-  --surface-card: #0d1117;
-  --surface-overlay: #0d1117;
-  --surface-border: #21262d;
-  --surface-hover: #161b22;
-  --surface-0: #0d1117;
-  --surface-50: #0d1117;
-  --surface-100: #161b22;
-  --surface-200: #21262d;
-  --surface-300: #30363d;
-  --surface-400: #484f58;
-  --surface-500: #6e7681;
-  --surface-600: #8b949e;
-  --surface-700: #b1bac4;
-  --surface-800: #c9d1d9;
-  --surface-900: #f0f6fc;
-  --text-color: #c9d1d9;
-  --text-color-secondary: #6e7681;
-  --primary-color: #6366F1;
-  --primary-color-text: #ffffff;
   color-scheme: dark;
+  --highlight-bg:          #3d2a1e;
+  --highlight-text-color:  var(--accent-highlight);
+  --surface-ground:        var(--bg-root);
+  --surface-section:       var(--bg-root);
+  --surface-card:          var(--bg-surface);
+  --surface-overlay:       var(--bg-surface);
+  --surface-border:        var(--border);
+  --surface-hover:         var(--bg-subtle);
+  --surface-0:             var(--bg-surface);
+  --surface-50:            var(--bg-surface);
+  --surface-100:           var(--bg-subtle);
+  --surface-200:           var(--border);
+  --surface-300:           var(--border-input);
+  --surface-400:           var(--text-muted);
+  --surface-500:           var(--text-secondary);
+  --surface-600:           var(--text-secondary);
+  --surface-700:           var(--text-base);
+  --surface-800:           var(--text-base);
+  --surface-900:           var(--text-heading);
+  --text-color:            var(--text-base);
+  --text-color-secondary:  var(--text-secondary);
+  --primary-color:         var(--accent);
+  --primary-color-text:    #fff;
 }
 
+/* DataTable — header */
 .p-datatable .p-datatable-thead > tr > th {
-  background: var(--surface-card);
-  color: var(--text-color-secondary);
-  border-color: var(--surface-border);
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  font-family: monospace;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border-color: var(--border);
+  font-family: var(--rf-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 7px 10px;
 }
 
+/* DataTable — rows */
 .p-datatable .p-datatable-tbody > tr {
-  background: var(--surface-card);
-  color: var(--text-color);
+  background: var(--bg-surface);
+  color: var(--text-base);
+  font-family: var(--rf-mono);
   font-size: 11px;
-  font-family: monospace;
 }
-
 .p-datatable .p-datatable-tbody > tr:hover {
-  background: var(--surface-hover) !important;
+  background: var(--bg-subtle) !important;
 }
-
 .p-datatable .p-datatable-tbody > tr > td {
-  border-color: var(--surface-border);
-  padding: 6px 10px;
+  border-color: var(--border);
+  padding: 7px 10px;
 }
 
-.p-datatable .p-datatable-thead > tr > th {
-  padding: 6px 10px;
-}
-
-/* Row editor icon colors inherit text-color-secondary */
+/* Row editor icons */
 .p-datatable .p-row-editor-init,
 .p-datatable .p-row-editor-save,
 .p-datatable .p-row-editor-cancel {
-  color: var(--text-color-secondary);
+  color: var(--text-secondary);
 }
 
-/* Paginator follows surface vars — explicit for safety */
+/* Paginator */
 .p-paginator {
-  background: var(--surface-card);
-  border-color: var(--surface-border);
-  color: var(--text-color-secondary);
+  background: var(--bg-subtle);
+  border-color: var(--border);
+  color: var(--text-secondary);
+  font-family: var(--rf-mono);
+  font-size: 10px;
+}
+
+/* Filter inputs inside the DataTable */
+.p-datatable .p-inputtext {
+  background: var(--bg-subtle);
+  border-color: var(--border-input);
+  color: var(--text-base);
+  font-family: var(--rf-mono);
+  font-size: 10px;
+  padding: 4px 8px;
+}
+.p-datatable .p-inputtext:focus {
+  border-color: var(--accent);
+  box-shadow: none;
 }

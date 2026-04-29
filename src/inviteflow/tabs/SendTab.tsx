@@ -8,10 +8,22 @@ type Filter = 'all' | 'pending' | 'failed';
 const BATCH_SIZE = 80;
 const BATCH_DELAY_MS = 61000;
 
+// Reusable chevron icon
+function Chevron() {
+  return (
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+      style={{ color: 'var(--text-muted)', flexShrink: 0 }}>
+      <path d="M9 6l6 6-6 6"/>
+    </svg>
+  );
+}
+
 export default function SendTab() {
   const state = useAppState();
   const dispatch = useAppDispatch();
   const [filter, setFilter] = useState<Filter>('pending');
+  const [activePane, setActivePane] = useState<'preflight' | 'log'>('preflight');
   const [err, setErr] = useState('');
 
   const ev = state.events.find(e => e.id === state.activeEventId);
@@ -21,6 +33,10 @@ export default function SendTab() {
     if (filter === 'pending') return i.inviteStatus === 'pending';
     return i.inviteStatus === 'failed';
   });
+
+  const pendingCount = state.invitees.filter(i => i.inviteStatus === 'pending').length;
+  const sentCount    = state.invitees.filter(i => i.inviteStatus === 'sent').length;
+  const failedCount  = state.invitees.filter(i => i.inviteStatus === 'failed').length;
 
   async function sendBulk() {
     if (!ev) { setErr('No active event — go to Setup.'); return; }
@@ -67,95 +83,227 @@ export default function SendTab() {
     ? Math.round((state.sendProgress.current / state.sendProgress.total) * 100)
     : 0;
 
-  return (
-    <div className="p-5 max-w-[800px] mx-auto w-full">
-      <div className="if-page-title mb-4">SEND</div>
+  const templateSaved = !!state.htmlBody.trim();
+  const hasMissingEmail = state.invitees.some(i => !i.email);
+  const allChecks = ev && templateSaved && !hasMissingEmail;
 
-      {/* Filter + Send controls */}
-      <div className="flex flex-wrap gap-2 items-center mb-4">
-        <span className="if-section-label">Filter</span>
-        {(['all', 'pending', 'failed'] as Filter[]).map(f => (
+  return (
+    <div className="p-5 max-w-[760px] mx-auto w-full">
+      {/* ── Page header ───────────────────────────────────────────────── */}
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <div className="if-eyebrow mb-1.5">SEND</div>
+          <div className="if-page-title">Bulk send</div>
+        </div>
+        <div className="if-tab-switcher" style={{ width: 200 }}>
           <button
-            key={f}
-            className={`if-pill${filter === f ? ' active' : ''}`}
-            onClick={() => setFilter(f)}
+            className={`if-tab-option${activePane === 'preflight' ? ' active' : ''}`}
+            onClick={() => setActivePane('preflight')}
           >
-            {f.toUpperCase()}
+            Pre-flight
           </button>
-        ))}
-        <span style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'monospace', marginLeft: 4 }}>
-          {filtered.length} invitees
-        </span>
-        <button
-          className="if-btn grn ml-auto"
-          onClick={sendBulk}
-          disabled={state.sending}
-        >
-          {state.sending ? 'Sending...' : `Send to ${filtered.length} →`}
-        </button>
+          <button
+            className={`if-tab-option${activePane === 'log' ? ' active' : ''}`}
+            onClick={() => setActivePane('log')}
+          >
+            Log
+          </button>
+        </div>
       </div>
 
-      {err && <div className="if-status err mb-3">{err}</div>}
+      {/* Meta line */}
+      <div className="if-meta-line mb-4">
+        {ev ? (
+          <>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: allChecks ? 'var(--success)' : 'var(--warning)', display: 'inline-block', marginRight: 8 }}/>
+            <span>{ev.contactEmail ? `GMAIL · ${ev.contactEmail.split('@')[0].toUpperCase()}@…` : 'SENDER NOT CONFIGURED'}</span>
+            <span className="if-meta-sep">·</span>
+            <span style={{ color: 'var(--accent)' }}>{filtered.length} {filter.toUpperCase()}</span>
+            {sentCount > 0 && (
+              <>
+                <span className="if-meta-sep">·</span>
+                <span>{sentCount} SENT</span>
+              </>
+            )}
+          </>
+        ) : (
+          <span style={{ color: 'var(--warning)' }}>NO ACTIVE EVENT — GO TO SETUP</span>
+        )}
+      </div>
 
-      {/* Progress bar */}
-      {state.sending && (
-        <div className="mb-4">
-          <div style={{ fontSize: 10, color: 'var(--text-muted)', fontFamily: 'monospace', marginBottom: 6 }}>
-            {state.sendProgress.current} / {state.sendProgress.total} sent ({progress}%)
-          </div>
-          <div style={{ height: 3, background: 'var(--bg-subtle)', borderRadius: 2, overflow: 'hidden' }}>
-            <div
-              style={{
-                height: '100%',
-                background: 'var(--gold)',
-                borderRadius: 2,
-                transition: 'width 0.3s',
-                width: `${progress}%`,
-              }}
-            />
-          </div>
-        </div>
-      )}
+      {err && <div className="if-status err mb-4">{err}</div>}
 
-      {/* Send log */}
-      {state.sendLog.length > 0 && (
-        <div>
-          <div className="if-section-label mb-2">SEND LOG</div>
-          <div
-            style={{
-              maxHeight: 384,
-              overflowY: 'auto',
-              border: '1px solid var(--border)',
-              borderRadius: 6,
-            }}
-          >
-            {state.sendLog.map(entry => (
-              <div
-                key={entry.id}
-                style={{
-                  display: 'flex',
-                  gap: 10,
-                  alignItems: 'baseline',
-                  padding: '6px 12px',
-                  borderBottom: '1px solid var(--bg-subtle)',
-                  fontFamily: 'monospace',
-                  fontSize: 11,
-                }}
-              >
-                <span style={{ minWidth: 40, fontSize: 10, letterSpacing: '0.07em', color: entry.status === 'sent' ? 'var(--success)' : 'var(--danger)' }}>
-                  {entry.status.toUpperCase()}
-                </span>
-                <span style={{ color: 'var(--text-base)', minWidth: 160 }}>{entry.name}</span>
-                <span style={{ color: 'var(--text-muted)', flex: 1 }}>{entry.email}</span>
-                {entry.error && <span style={{ fontSize: 10, color: 'var(--danger)' }}>{entry.error}</span>}
+      {/* ── Pre-flight pane ───────────────────────────────────────────── */}
+      {activePane === 'preflight' && (
+        <>
+          {/* Checklist */}
+          <div className="if-section-label mb-2">PRE-FLIGHT CHECKS</div>
+          <div className="if-card mb-4">
+            {/* Sender */}
+            <div className={`if-card-row${!ev?.contactEmail ? '' : ''}`}>
+              <div className={`if-row-chip${ev?.contactEmail ? ' good' : ' warn'}`}>
+                {ev?.contactEmail ? '✓' : '!'}
               </div>
-            ))}
+              <div className="if-card-row-body">
+                <div className="if-card-row-title">Sender configured</div>
+                <div className="if-card-row-sub">
+                  {ev?.contactEmail ? ev.contactEmail.toUpperCase() : 'CONTACT EMAIL NOT SET IN SETUP'}
+                </div>
+              </div>
+            </div>
+
+            {/* Template */}
+            <div className="if-card-row">
+              <div className={`if-row-chip${templateSaved ? ' good' : ' warn'}`}>
+                {templateSaved ? '✓' : '!'}
+              </div>
+              <div className="if-card-row-body">
+                <div className="if-card-row-title">Template saved</div>
+                <div className="if-card-row-sub">
+                  {templateSaved
+                    ? `${(state.htmlBody.match(/\{\{\w+\}\}/g) || []).length} MERGE TOKENS DETECTED`
+                    : 'NO BODY — GO TO COMPOSE'}
+                </div>
+              </div>
+            </div>
+
+            {/* Recipients */}
+            <div className="if-card-row">
+              <div className={`if-row-chip${!hasMissingEmail ? ' good' : ' warn'}`}>
+                {!hasMissingEmail ? '✓' : '!'}
+              </div>
+              <div className="if-card-row-body">
+                <div className="if-card-row-title">Recipients validated</div>
+                <div className="if-card-row-sub">
+                  {state.invitees.length} TOTAL
+                  {hasMissingEmail ? ` · ${state.invitees.filter(i => !i.email).length} MISSING EMAIL` : ' · ALL HAVE EMAIL'}
+                </div>
+              </div>
+            </div>
+
+            {/* Filter */}
+            <div className="if-card-row last no-action" style={{ cursor: 'default' }}>
+              <div className="if-row-chip">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 5h18M6 12h12M10 19h4"/>
+                </svg>
+              </div>
+              <div className="if-card-row-body">
+                <div className="if-card-row-title">Active filter</div>
+                <div className="if-card-row-sub">{filter.toUpperCase()} · {filtered.length} WILL RECEIVE</div>
+              </div>
+              <div style={{ display: 'flex', gap: 6 }}>
+                {(['pending', 'failed', 'all'] as Filter[]).map(f => (
+                  <button
+                    key={f}
+                    className={`if-filter-chip${filter === f ? ' active' : ''}`}
+                    onClick={() => setFilter(f)}
+                  >
+                    {f}
+                    <span className="count"> {
+                      f === 'all' ? state.invitees.length :
+                      f === 'pending' ? pendingCount : failedCount
+                    }</span>
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
+
+          {/* Stat strip */}
+          <div className="if-section-label mb-2">THIS EVENT</div>
+          <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
+            <div className="if-stat-chip">
+              <div className="if-stat-chip-label">Pending</div>
+              <div className="if-stat-chip-value" style={{ color: 'var(--text-secondary)' }}>{pendingCount}</div>
+            </div>
+            <div className="if-stat-chip">
+              <div className="if-stat-chip-label">Sent</div>
+              <div className="if-stat-chip-value" style={{ color: 'var(--success)' }}>{sentCount}</div>
+            </div>
+            <div className="if-stat-chip">
+              <div className="if-stat-chip-label">Failed</div>
+              <div className="if-stat-chip-value" style={{ color: 'var(--danger)' }}>{failedCount}</div>
+            </div>
+            <div className="if-stat-chip">
+              <div className="if-stat-chip-label">Ready to send</div>
+              <div className="if-stat-chip-value" style={{ color: 'var(--accent)' }}>{filtered.length}</div>
+            </div>
+          </div>
+
+          {/* Progress bar (sending) */}
+          {state.sending && (
+            <div className="mb-5">
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginBottom: 6, letterSpacing: '0.08em' }}>
+                <span>SENDING IN PROGRESS</span>
+                <span>{state.sendProgress.current} / {state.sendProgress.total} ({progress}%)</span>
+              </div>
+              <div className="if-progress-track">
+                <div className="if-progress-fill" style={{ width: `${progress}%` }}/>
+              </div>
+            </div>
+          )}
+
+          {/* CTA */}
+          <button
+            className="if-primary-btn"
+            onClick={sendBulk}
+            disabled={state.sending || filtered.length === 0}
+          >
+            {state.sending
+              ? `SENDING… ${state.sendProgress.current}/${state.sendProgress.total}`
+              : `SEND ${filtered.length} INVITATION${filtered.length !== 1 ? 'S' : ''} →`}
+          </button>
+        </>
       )}
 
-      {state.sendLog.length === 0 && !state.sending && (
-        <div className="if-empty">No sends yet. Choose a filter and click Send.</div>
+      {/* ── Log pane ──────────────────────────────────────────────────── */}
+      {activePane === 'log' && (
+        <>
+          <div className="if-section-label mb-2">DELIVERY LOG</div>
+          {state.sendLog.length === 0 ? (
+            <div className="if-card">
+              <div className="if-empty" style={{ padding: '32px 18px' }}>
+                No sends yet
+                <div className="if-empty-sub" style={{ marginTop: 6, marginBottom: 0 }}>
+                  RUN A SEND TO SEE DELIVERY LOG
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="if-card" style={{ overflow: 'hidden' }}>
+              <div style={{ maxHeight: 480, overflowY: 'auto' }}>
+                {state.sendLog.map((entry, i) => (
+                  <div
+                    key={entry.id}
+                    style={{
+                      display: 'flex',
+                      gap: 10,
+                      alignItems: 'baseline',
+                      padding: 'var(--rt-row-pad)',
+                      borderBottom: i < state.sendLog.length - 1 ? '1px solid var(--border)' : 'none',
+                      fontFamily: 'var(--rf-mono)',
+                      fontSize: 11,
+                    }}
+                  >
+                    <span style={{
+                      minWidth: 40, fontSize: 9, letterSpacing: '0.07em',
+                      color: entry.status === 'sent' ? 'var(--success)' : 'var(--danger)',
+                    }}>
+                      {entry.status.toUpperCase()}
+                    </span>
+                    <span style={{ color: 'var(--text-base)', minWidth: 160 }}>{entry.name}</span>
+                    <span style={{ color: 'var(--text-muted)', flex: 1, fontSize: 10 }}>{entry.email}</span>
+                    {entry.error && (
+                      <span style={{ fontSize: 9, color: 'var(--danger)' }}>{entry.error}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
