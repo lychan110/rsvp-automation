@@ -54,34 +54,8 @@ npm run deploy     # vite build → copy static files → gh-pages publish
 ```
 src/
   inviteflow/
-    main.tsx          # React entry
-    App.tsx           # Root: tab router, global state provider
-    types.ts          # All TypeScript types (Event, Invitee, AppState…)
-    state/
-      AppContext.tsx   # React context + useReducer
-      reducer.ts       # State reducer
-      actions.ts       # Action type definitions
-    api/
-      auth.ts          # OAuth 2.0 PKCE helpers
-      sheets.ts        # Google Sheets API client
-      drive.ts         # Google Drive appDataFolder client
-      gmail.ts         # Gmail send + exponential backoff
-    tabs/
-      EventsTab.tsx    # List/switch/create events
-      SetupTab.tsx     # Event config form, OAuth client ID
-      InviteesTab.tsx  # PrimeReact DataTable, import, bulk actions
-      ComposeTab.tsx   # TipTap editor, token toolbar, preview
-      SendTab.tsx      # Bulk send, progress bar, send log
-      TrackerTab.tsx   # Status summary cards
-      SyncTab.tsx      # Sheets push/pull, RSVP sync
-    components/
-      TabBar.tsx       # Navigation tabs
-      TokenButton.tsx  # Insert template token button
-      ProgressBar.tsx  # Send progress indicator
-gas/
-  Code.gs              # GAS RSVP ingest trigger
-old-library/
-  inviteflow_v2.html   # Archived v2 (reference only — do not import)
+  contactscout/
+gas/              # Google App Scripts
 ```
 
 ---
