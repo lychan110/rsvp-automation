@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "jcodemunch": {
+      "command": "uvx",
+      "args": [
+        "jcodemunch-mcp"
+      ]
+    },
+    "deepwiki": {
+      "url": "https://mcp.deepwiki.com/mcp"
+    }
+  }
+}

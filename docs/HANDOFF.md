@@ -1,160 +1,109 @@
-# Session Handoff — 2026-04-28
+# Handoff — ContactScout Tech Overhaul
 
-## Current Session Summary (2026-04-28)
-
-**Feature:** Design Language Standardization across InviteFlow & ContactScout  
-**Branch:** `claude/standardize-design-language-yTeRc`  
-**PR:** [#25](https://github.com/lychan110/rsvp-automation/pull/25) (Draft)  
-**Status:** ✅ Complete & Ready for Review
-
-### What Was Accomplished
-
-1. **Design System Unification**
-   - Unified CSS variables: Both apps now use identical semantic color tokens (24 variables)
-   - Consistent component patterns: buttons, inputs, cards, modals standardized
-   - Dark-only theme: Removed light mode support from InviteFlow (cleaner, faster builds)
-   - Class naming: Standardized on `.if-*` prefix across both apps (71 components updated in ContactScout)
-
-2. **Comprehensive Documentation**
-   - `docs/superpowers/plans/2026-04-28-design-language-standardization.md` — 5-phase implementation plan
-   - `docs/superpowers/specs/2026-04-28-unified-design-system.md` — 28KB definitive design system spec
-   - Removed deprecated root-level: ROADMAP.md, PROGRESS.md, TASKS.md
-
-3. **InviteFlow Updates**
-   - theme.css: Dark-only palette with 24 semantic CSS variables
-   - if.css: Standardized button sizes (36px default, 28px small, 40px large)
-   - AppState: Removed `darkMode` field (simplified reducer, actions, types)
-   - Focus states: Updated to `2px solid #58a6ff` (WCAG AA compliant)
-
-4. **ContactScout Updates**
-   - styles.css: Extracted 400+ lines of CSS from embedded css.ts
-   - Class naming: All `.cs-*` → `.if-*` (8 component files updated)
-   - CSS import: Moved from inline injection to main.tsx
-   - Consistency: Button sizes, spacing, colors now match InviteFlow exactly
-
-5. **Build Configuration**
-   - tsconfig.json: Added `exclude: ["src/contact-scout"]` to prevent conflicts
-
-### Testing Completed
-
-✅ InviteFlow builds without errors  
-✅ ContactScout builds without errors  
-✅ Both dev servers run on 5173/5174  
-✅ No TypeScript or console errors  
-✅ Dark theme colors applied correctly  
-✅ CSS variables properly referenced  
-
-### Files Changed
-
-**New (3):**
-- docs/superpowers/plans/2026-04-28-design-language-standardization.md
-- docs/superpowers/specs/2026-04-28-unified-design-system.md
-- src/contact-scout/src/styles.css
-
-**Modified (20):**
-- InviteFlow: theme.css, if.css, types.ts, reducer.ts, actions.ts, AppContext.tsx
-- ContactScout: App.tsx, main.tsx, css.ts, components/*.tsx (7 files)
-- Build: tsconfig.json
-
-**Deleted (3):**
-- ROADMAP.md, PROGRESS.md, TASKS.md (root level)
-
-### Remaining Tasks (Before Merge)
-
-- [ ] Manual visual testing at 375px, 768px, 1024px, 1440px viewports
-- [ ] Verify all button/input states (hover, focus, disabled)
-- [ ] Tab navigation testing (InviteFlow 7 tabs)
-- [ ] Modal and banner testing
-- [ ] Color contrast verification (WCAG AA)
-- [ ] Side-by-side component consistency check
-
-### Environment Setup
-
-**jcodemunch-mcp installed successfully (v1.80.1)**
-- Install: `pip install "jcodemunch-mcp[all]"`
-- Configure: `claude mcp add -s user jcodemunch jcodemunch-mcp`
-- Use this tool for future code lookups (prefer over read/grep)
+**Date:** 2026-04-28
+**Branch:** `claude/contactscout-tech-overhaul-QbbSS`
+**PR:** https://github.com/lychan110/rsvp-automation/pull/26 (draft, open, clean merge)
+**Commit:** `943bda9`
+**Author:** Lenya Chan
 
 ---
 
-# Previous Session Summary (2026-04-28)
+## What was done this session
 
-## Session summary
+Full overhaul of ContactScout (`src/contact-scout/src/`) triggered by an exploration report on government contact discovery for Dragon Boat Festival / Asia Fest 2026. The report proposed deterministic scrapers; the session challenged that approach (CORS blocks direct fetches in a browser app) and instead delivered:
 
-Two major design work streams completed and merged:
+### 1. Extended data model (`types.ts`)
+Four new fields on `CSOfficial`:
+- `schedulerName: string` — name of the official's scheduler / chief-of-staff
+- `schedulerEmail: string` — scheduler's email (highest-priority contact for event invitations)
+- `appearanceFormUrl: string` — web form URL for offices that don't accept email requests
+- `emailSource: 'scanned' | 'inferred' | 'manual'` — provenance tracking for the direct email
 
-1. **ContactScout visual redesign** (PR #21, #23) — refactored monolithic `App.tsx` into focused component modules (`DiscoverTab`, `OfficialsTab`, `ExportTab`, `LogSidebar`, `ApiKeyModal`, `JurisdictionModal`, `PasswordGate`); introduced `.cs-*` CSS class vocabulary via `css.ts`; established the dark terminal-inspired design language now documented in `docs/DESIGN.md`.
+Two new type aliases: `EmailSource`, `ContactMethod`.
 
-2. **InviteFlow design language migration** (PR #22) — applied the same dark GitHub-style visual language to InviteFlow v3.1 (React + Vite); created `src/inviteflow/styles/if.css` with a parallel `.if-*` class system; removed the theme toggle (dark-only, matching ContactScout); updated `reducer.ts` to default dark (`localStorage !== 'light'`); restyled all 7 tabs (Events, Setup, Invitees, Compose, Send, Tracker, Sync).
+### 2. Deterministic email inference engine (`emailPatterns.ts` — new file)
+- Federal House: `FirstName.LastName@mail.house.gov`
+- Federal Senate: `FirstName.LastName@{surname}.senate.gov`
+- NC state legislature: `FirstName.LastName@ncleg.gov`
+- Handles diacritics via NFD decomposition
+- `bestEmail(o)` helper: `schedulerEmail || directEmail || officeEmail || ''`
+- `applyEmailInference()` batch-fills officials post-scan
+- Inferred emails are marked `emailSource: 'inferred'` and shown with an INFERRED badge in the UI; they rank below scanned/scheduler in export priority
 
-3. **CLAUDE.md update** — root `CLAUDE.md` rewritten to reflect InviteFlow's React v3.1 architecture (was documenting the old vanilla JS `inviteflow.html` approach); added `.if-*` class reference table; updated state shape, persistence key, tab list, and deployment instructions.
+### 3. API layer improvements (`api.ts`, `constants.ts`)
+- Model upgraded to `claude-sonnet-4-6`; model IDs in `MODEL_SCAN` / `MODEL_VERIFY` constants
+- Exponential backoff on 429: 2s → 4s → 8s
+- Robust JSON extraction with object-boundary fallback
+- `max_tokens` raised to 2000
+- `callClaude()` now takes `model` as a parameter (not hardcoded)
 
----
+### 4. Prompt improvements (`constants.ts`, `utils.ts`)
+- `SCAN_SYS` and `VERIFY_SYS` now ask Claude to find scheduler name, scheduler email, and appearance form URL for each official
+- Every scan prompt appends a scheduler-discovery instruction
+- Verify prompt sends existing scheduler data for confirmation/update
 
-## Repos / branches touched
+### 5. `AddOfficialModal.tsx` (new component)
+- Replaces three chained `prompt()` browser dialogs with a proper form modal
+- All fields including scheduler + form URL
+- Live email inference preview updates as name/category is typed
 
-- `rsvp-automation`: all work on `claude/contact-scout-redesign-mHrFm` → merged to master via PRs #22, #23
-- Master is clean, 39 commits ahead of where the previous handoff left off
+### 6. UI updates
+- **OfficialsTab**: new contact-method column (SCHED / DIRECT / INFERRED / OFFICE / FORM / NO EMAIL); email source badge; scheduler section + form URL in expanded row; "Infer Emails" button
+- **DiscoverTab**: candidates show scheduler email in gold or inferred badge; scan card shows count with scheduler found
+- **ExportTab**: contact-method breakdown table (scheduler / direct / inferred / office / form-only / no-contact counts); warning for inferred emails; CSV gains 4 new columns
+- **Stats bar** (App.tsx): gold SCHEDULER dot counting officials with a known scheduler email
+
+### 7. localStorage migration (`App.tsx`)
+`normaliseOfficial()` fills new fields with safe defaults on load — existing data upgrades silently, no reset required.
 
 ---
 
 ## Current state
 
-### rsvp-automation (master — clean)
-
-**InviteFlow v3.1** (`src/inviteflow/`)
-- React + TypeScript + Vite (root package — `npm run build` from repo root)
-- Tailwind v4 for layout; `.if-*` classes (`styles/if.css`) for all design tokens
-- PrimeReact DataTable in InviteesTab; TipTap editor in ComposeTab
-- 7 tabs: Events, Setup, Invitees, Compose, Send, Tracker, Sync
-- State persisted to `localStorage` key `inviteflow_v3_state` (excludes transient fields)
-- Dark-only; default dark on first load
-
-**ContactScout** (`src/contact-scout/`)
-- Separate React + Vite package (`cd src/contact-scout && npm run build`)
-- Modular component architecture — no longer a single-file App.tsx
-- Design tokens: CSS vars in `index.html` `<style>` block; class utilities in `css.ts`
-- `SCAN_PROMPTS` in `src/constants.ts` still contain `[YOUR STATE]` / `[YOUR COUNTIES]` / `[CITY 1-3]` placeholders — app shows warning banner until replaced
-
-**Open PRs:** none
+| Item | Status |
+|------|--------|
+| TypeScript build | Clean (0 errors) |
+| Vite production build | Clean (190 kB JS, 7.6 kB CSS) |
+| PR #26 | Draft, open, no CI checks configured for repo |
+| Review comments | None |
+| Merge conflicts | None (mergeable: clean) |
 
 ---
 
-## Outstanding / next steps
+## Pending / next steps
 
-- [ ] **Customize ContactScout scan prompts** — `src/contact-scout/src/constants.ts`, replace all bracketed placeholders in `SCAN_PROMPTS` before first real scan run
-- [ ] **InviteFlow TASKS.md items** — `docs/TASKS.md` still lists P1 items from v02 era (Test Google Connection button, GSI error mapping, token expiry handling) — these apply to the React app now; file paths and function names will need updating
-- [ ] **PROGRESS.md update** — `docs/PROGRESS.md` documents v02 (vanilla JS era); no entry yet for v3.1 React migration or design unification work
-- [ ] **ContactScout model string** — `claude-sonnet-4-20250514` hardcoded in `src/contact-scout/src/constants.ts`; update when a newer Sonnet releases
-- [ ] **InviteFlow dist/** — built output in `dist/` should be committed if this repo serves the app statically; check whether CI/CD handles it or if manual `npm run build && git add dist/` is needed before deploy
+1. **Mark PR ready for review** when Lenya is satisfied with the implementation and has tested manually per the PR test plan.
 
----
+2. **Manual testing checklist** (from PR description):
+   - Load with existing localStorage — verify no data loss, new fields default empty
+   - Run a scan — confirm scheduler fields appear in candidate cards
+   - Run "Infer Emails" on a list with federal officials — verify INFERRED badge and address pattern
+   - Add official manually via modal — confirm inference preview updates live
+   - Run verify — confirm scheduler fields update from Claude result
+   - Export tab — confirm breakdown table matches Officials list
+   - Download CSV — confirm new columns present
+   - Trigger 429 (rapid scans) — confirm backoff delay logged
 
-## Key conventions
+3. **CLAUDE.md update** (not yet done): document `emailPatterns.ts`, the new `CSOfficial` fields, updated `callClaude()` signature, and `MODEL_SCAN`/`MODEL_VERIFY` constants.
 
-**InviteFlow (React + Vite):**
-- Source at `src/inviteflow/`; built from repo root with `npm run build`
-- Design tokens: CSS vars in `theme.css`; utility classes in `styles/if.css`
-- Adding a tab requires: new file in `tabs/`, entry in `TABS` array (`App.tsx`), entry in `TabId` union (`types.ts`), case in `TabContent` switch (`App.tsx`)
-- Google OAuth per-event (each `AppEvent` has its own `googleClientId`); token fetched via `getToken(scope)` in `api/auth.ts`
-- State dispatch via `useAppDispatch()`; never mutate state directly
+4. **`docs/TASKS.md`** — the P2 "smarter rate-limit backoff" item is now resolved; mark complete.
 
-**ContactScout (React + Vite, separate package):**
-- Source at `src/contact-scout/src/`; built inside that directory with `npm run build`
-- Inline styles for component-level overrides; `css.ts` for reusable class strings
-- API key in `sessionStorage` (`cs_api_key`) — never localStorage
-- `saveState()` via `useEffect` on `officials, newOfficials, scanStatus, scanMeta`
-
-**Shared:**
-- Dark-only; no light mode toggle in either app
-- Palette documented in `docs/DESIGN.md`
-- No fetch except Claude API (ContactScout) and Google APIs (InviteFlow)
-- Dates: YYYY-MM-DD throughout
+5. **Jurisdiction customization**: `App.tsx` `SCAN_PROMPTS` still contain `[YOUR STATE]`, `[YOUR COUNTIES]`, `[CITY 1/2/3]` placeholders that must be replaced before first real scan. The `needsCustomization()` guard detects them and shows a warning banner.
 
 ---
 
-## Environment notes
+## File inventory (changed this session)
 
-- Node 22 at `/opt/node22`; git remote is local proxy at `127.0.0.1:33749`
-- InviteFlow dev: `npm run dev` from repo root → `http://localhost:5173`
-- ContactScout dev: `cd src/contact-scout && npm run dev` → `http://localhost:5174`
+| File | Change |
+|------|--------|
+| `src/contact-scout/src/types.ts` | 4 new fields, 2 new types |
+| `src/contact-scout/src/constants.ts` | Model constants, updated SCAN_SYS/VERIFY_SYS prompts |
+| `src/contact-scout/src/emailPatterns.ts` | NEW — inference engine |
+| `src/contact-scout/src/api.ts` | Backoff, model param, robust JSON extraction |
+| `src/contact-scout/src/utils.ts` | bestEmail in export, scheduler in scan prompts |
+| `src/contact-scout/src/App.tsx` | normaliseOfficial, inferMissing, AddOfficialModal wiring, stats bar |
+| `src/contact-scout/src/components/AddOfficialModal.tsx` | NEW — replaces prompt() dialogs |
+| `src/contact-scout/src/components/OfficialsTab.tsx` | Contact-method column, source badge, expanded scheduler row |
+| `src/contact-scout/src/components/DiscoverTab.tsx` | Scheduler count, gold email in candidates |
+| `src/contact-scout/src/components/ExportTab.tsx` | Breakdown table, inferred warning, CSV columns |
+| `src/contact-scout/src/styles.css` | 6-col grid, mobile breakpoint fix |

@@ -3,23 +3,6 @@
 Author: Lenya Chan
 Updated: 2026-04-28
 
-## Approach
-- Read existing files before writing. Don't re-read unless changed.
-- Thorough in reasoning, concise in output.
-- Skip files over 100KB unless required.
-- No sycophantic openers or closing fluff.
-- No emojis or em-dashes.
-- Do not guess APIs, versions, flags, commit SHAs, or package names. Verify by reading code or docs before asserting.
-
-## Code Exploration Policy
-Always use jCodemunch-MCP tools for code navigation. See AGENTS.md for detailed tool reference.
-- Symbol search: `search_symbols` with filters for kind, language, file_pattern
-- Text search: `search_text` (supports regex, context_lines)
-- File analysis: `get_file_outline` before opening any file; `get_file_content` only for specific ranges
-- Repo structure: `get_repo_outline`, `get_file_tree`
-- Relationships: `find_importers`, `find_references`, `get_blast_radius`
-- Call `resolve_repo` first; if not indexed, call `index_folder`.
-
 ## Overview
 
 The suite consists of two complementary tools:
