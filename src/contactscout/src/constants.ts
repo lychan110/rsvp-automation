@@ -1,9 +1,10 @@
 import type { CSStatus } from './types';
 
-export const CS_LS_KEY   = 'contactscout_state';
-export const CS_JX_KEY   = 'contactscout_jurisdiction';
+export const CS_LS_KEY    = 'contactscout_state';
+export const CS_JX_KEY    = 'contactscout_jurisdiction';
 export const CS_APIKEY_SK = 'cs_api_key';
-export const SCOUT_PW    = 'scout2025';
+export const CS_OS_KEY    = 'cs_os_key';
+export const SCOUT_PW     = 'scout2025';
 
 // Model IDs — update here when new releases drop; api.ts + App.tsx read these.
 export const MODEL_SCAN   = 'gemini-2.5-flash';

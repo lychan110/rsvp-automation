@@ -1,12 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  CS_APIKEY_SK, VERIFY_SYS, SCAN_SYS, SCAN_TARGETS,
+  CS_APIKEY_SK, CS_OS_KEY, VERIFY_SYS, SCAN_SYS, SCAN_TARGETS,
   MODEL_SCAN, MODEL_VERIFY,
 } from './constants';
 import { loadCSState, saveCSState, loadJurisdiction } from './storage';
 import { sleep, officialToInvitee, buildScanPrompts, downloadBlob, todaySlug } from './utils';
 import { applyEmailInference } from './emailPatterns';
 import { callGemini } from './api';
+import { fetchStateLegislators } from './openStates';
 import ApiKeyModal from './components/ApiKeyModal';
 import JurisdictionModal from './components/JurisdictionModal';
 import AddOfficialModal from './components/AddOfficialModal';
@@ -66,6 +67,7 @@ function ContactScoutInner() {
   const [progress,      setProgress]     = useState({ done: 0, total: 0 });
   const [log,           setLog]          = useState<string[]>([]);
   const [apiKey,        setApiKey]       = useState(() => sessionStorage.getItem(CS_APIKEY_SK) || '');
+  const [osApiKey,      setOsApiKey]     = useState(() => sessionStorage.getItem(CS_OS_KEY) || '');
   const [jx,            setJx]           = useState<CSJurisdiction>(loadJurisdiction);
   const [showKeyModal,  setShowKeyModal]  = useState(false);
   const [showJxModal,   setShowJxModal]   = useState(false);
@@ -92,9 +94,15 @@ function ContactScoutInner() {
     setShowKeyModal(true);
   }
 
-  function handleKeySave(key: string) {
-    setApiKey(key);
-    sessionStorage.setItem(CS_APIKEY_SK, key);
+  function handleKeySave(geminiKey: string, osKey: string) {
+    setApiKey(geminiKey);
+    if (geminiKey) sessionStorage.setItem(CS_APIKEY_SK, geminiKey);
+    else sessionStorage.removeItem(CS_APIKEY_SK);
+
+    setOsApiKey(osKey);
+    if (osKey) sessionStorage.setItem(CS_OS_KEY, osKey);
+    else sessionStorage.removeItem(CS_OS_KEY);
+
     const cb = pendingRef.current;
     pendingRef.current = null;
     cb?.();
@@ -194,43 +202,87 @@ function ContactScoutInner() {
 
   async function runScan(id: string) {
     if (running) return;
-    if (!apiKey) { openKeyModal(() => runScan(id)); return; }
+
+    const isStateLeg = id === 'state-senate' || id === 'state-house';
+    const useOpenStates = isStateLeg && !!osApiKey;
+
+    // Open States scans don't need a Gemini key; all other scans do.
+    if (!useOpenStates && !apiKey) { openKeyModal(() => runScan(id)); return; }
+
     abortRef.current = false;
     setRunning(true);
     setScanStatus(prev => ({ ...prev, [id]: 'scanning' }));
     addLog(`Scanning: ${SCAN_TARGETS.find(t => t.id === id)?.label}…`);
 
     try {
-      const r = await apiCall(MODEL_SCAN, SCAN_SYS, buildScanPrompts(jx)[id]);
-      const currentNames = new Set(officials.map(o => o.name.toLowerCase().trim()));
-      const found = ((r.officials as CSOfficial[]) ?? []).map(normaliseOfficial);
-      const fresh = found.filter(o => !currentNames.has(o.name.toLowerCase().trim()));
+      if (useOpenStates) {
+        const chamber = id === 'state-senate' ? 'upper' : 'lower';
+        const { officials: found, total } = await fetchStateLegislators(osApiKey, jx.state, chamber);
 
-      // Apply email inference to fresh officials that have no scanned email
-      const { officials: inferredFresh, inferredCount } = applyEmailInference(fresh, jx);
+        const currentNames = new Set(officials.map(o => o.name.toLowerCase().trim()));
+        const fresh = found.filter(o => !currentNames.has(o.name.toLowerCase().trim()));
 
-      setScanStatus(prev => ({ ...prev, [id]: 'done' }));
-      setScanMeta(prev => ({
-        ...prev,
-        [id]: { total: found.length, confidence: r.confidence as string, notes: r.notes as string },
-      }));
+        const { officials: inferredFresh, inferredCount } = applyEmailInference(fresh, jx);
 
-      if (inferredFresh.length > 0) {
-        setNewOfficials(prev => {
-          const ex = new Set(prev.map(x => x.name.toLowerCase()));
-          return [
-            ...prev,
-            ...inferredFresh
-              .filter(x => !ex.has(x.name.toLowerCase()))
-              .map(x => ({ ...x, _scanId: id, status: 'pending' as CSStatus })),
-          ];
-        });
-        const infMsg = inferredCount > 0 ? `, ${inferredCount} emails inferred` : '';
-        addLog(`✓ ${inferredFresh.length} new found${infMsg}.`);
+        setScanStatus(prev => ({ ...prev, [id]: 'done' }));
+        setScanMeta(prev => ({
+          ...prev,
+          [id]: {
+            total,
+            confidence: 'high',
+            notes: id === 'state-house'
+              ? 'All districts via Open States — dismiss those outside your counties'
+              : 'via Open States API',
+          },
+        }));
+
+        if (inferredFresh.length > 0) {
+          setNewOfficials(prev => {
+            const ex = new Set(prev.map(x => x.name.toLowerCase()));
+            return [
+              ...prev,
+              ...inferredFresh
+                .filter(x => !ex.has(x.name.toLowerCase()))
+                .map(x => ({ ...x, _scanId: id, status: 'pending' as CSStatus })),
+            ];
+          });
+          const infMsg = inferredCount > 0 ? `, ${inferredCount} emails inferred` : '';
+          addLog(`✓ Open States: ${inferredFresh.length} new (${total} total)${infMsg}. Verify individuals to add scheduler info.`);
+        } else {
+          addLog(`✓ Open States: All ${total} already in list.`);
+        }
       } else {
-        addLog(`✓ All ${found.length} already in list.`);
+        // Gemini path
+        const r = await apiCall(MODEL_SCAN, SCAN_SYS, buildScanPrompts(jx)[id]);
+        const currentNames = new Set(officials.map(o => o.name.toLowerCase().trim()));
+        const found = ((r.officials as CSOfficial[]) ?? []).map(normaliseOfficial);
+        const fresh = found.filter(o => !currentNames.has(o.name.toLowerCase().trim()));
+
+        const { officials: inferredFresh, inferredCount } = applyEmailInference(fresh, jx);
+
+        setScanStatus(prev => ({ ...prev, [id]: 'done' }));
+        setScanMeta(prev => ({
+          ...prev,
+          [id]: { total: found.length, confidence: r.confidence as string, notes: r.notes as string },
+        }));
+
+        if (inferredFresh.length > 0) {
+          setNewOfficials(prev => {
+            const ex = new Set(prev.map(x => x.name.toLowerCase()));
+            return [
+              ...prev,
+              ...inferredFresh
+                .filter(x => !ex.has(x.name.toLowerCase()))
+                .map(x => ({ ...x, _scanId: id, status: 'pending' as CSStatus })),
+            ];
+          });
+          const infMsg = inferredCount > 0 ? `, ${inferredCount} emails inferred` : '';
+          addLog(`✓ ${inferredFresh.length} new found${infMsg}.`);
+        } else {
+          addLog(`✓ All ${found.length} already in list.`);
+        }
+        if (r.notes) addLog(`ℹ ${r.notes as string}`);
       }
-      if (r.notes) addLog(`ℹ ${r.notes as string}`);
     } catch (e) {
       setScanStatus(prev => ({ ...prev, [id]: 'error' }));
       addLog(`✗ Scan: ${String(e)}`);
@@ -417,7 +469,7 @@ function ContactScoutInner() {
             className={`if-btn sm${apiKey ? ' grn' : ' del'}`}
             onClick={() => openKeyModal()}
           >
-            ⚙ Key{apiKey ? ' ✓' : ''}
+            ⚙ Key{apiKey ? ' ✓' : ''}{osApiKey ? ' + OS' : ''}
           </button>
           {running && (
             <button className="if-btn sm del" onClick={() => { abortRef.current = true; }}>■ Stop</button>
@@ -500,6 +552,7 @@ function ContactScoutInner() {
               scanMeta={scanMeta}
               newOfficials={newOfficials}
               running={running}
+              hasOsKey={!!osApiKey}
               runScan={runScan}
               addNew={addNew}
               dismissNew={dismissNew}
@@ -540,7 +593,8 @@ function ContactScoutInner() {
       {/* Modals */}
       {showKeyModal && (
         <ApiKeyModal
-          apiKey={apiKey}
+          geminiKey={apiKey}
+          osKey={osApiKey}
           onSave={handleKeySave}
           onClose={() => { setShowKeyModal(false); pendingRef.current = null; }}
         />
