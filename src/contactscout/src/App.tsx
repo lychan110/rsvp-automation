@@ -6,7 +6,7 @@ import {
 import { loadCSState, saveCSState, loadJurisdiction } from './storage';
 import { sleep, officialToInvitee, buildScanPrompts, downloadBlob, todaySlug } from './utils';
 import { applyEmailInference } from './emailPatterns';
-import { callClaude } from './api';
+import { callGemini } from './api';
 import ApiKeyModal from './components/ApiKeyModal';
 import JurisdictionModal from './components/JurisdictionModal';
 import AddOfficialModal from './components/AddOfficialModal';
@@ -111,7 +111,7 @@ function ContactScoutInner() {
       });
     }
     try {
-      return await callClaude(apiKey, model, sys, user);
+      return await callGemini(apiKey, model, sys, user);
     } catch (e) {
       if (String(e).includes('Invalid API key')) setApiKey('');
       throw e;
@@ -183,7 +183,7 @@ function ContactScoutInner() {
       }
 
       setProgress({ done: i + 1, total: names.length });
-      if (i < names.length - 1) await sleep(700);
+      if (i < names.length - 1) await sleep(4500);
     }
 
     setRunning(false);
@@ -431,10 +431,10 @@ function ContactScoutInner() {
           <div className="if-banner-body">
             <div className="if-banner-title">Welcome to ContactScout</div>
             <div className="if-banner-text">
-              Add your Claude API key to start discovering officials and their schedulers.
-              Get a free key at console.anthropic.com → API Keys → Create Key.
+              Add your Google Gemini API key to start discovering officials and their schedulers.
+              Get a free key at aistudio.google.com (no credit card required).
             </div>
-            <button className="if-btn pri sm" onClick={() => openKeyModal()}>Add Claude API Key</button>
+            <button className="if-btn pri sm" onClick={() => openKeyModal()}>Add Gemini API Key</button>
           </div>
         </div>
       )}

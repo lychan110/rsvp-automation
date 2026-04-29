@@ -102,25 +102,28 @@ package.json
 ## Persistence
 
 - `localStorage` key: `contactscout_state` — stores `{ officials, newOfficials, scanStatus, scanMeta }`
-- `sessionStorage` key: `cs_api_key` — stores Claude API key for this browser session
+- `sessionStorage` key: `cs_api_key` — stores Google AI Studio API key for this browser session
 - `sessionStorage` key: `cs_unlocked` — set to `'1'` after password gate is passed
 
 ---
 
-## Claude API key setup
+## Google AI Studio API key setup
 
-ContactScout calls the Anthropic API directly from the browser. No backend required.
+ContactScout calls the Gemini API directly from the browser. No backend required.
+Provider: Google Gemini 2.5 Flash with Google Search Grounding (free forever, no credit card).
 
-1. Go to https://console.anthropic.com/ → API Keys → Create Key.
-2. Copy the key (starts with `sk-ant-`).
-3. In the app, click **⚙ Key** in the header and paste the key.
+1. Go to https://aistudio.google.com/ → Get API key → Create API key.
+2. Copy the key (starts with `AIza`).
+3. In the app, click **Key** in the header and paste the key.
 4. The key is stored in `sessionStorage` only — it is never persisted to `localStorage`
-   or sent anywhere except `https://api.anthropic.com/v1/messages`.
+   or sent anywhere except `https://generativelanguage.googleapis.com/`.
 
-Required header: `anthropic-dangerous-direct-browser-access: true` (Anthropic allowlist for
-browser-direct usage).
+Endpoint: `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={apiKey}`
+Tool: `google_search` grounding (first-party, free up to ~1500 req/day).
+Free tier limits: 15 RPM, 1000 RPD. Verify loop uses 4500ms delay to stay safely under the RPM cap.
 
-Model used: `claude-sonnet-4-20250514` with the `web_search_20250305` tool.
+Note: `responseMimeType` JSON mode is incompatible with `google_search` grounding. The system
+prompt instructs the model to return raw JSON, and `extractJson()` in `api.ts` handles parsing.
 
 ---
 
