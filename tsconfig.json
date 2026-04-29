@@ -17,5 +17,5 @@
     "noFallthroughCasesInSwitch": true
   },
   "include": ["src"],
-  "exclude": ["src/contact-scout"]
+  "exclude": ["src/contact-scout", "src/contactscout"]
 }
