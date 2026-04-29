@@ -1,0 +1,286 @@
+/* Obsidian CSS Snippets
+Place in: vault/.obsidian/snippets/custom.css
+Enable in Settings > Appearance > CSS Snippets
+*/
+
+/* ============================================
+   SNIPPET 1: Clean Editor Layout
+   ============================================ */
+
+.markdown-preview-view {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.editor-preview {
+  padding: 40px;
+}
+
+/* Improve readability */
+.markdown-preview-view p {
+  line-height: 1.7;
+  color: var(--text-normal);
+}
+
+/* ============================================
+   SNIPPET 2: Dataview Styling
+   ============================================ */
+
+.workspace:has(.dataview-container) .dataview-container {
+  border: 1px solid var(--divider-color);
+  border-radius: var(--border-radius);
+  padding: var(--size-4-3);
+  background: var(--bg-secondary);
+  margin: var(--size-4-2) 0;
+}
+
+.dataview-table tr:hover {
+  background: var(--bg-tertiary);
+  transition: background 0.2s ease;
+}
+
+.dataview-table th {
+  background: var(--color-accent-2);
+  color: var(--text-normal);
+  font-weight: 600;
+}
+
+/* ============================================
+   SNIPPET 3: Task Plugin Integration
+   ============================================ */
+
+.workspace:has(.tasks-statusbar) .cm-line .task-list-item-checkbox {
+  cursor: pointer;
+  accent-color: var(--color-accent);
+}
+
+.workspace:has(.tasks-statusbar) .task-list-item.is-done {
+  opacity: 0.6;
+  color: var(--text-faint);
+}
+
+/* Priority colors in Tasks */
+.cm-line [class*="priority-low"] {
+  color: #27b589;
+}
+
+.cm-line [class*="priority-med"] {
+  color: #f5a623;
+}
+
+.cm-line [class*="priority-high"] {
+  color: #e5746d;
+}
+
+/* ============================================
+   SNIPPET 4: Mobile Responsiveness
+   ============================================ */
+
+/* Hide sidebar on mobile */
+@media (max-width: 770px) {
+  .workspace-split.mod-left-split {
+    display: none;
+  }
+  
+  .markdown-preview-view {
+    max-width: 100%;
+    padding: 20px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+  body.is-phone .workspace-leaf {
+    padding: 0;
+  }
+  
+  .markdown-preview-view h1 {
+    font-size: 1.5em;
+  }
+}
+
+/* ============================================
+   SNIPPET 5: Tag Styling
+   ============================================ */
+
+.tag[href*="work"]::before {
+  content: "💼 ";
+}
+
+.tag[href*="personal"]::before {
+  content: "👤 ";
+}
+
+.tag[href*="learning"]::before {
+  content: "📚 ";
+}
+
+.tag[href*="important"] {
+  background: var(--color-accent-2);
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.cm-s-obsidian span.cm-hashtag {
+  color: var(--color-accent);
+}
+
+/* ============================================
+   SNIPPET 6: Code Block Styling
+   ============================================ */
+
+.cm-s-obsidian pre.HyperMD-codeblock {
+  border-radius: var(--border-radius);
+  border-left: 3px solid var(--color-accent);
+  background: var(--bg-secondary);
+}
+
+.markdown-preview-view pre {
+  background: var(--bg-secondary);
+  border-left: 3px solid var(--color-accent);
+  padding: var(--size-4-3);
+  border-radius: var(--border-radius);
+}
+
+code {
+  background: var(--bg-tertiary);
+  color: #e5746d;
+  padding: 2px 4px;
+  border-radius: 2px;
+  font-family: monospace;
+}
+
+/* ============================================
+   SNIPPET 7: Link Styling
+   ============================================ */
+
+/* Internal links */
+a.internal-link {
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px dotted var(--color-accent);
+  transition: all 0.2s ease;
+}
+
+a.internal-link:hover {
+  background: var(--color-accent-2);
+  border-bottom: 1px solid var(--color-accent);
+}
+
+/* Broken links */
+a.internal-link.is-unresolved {
+  color: var(--text-error);
+  border-bottom: 1px dotted var(--text-error);
+}
+
+/* External links */
+.markdown-preview-view a[href^="http"]::after {
+  content: " ↗";
+  font-size: 0.8em;
+  color: var(--text-faint);
+}
+
+/* ============================================
+   SNIPPET 8: Quote & Blockquote Styling
+   ============================================ */
+
+.markdown-preview-view blockquote {
+  border-left: 4px solid var(--color-accent);
+  padding-left: var(--size-4-3);
+  margin-left: 0;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+/* ============================================
+   SNIPPET 9: Header Styling
+   ============================================ */
+
+.markdown-preview-view h1 {
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: var(--size-4-2);
+  margin-top: var(--size-4-4);
+}
+
+.markdown-preview-view h2 {
+  color: var(--color-accent);
+  margin-top: var(--size-4-3);
+}
+
+.markdown-preview-view h3,
+.markdown-preview-view h4,
+.markdown-preview-view h5,
+.markdown-preview-view h6 {
+  color: var(--text-normal);
+}
+
+/* ============================================
+   SNIPPET 10: Dark Mode Specific
+   ============================================ */
+
+.theme-dark {
+  --text-normal: #e0e0e0;
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #2a2a2a;
+  --color-accent: #a78bfa;
+}
+
+.theme-dark .markdown-preview-view blockquote {
+  color: #999;
+}
+
+.theme-dark code-block {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   SNIPPET 11: List Styling
+   ============================================ */
+
+.markdown-preview-view ul,
+.markdown-preview-view ol {
+  margin: var(--size-4-2) 0;
+}
+
+.markdown-preview-view li {
+  margin: var(--size-4-1) 0;
+  line-height: 1.6;
+}
+
+/* Nested list indentation */
+.markdown-preview-view ul ul {
+  margin-left: var(--size-4-4);
+}
+
+/* ============================================
+   SNIPPET 12: Status Badge Example
+   ============================================ */
+
+/* Usage in YAML: status: active
+   This will style based on status tag in frontmatter */
+
+/* Requires Style Settings plugin for full customization */
+
+.metadata-container [class*="status-active"] {
+  background: #27b589;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.metadata-container [class*="status-completed"] {
+  background: #999;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.metadata-container [class*="status-archived"] {
+  background: #666;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-decoration: line-through;
+}
