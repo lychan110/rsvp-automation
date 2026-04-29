@@ -65,7 +65,7 @@ function AppInner() {
           className="text-[9px] tracking-[0.12em]"
           style={{ color: 'var(--text-muted)' }}
         >
-          v3.1
+          v4
         </span>
         {activeEvent && (
           <span
