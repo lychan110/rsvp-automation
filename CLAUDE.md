@@ -1,7 +1,7 @@
 # Invite Automation Suite — Claude Guide
 
 Author: Lenya Chan
-Updated: 2026-04-28
+Updated: 2026-04-29
 
 ## Approach
 - Read existing files before writing. Don't re-read unless changed.
@@ -11,14 +11,12 @@ Updated: 2026-04-28
 - No emojis or em-dashes.
 - Do not guess APIs, versions, flags, commit SHAs, or package names. Verify by reading code or docs before asserting.
 
-## Code Exploration Policy
-Always use jCodemunch-MCP tools for code navigation. See AGENTS.md for detailed tool reference.
-- Symbol search: `search_symbols` with filters for kind, language, file_pattern
-- Text search: `search_text` (supports regex, context_lines)
-- File analysis: `get_file_outline` before opening any file; `get_file_content` only for specific ranges
-- Repo structure: `get_repo_outline`, `get_file_tree`
-- Relationships: `find_importers`, `find_references`, `get_blast_radius`
-- Call `resolve_repo` first; if not indexed, call `index_folder`.
+## Code Navigation
+For code exploration, use available tools: if jCodemunch-MCP is available, use it for symbol/text search and relationship analysis. Otherwise, use Bash (`grep`, `find`) and Read tool for file inspection.
+- Prefer `Read` for specific files before editing.
+- Use `grep` for text search across codebase.
+- Use `find` for file/directory structure.
+- Focus exploration on the source trees (`src/inviteflow/` and `src/contactscout/`) — avoid the `dist/` and `old-library/` directories.
 
 ## Overview
 
@@ -26,7 +24,7 @@ The suite consists of two complementary tools:
 - **InviteFlow** — manage invites, compose templates, send emails, track RSVPs
 - **ContactScout** — discover and verify elected officials, export contact lists for InviteFlow
 
-Both run entirely in the browser. InviteFlow uses Gmail + Google Sheets; ContactScout uses Claude API with web search.
+Both run entirely in the browser. InviteFlow uses Gmail + Google Sheets; ContactScout uses Google Gemini 2.5 Flash + Open States v3 API for official discovery and contact information.
 
 ## Planning & Design Docs
 - `docs/superpowers/plans/` — implementation plans for major features
@@ -104,7 +102,7 @@ Two self-contained apps, both React + Vite:
 React + TypeScript app. State managed via `useReducer` + React Context (`AppProvider`). Built with the root Vite config; Tailwind v4 handles layout utilities, `.if-*` classes handle design tokens, PrimeReact provides the DataTable.
 
 ### ContactScout — React + Vite (separate package)
-React app in `src/contact-scout/`. Own `package.json`, own Vite config. State managed in the top-level `App` component. Built with `npm run build` inside `src/contact-scout/`.
+React app in `src/contactscout/`. Own `package.json`, own Vite config. State managed in the top-level `App` component. Built with `npm run build` inside `src/contactscout/`.
 
 ---
 
@@ -190,7 +188,7 @@ src/inviteflow/
 
 **Secrets**
 - `googleClientId` stored per event in localStorage only — never hardcode
-- ContactScout's Claude API key uses sessionStorage (not shared with InviteFlow)
+- ContactScout's Gemini API key uses sessionStorage (not shared with InviteFlow)
 
 ---
 
@@ -233,15 +231,15 @@ Mobile breakpoint (`max-width: 767px`): all buttons 44px min-height, inputs 44px
 
 **Setup**
 ```bash
-cd src/contact-scout
+cd src/contactscout
 npm install
 npm run dev      # http://localhost:5174
-npm run build    # dist/ → deployed to src/contact-scout/
+npm run build    # dist/ → deployed to src/contactscout/
 ```
 
 **Architecture**
 ```
-src/contact-scout/
+src/contactscout/
   src/
     main.tsx         — mounts <App />, imports styles.css
     App.tsx          — full ContactScout logic (password gate + inner panel)
@@ -258,17 +256,16 @@ The scan prompts in `src/App.tsx` (`SCAN_PROMPTS`) contain placeholder text: `[Y
 
 **State & persistence**
 - `localStorage` key: `contactscout_state` — stores `{ officials, newOfficials, scanStatus, scanMeta }`
-- `sessionStorage` key: `cs_api_key` — stores Claude API key for this session
+- `sessionStorage` key: `cs_api_key` — stores Gemini API key for this session
 - `sessionStorage` key: `cs_unlocked` — set to `'1'` after password gate is passed
 
-**Claude API setup**
-ContactScout calls the Anthropic API directly from the browser.
-1. Go to https://console.anthropic.com/ → API Keys → Create Key.
-2. Copy the key (starts with `sk-ant-`).
+**Gemini API setup**
+ContactScout calls the Google Gemini API directly from the browser.
+1. Go to https://console.cloud.google.com/ → create a project → enable Gemini API → create API Key.
+2. Copy the key (starts with `AIza`).
 3. In the app, click **Key** in the header and paste the key.
 4. The key is stored in `sessionStorage` only — never persisted to `localStorage`.
-5. Required header: `anthropic-dangerous-direct-browser-access: true`.
-6. Model and tools configured in `src/constants.ts` — check `MODEL_ID` and tool definitions. Update when new Sonnet/Opus versions release.
+5. Model version and tool definitions configured in `src/App.tsx`. Update when new Gemini models release.
 
 **Export formats**
 - **InviteFlow JSON** (`export_invitees`): `{ exportedAt, source, count, invitees[] }` in InviteFlow's schema for direct import
@@ -280,12 +277,12 @@ ContactScout calls the Anthropic API directly from the browser.
 - **CSV** (`export_csv`): All fields as spreadsheet
 
 **Scan targets**
-Each calls Claude with a web-search-enabled prompt:
+Each calls Gemini 2.5 Flash with Google Search results:
 - US Congress (all seats for your state)
-- State Executive Branch
+- State Executive Branch (via Open States v3 API)
 - State Senate (all seats)
 - State House (tracked counties)
-- City Council x3
+- City Council (up to 3 municipalities)
 
 **UI/UX conventions for ContactScout**
 - Incremental changes — one interaction at a time
@@ -300,8 +297,9 @@ Each calls Claude with a web-search-enabled prompt:
 **Code style**
 - InviteFlow: React + TypeScript. State in `AppContext` via `useReducer`. Dispatch actions; never mutate state directly.
 - ContactScout: React component lifecycle. State changes trigger re-renders automatically.
-- No fetch except: Claude API (ContactScout) + Google APIs (InviteFlow)
-- Google APIs called with OAuth2 Bearer token from `getToken(scope)` — never API keys in source
+- Network requests: Gemini API + Open States v3 API (ContactScout) + Google APIs via OAuth2 (InviteFlow)
+- Google APIs called with OAuth2 Bearer token from `getToken(scope)` — never hardcode API keys in source
+- Gemini and Open States API keys are user-provided and stored in `sessionStorage` only
 
 **UX conventions**
 - Empty states must include actionable buttons; passive "nothing here" messages are not acceptable
@@ -311,5 +309,5 @@ Each calls Claude with a web-search-enabled prompt:
 
 **Deployment**
 - InviteFlow: Edit source in `src/inviteflow/`, run `npm run build` from root, commit `dist/`
-- ContactScout: Edit source in `src/contact-scout/src/`, run `npm run build` inside that directory, commit built files to `src/contact-scout/`
+- ContactScout: Edit source in `src/contactscout/src/`, run `npm run build` inside that directory, commit built files to `src/contactscout/`
 - Public-facing files carry author credit "by Lenya Chan" near their title
