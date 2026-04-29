@@ -10,6 +10,7 @@ export default defineConfig({
     rollupOptions: {
       input: {
         inviteflow: 'src/inviteflow/index.html',
+        contactscout: 'src/contactscout/index.html',
       },
       output: {
         entryFileNames: 'assets/[name]-[hash].js',
