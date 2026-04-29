@@ -3,7 +3,6 @@ import { CS_APIKEY_SK, VERIFY_SYS, SCAN_SYS, SCAN_TARGETS } from './constants';
 import { loadCSState, saveCSState, loadJurisdiction } from './storage';
 import { sleep, officialToInvitee, buildScanPrompts, downloadBlob, todaySlug } from './utils';
 import { callClaude } from './api';
-import PasswordGate from './components/PasswordGate';
 import ApiKeyModal from './components/ApiKeyModal';
 import JurisdictionModal from './components/JurisdictionModal';
 import LogSidebar from './components/LogSidebar';
@@ -15,17 +14,6 @@ import type { CSOfficial, CSPersistedState, CSStatus, ScanState, CSJurisdiction 
 // ── Root ───────────────────────────────────────────────────────────────────────
 
 export default function App() {
-  const [unlocked, setUnlocked] = useState(() => sessionStorage.getItem('cs_unlocked') === '1');
-
-  if (!unlocked) {
-    return (
-      <PasswordGate onUnlock={() => {
-        sessionStorage.setItem('cs_unlocked', '1');
-        setUnlocked(true);
-      }} />
-    );
-  }
-
   return <ContactScoutInner />;
 }
 
