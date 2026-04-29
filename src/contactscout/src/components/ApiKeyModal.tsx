@@ -11,7 +11,7 @@ export default function ApiKeyModal({ apiKey, onSave, onClose }: Props) {
   const [err, setErr] = useState(false);
 
   function save() {
-    if (!draft.startsWith('sk-ant-')) { setErr(true); return; }
+    if (!draft.startsWith('AIza')) { setErr(true); return; }
     onSave(draft);
     onClose();
   }
@@ -19,24 +19,24 @@ export default function ApiKeyModal({ apiKey, onSave, onClose }: Props) {
   return (
     <div className="if-modal-backdrop" onClick={onClose}>
       <div className="if-modal" onClick={e => e.stopPropagation()}>
-        <div className="if-modal-title">Claude API Key</div>
+        <div className="if-modal-title">Google AI Studio API Key</div>
         <div className="if-modal-sub">
-          Enter your Anthropic API key. Get a free key at{' '}
-          <a href="https://console.anthropic.com/" target="_blank" rel="noreferrer" style={{ color: '#58a6ff' }}>
-            console.anthropic.com
+          Get a free key at{' '}
+          <a href="https://aistudio.google.com/" target="_blank" rel="noreferrer" style={{ color: '#58a6ff' }}>
+            aistudio.google.com
           </a>{' '}
-          → API Keys → Create Key. Starts with <code>sk-ant-</code>. Stored in session only.
+          → Get API key → Create API key. Starts with <code>AIza</code>. Stored in session only.
         </div>
         <input
           className={`if-input${err ? ' err' : ''}`}
           type="password"
-          placeholder="sk-ant-..."
+          placeholder="AIza..."
           value={draft}
           onChange={e => { setDraft(e.target.value); setErr(false); }}
           onKeyDown={e => e.key === 'Enter' && save()}
           autoFocus
         />
-        {err && <div style={{ fontSize: 10, color: '#f85149', marginTop: 6 }}>Must start with sk-ant-</div>}
+        {err && <div style={{ fontSize: 10, color: '#f85149', marginTop: 6 }}>Must start with AIza</div>}
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
           <button className="if-btn" onClick={onClose}>Cancel</button>
           <button className="if-btn pri" onClick={save}>Save</button>
