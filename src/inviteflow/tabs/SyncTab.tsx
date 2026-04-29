@@ -117,66 +117,112 @@ export default function SyncTab() {
 
   return (
     <div className="p-5 max-w-[760px] mx-auto w-full">
-      <div className="if-page-title mb-4">SYNC</div>
+      {/* ── Page header ───────────────────────────────────────────────── */}
+      <div className="mb-5">
+        <div className="if-eyebrow mb-1.5">SYNC</div>
+        <div className="if-page-title">Google Sheets sync</div>
+      </div>
 
       {status && (
         <div className={`if-status mb-4 ${status.startsWith('Error') ? 'err' : 'ok'}`}>{status}</div>
       )}
 
-      {/* Action cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-7">
-        {/* Push card */}
-        <div className="if-card">
-          <div className="if-section-label mb-2.5 pb-1.5 border-b" style={{ borderColor: 'var(--border)' }}>
-            PUSH TO MASTER SHEET
+      {/* ── Action cards ──────────────────────────────────────────────── */}
+      <div className="if-section-label mb-2">OPERATIONS</div>
+      <div className="if-card mb-5">
+        {/* Push row */}
+        <div className="if-card-row" style={{ alignItems: 'flex-start', cursor: 'default' }} onClick={e => { if (!(e.target as HTMLElement).closest('button, a')) void 0; }}>
+          <div className="if-row-chip" style={{ marginTop: 2 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 20V8M7 13l5-5 5 5M4 21h16"/>
+            </svg>
           </div>
-          <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 12, fontFamily: 'monospace' }}>
-            Clears and rewrites all {state.invitees.length} invitees to your master Google Sheet.
-          </p>
-          {ev?.masterSheetUrl
-            ? <a href={ev.masterSheetUrl} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: 'var(--blue)', display: 'block', marginBottom: 10 }}>Open sheet &uarr;</a>
-            : <span style={{ fontSize: 10, color: 'var(--danger)', display: 'block', marginBottom: 10 }}>Master Sheet URL not set in Setup.</span>
-          }
-          <button className="if-btn grn" onClick={pushToSheets} disabled={pushing}>
-            {pushing ? 'Pushing...' : `Push ${state.invitees.length} rows`}
-          </button>
+          <div className="if-card-row-body">
+            <div className="if-card-row-title">Push to master sheet</div>
+            <div className="if-card-row-sub">
+              CLEARS AND REWRITES ALL {state.invitees.length} INVITEES TO GOOGLE SHEETS
+            </div>
+            <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              {ev?.masterSheetUrl ? (
+                <a
+                  href={ev.masterSheetUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--accent)', letterSpacing: '0.06em' }}
+                >
+                  OPEN SHEET ↗
+                </a>
+              ) : (
+                <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--danger)', letterSpacing: '0.06em' }}>
+                  MASTER SHEET URL NOT SET IN SETUP
+                </span>
+              )}
+              <button className="if-btn grn sm" onClick={pushToSheets} disabled={pushing}>
+                {pushing ? 'Pushing…' : `Push ${state.invitees.length} rows`}
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Pull card */}
-        <div className="if-card">
-          <div className="if-section-label mb-2.5 pb-1.5 border-b" style={{ borderColor: 'var(--border)' }}>
-            PULL RSVP RESPONSES
+        {/* Pull row */}
+        <div className="if-card-row last" style={{ alignItems: 'flex-start', cursor: 'default' }}>
+          <div className="if-row-chip" style={{ marginTop: 2 }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 4v12M7 11l5 5 5-5M4 21h16"/>
+            </svg>
           </div>
-          <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 12, fontFamily: 'monospace' }}>
-            Reads RSVP statuses from your response sheet and updates invitee records.
-          </p>
-          {ev?.rsvpResponseUrl
-            ? <a href={ev.rsvpResponseUrl} target="_blank" rel="noreferrer" style={{ fontSize: 10, color: 'var(--blue)', display: 'block', marginBottom: 10 }}>Open sheet &uarr;</a>
-            : <span style={{ fontSize: 10, color: 'var(--danger)', display: 'block', marginBottom: 10 }}>RSVP Response Sheet URL not set in Setup.</span>
-          }
-          <button className="if-btn ghost" onClick={pullRsvp} disabled={pulling}>
-            {pulling ? 'Pulling...' : 'Pull RSVP Responses'}
-          </button>
+          <div className="if-card-row-body">
+            <div className="if-card-row-title">Pull RSVP responses</div>
+            <div className="if-card-row-sub">
+              READS RSVP STATUS FROM RESPONSE SHEET AND UPDATES RECORDS
+            </div>
+            <div style={{ marginTop: 8, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+              {ev?.rsvpResponseUrl ? (
+                <a
+                  href={ev.rsvpResponseUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--accent)', letterSpacing: '0.06em' }}
+                >
+                  OPEN SHEET ↗
+                </a>
+              ) : (
+                <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--danger)', letterSpacing: '0.06em' }}>
+                  RSVP RESPONSE URL NOT SET IN SETUP
+                </span>
+              )}
+              <button className="if-btn ghost sm" onClick={pullRsvp} disabled={pulling}>
+                {pulling ? 'Pulling…' : 'Pull RSVP responses'}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* GAS section */}
-      <div className="if-section-label mb-2.5 pb-1.5 border-b" style={{ borderColor: 'var(--border)' }}>
-        GAS RSVP INGEST TRIGGER
-      </div>
-      <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.7, marginBottom: 10, fontFamily: 'monospace' }}>
-        Paste this script into your Google Form&apos;s Apps Script project. Add a trigger on{' '}
-        <code style={{ background: 'var(--bg-subtle)', padding: '1px 4px', borderRadius: 3, fontSize: 10 }}>onFormSubmit</code>{' '}
-        (Form Submit event). Set script property{' '}
-        <code style={{ background: 'var(--bg-subtle)', padding: '1px 4px', borderRadius: 3, fontSize: 10 }}>MASTER_SHEET_URL</code>{' '}
-        to your master sheet URL.
+      {/* ── GAS script ────────────────────────────────────────────────── */}
+      <div className="if-section-label mb-2">GAS RSVP INGEST TRIGGER</div>
+      <p style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.7, marginBottom: 10 }}>
+        Paste into your Google Form&apos;s Apps Script. Add an{' '}
+        <code style={{ background: 'var(--bg-subtle)', padding: '1px 5px', borderRadius: 3, fontSize: 9 }}>
+          onFormSubmit
+        </code>{' '}
+        trigger and set the{' '}
+        <code style={{ background: 'var(--bg-subtle)', padding: '1px 5px', borderRadius: 3, fontSize: 9 }}>
+          MASTER_SHEET_URL
+        </code>{' '}
+        script property.
       </p>
       <div style={{ position: 'relative' }}>
         <pre className="if-code">{GAS_CODE}</pre>
         <button
           className="if-btn sm"
           style={{ position: 'absolute', top: 8, right: 8 }}
-          onClick={() => { navigator.clipboard.writeText(GAS_CODE); setStatus('Copied GAS code to clipboard.'); }}
+          onClick={() => {
+            navigator.clipboard.writeText(GAS_CODE);
+            setStatus('Copied GAS code to clipboard.');
+          }}
         >
           Copy
         </button>

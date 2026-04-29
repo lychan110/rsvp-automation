@@ -1,31 +1,60 @@
-/* Dark-only color palette — unified design system (2026-04-28) */
+/* Warm dark palette — Roster design direction (2026-04-29)
+   Single source of truth for all color, typography, and layout tokens.
+   Never hard-code values in components — always reach for a var(--*) here.
+*/
 :root {
-  --bg-root: #080c10;
-  --bg-surface: #0d1117;
-  --bg-subtle: #161b22;
-  --bg-nested: #161b22;
-  --bg-dense: #050709;
-  --bg-info-tint: #0c1a2e;
-  --bg-warn-tint: #1a0e00;
-  --border: #21262d;
-  --border-subtle: #161b22;
-  --border-input: #30363d;
-  --text-heading: #f0f6fc;
-  --text-base: #c9d1d9;
-  --text-secondary: #8b949e;
-  --text-muted: #6e7681;
-  --text-dim: #7d8590;
-  --accent: #1f6feb;
-  --accent-highlight: #58a6ff;
-  --accent-border: #1f4f99;
-  --success: #3fb950;
-  --success-bg: #238636;
-  --danger: #f85149;
-  --danger-dark: #da3633;
-  --blue: #58a6ff;
-  --warning: #e3b341;
-  --warning-border: #bb8009;
-  --amber: #f59e0b;
-  --purple: #a371f7;
-  --gold: #C8A84B;
+  /* ─── Core palette (R_DARK) ───────────────────────────────────────────── */
+  --bg-root:      #14110d;
+  --bg-surface:   #1c1814;
+  --bg-subtle:    #221d18;
+  --bg-nested:    #221d18;
+  --bg-dense:     #0d0b08;
+  --bg-info-tint: #1a2810;
+  --bg-warn-tint: #221a08;
+
+  /* ─── Borders ─────────────────────────────────────────────────────────── */
+  --border:        #2c2620;
+  --border-subtle: #251f1a;
+  --border-input:  #3d342c;
+
+  /* ─── Text ────────────────────────────────────────────────────────────── */
+  --text-heading:   #f4ede0;
+  --text-base:      #c8bda9;
+  --text-secondary: #8a8170;
+  --text-muted:     #6a6055;
+  --text-dim:       #756a5e;
+
+  /* ─── Accent — terracotta ─────────────────────────────────────────────── */
+  --accent:           #e57158;
+  --accent-highlight: #f08c76;
+  --accent-border:    #7a3426;
+
+  /* ─── Semantic ────────────────────────────────────────────────────────── */
+  --success:        #7ba577;
+  --success-bg:     #3d5a3a;
+  --danger:         #cc6555;
+  --danger-dark:    #a34535;
+  --warning:        #d4a942;
+  --warning-border: #8a6b1e;
+  --amber:          #d4a942;
+  --blue:           #8aabcc;
+  --purple:         #9988cc;
+  --gold:           #d4a942;
+
+  /* ─── Typography ──────────────────────────────────────────────────────── */
+  --rf-serif: 'Fraunces', 'Georgia', serif;
+  --rf-mono:  'Geist Mono', 'JetBrains Mono', 'Consolas', monospace;
+  --rf-sans:  system-ui, -apple-system, sans-serif;
+
+  /* ─── Layout tokens (mirrors RT.* in roster.jsx) ─────────────────────── */
+  --rt-page-pad-x:   20px;
+  --rt-section-pad:  0 20px 8px;
+  --rt-card-margin:  0 0 12px 0;
+  --rt-row-pad:      11px 14px;
+  --rt-row-gap:      10px;
+  --rt-row-chip:     28px;
+  --rt-chip-radius:  6px;
+  --rt-card-radius:  10px;
+  --rt-card-pad-x:   14px;
+  --rt-header-btn:   32px;
 }

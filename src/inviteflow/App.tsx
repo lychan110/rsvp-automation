@@ -46,74 +46,107 @@ function AppInner() {
 
   return (
     <div
-      className="h-screen font-mono flex flex-col overflow-hidden"
-      style={{ background: 'var(--bg-root)', color: 'var(--text-base)' }}
+      className="h-screen flex flex-col overflow-hidden"
+      style={{ background: 'var(--bg-root)', color: 'var(--text-base)', fontFamily: 'var(--rf-mono)' }}
     >
-      {/* Header */}
+      {/* ── Header ─────────────────────────────────────────────────────── */}
       <header
-        className="px-4 py-2 flex items-center gap-3 shrink-0"
+        className="shrink-0"
         style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border)' }}
       >
-        {/* Left zone */}
-        <span
-          className="font-black text-sm tracking-tight"
-          style={{ color: 'var(--text-heading)' }}
-        >
-          INVITEFLOW
-        </span>
-        <span
-          className="text-[9px] tracking-[0.12em]"
-          style={{ color: 'var(--text-muted)' }}
-        >
-          v4
-        </span>
-        {activeEvent && (
-          <span
-            className="text-[10px] tracking-[0.08em] pl-3 truncate max-w-[160px]"
-            style={{ color: 'var(--gold)', borderLeft: '1px solid var(--border)' }}
-          >
-            {activeEvent.name}
-          </span>
-        )}
-        {state.unsaved && (
-          <span className="text-[9px] tracking-[0.1em]" style={{ color: 'var(--text-muted)' }}>
-            ●
-          </span>
-        )}
+        {/* Row 1 — Brand + event context */}
+        <div className="flex items-center gap-4 px-5 pt-3 pb-2">
+          {/* Brand */}
+          <div className="flex flex-col shrink-0">
+            <span className="if-eyebrow" style={{ marginBottom: 3 }}>CONVENE · ROSTER</span>
+            <span className="if-page-title" style={{ fontSize: 16 }}>InviteFlow</span>
+          </div>
 
-        {/* Right zone */}
-        <div className="ml-auto flex items-center gap-1">
-          {/* Desktop nav */}
-          <nav className="hidden md:flex gap-1" role="tablist">
-            {TABS.map(t => (
-              <button
-                key={t.id}
-                role="tab"
-                aria-selected={state.tab === t.id}
-                onClick={() => selectTab(t.id)}
-                className={`if-nav-tab${state.tab === t.id ? ' active' : ''}`}
+          {/* Active event context */}
+          {activeEvent && (
+            <div
+              className="flex items-center gap-2 pl-4 truncate"
+              style={{ borderLeft: '1px solid var(--border)' }}
+            >
+              <span
+                style={{
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: 'var(--accent)', flexShrink: 0,
+                }}
+              />
+              <span
+                className="truncate"
+                style={{
+                  fontFamily: 'var(--rf-mono)', fontSize: 10,
+                  letterSpacing: '0.1em', color: 'var(--text-base)',
+                }}
               >
-                {t.label}
-              </button>
-            ))}
-          </nav>
+                {activeEvent.name.toUpperCase()}
+              </span>
+              {activeEvent.date && (
+                <>
+                  <span style={{ color: 'var(--border-input)', flexShrink: 0 }}>·</span>
+                  <span
+                    style={{
+                      fontFamily: 'var(--rf-mono)', fontSize: 10,
+                      color: 'var(--text-secondary)', letterSpacing: '0.08em', flexShrink: 0,
+                    }}
+                  >
+                    {activeEvent.date}
+                  </span>
+                </>
+              )}
+            </div>
+          )}
 
-          {/* Hamburger (mobile only) */}
+          {/* Unsaved indicator */}
+          {state.unsaved && (
+            <span
+              style={{
+                fontFamily: 'var(--rf-mono)', fontSize: 9,
+                letterSpacing: '0.1em', color: 'var(--text-muted)',
+              }}
+            >
+              UNSAVED
+            </span>
+          )}
+
+          {/* Mobile hamburger */}
           <button
-            className="md:hidden if-btn sm"
+            className="ml-auto md:hidden if-header-btn"
             onClick={() => setDrawerOpen(true)}
             aria-label="Open navigation"
           >
             ☰
           </button>
         </div>
+
+        {/* Row 2 — Desktop tab navigation */}
+        <nav
+          className="hidden md:flex px-5"
+          role="tablist"
+          style={{ borderTop: '1px solid var(--border)' }}
+        >
+          {TABS.map(t => (
+            <button
+              key={t.id}
+              role="tab"
+              aria-selected={state.tab === t.id}
+              onClick={() => selectTab(t.id)}
+              className={`if-nav-tab${state.tab === t.id ? ' active' : ''}`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </nav>
       </header>
 
-      {/* Mobile drawer */}
+      {/* ── Mobile drawer ──────────────────────────────────────────────── */}
       {drawerOpen && (
         <>
           <div
-            className="fixed inset-0 bg-black/50 z-40 md:hidden"
+            className="fixed inset-0 z-40 md:hidden"
+            style={{ background: 'rgba(0,0,0,0.6)' }}
             onClick={() => setDrawerOpen(false)}
           />
           <div
@@ -124,16 +157,14 @@ function AppInner() {
             style={{ background: 'var(--bg-surface)', borderRight: '1px solid var(--border)' }}
           >
             <div
-              className="flex items-center justify-between px-4 py-3"
+              className="flex items-center justify-between px-5 py-3"
               style={{ borderBottom: '1px solid var(--border)' }}
             >
-              <span
-                className="font-black text-sm tracking-tight"
-                style={{ color: 'var(--text-heading)' }}
-              >
-                INVITEFLOW
-              </span>
-              <button className="if-btn sm" onClick={() => setDrawerOpen(false)} aria-label="Close">
+              <div>
+                <div className="if-eyebrow" style={{ marginBottom: 2 }}>CONVENE · ROSTER</div>
+                <div className="if-page-title" style={{ fontSize: 15 }}>InviteFlow</div>
+              </div>
+              <button className="if-header-btn" onClick={() => setDrawerOpen(false)} aria-label="Close">
                 ✕
               </button>
             </div>
@@ -144,10 +175,16 @@ function AppInner() {
                   role="tab"
                   aria-selected={state.tab === t.id}
                   onClick={() => selectTab(t.id)}
-                  className="min-h-[44px] flex items-center px-5 text-xs font-mono tracking-[0.07em] uppercase cursor-pointer border-l-2"
-                  style={state.tab === t.id
-                    ? { borderColor: 'var(--accent)', background: 'var(--bg-subtle)', color: 'var(--accent)' }
-                    : { borderColor: 'transparent', color: 'var(--text-secondary)', background: 'transparent' }}
+                  className="min-h-[44px] flex items-center px-5 cursor-pointer border-l-2"
+                  style={{
+                    fontFamily: 'var(--rf-mono)',
+                    fontSize: 10,
+                    letterSpacing: '0.07em',
+                    textTransform: 'uppercase',
+                    ...(state.tab === t.id
+                      ? { borderColor: 'var(--accent)', background: 'var(--bg-subtle)', color: 'var(--accent)' }
+                      : { borderColor: 'transparent', color: 'var(--text-secondary)', background: 'transparent' }),
+                  }}
                 >
                   {t.label}
                 </button>
@@ -157,7 +194,7 @@ function AppInner() {
         </>
       )}
 
-      {/* Main content */}
+      {/* ── Main content ────────────────────────────────────────────────── */}
       <main className="flex-1 overflow-auto flex flex-col">
         <TabContent />
       </main>
