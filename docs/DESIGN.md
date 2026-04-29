@@ -1,77 +1,130 @@
-# ContactScout Design Language
+# Convene · Roster — Design Language
 
 Author: Lenya Chan
-Updated: 2026-04-28
+Updated: 2026-04-29
 
 ---
 
 ## Purpose
 
-This document is the single source of truth for ContactScout's visual and interaction design. All future UI work must reference it before introducing new colors, spacing, or component patterns. It reflects a **mobile-first, dark terminal-inspired** aesthetic tuned for focused, sequential workflows.
+This document is the single source of truth for the visual and interaction design of the Convene suite (InviteFlow + ContactScout). All UI work must reference it before introducing colors, spacing, type styles, or component patterns.
+
+The design direction is **Roster** — a warm dark, data-dense, power-user aesthetic. It pairs a terracotta accent with a brown-black ground, Fraunces serif italic for headings, and Geist Mono for all labels and metadata. The result reads like a printed ledger rendered in low light: warm, legible, purposeful.
+
+**Cardinal rules (from `redesign-scaffold/CLAUDE_CODE_HANDOFF.md`)**
+
+1. **Never hardcode spacing, type, or color.** Always reach for a `var(--*)` token. If you find yourself writing `padding: 14px 18px` inline, that value belongs in `--rt-row-pad`.
+2. **Never duplicate a row pattern.** If something looks like a row inside a card, use `.if-card-row`. If it needs custom controls, build a thin wrapper that extends `.if-card-row` via a custom right slot — do not write a parallel row from scratch.
+3. **Headers are italic everywhere.** `font-style: italic` on `.if-page-title` is the single source of truth. Do not pass an italic span as a title prop.
+4. **Dark-only.** No light mode toggle. The app is always dark. PrimeReact overrides and all CSS scope at `:root`, not `.dark`.
 
 ---
 
 ## Color Palette
 
-### Backgrounds (darkest → lightest)
-| Role | Value | Use |
-|------|-------|-----|
-| Page base | `#080c10` | App root background |
-| Log / dense surface | `#050709` | Log panel, very dense areas |
-| Card / surface | `#0d1117` | Cards, panels, modals |
-| Nested surface | `#161b22` | Alt rows, inset areas |
-| Highlighted surface | `#0c1a2e` | Selected rows, info-tinted bg |
-| Warning surface | `#1a0e00` | Warning banners |
+All values are exposed as CSS custom properties in `src/inviteflow/theme.css`. The canonical source palette is `R_DARK` in `redesign-scaffold/roster.jsx`.
+
+### Backgrounds
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--bg-root` | `#14110d` | App root, deepest layer |
+| `--bg-surface` | `#1c1814` | Cards, panels, modals, inputs |
+| `--bg-subtle` | `#221d18` | Alternate rows, inset areas, preview pane |
+| `--bg-nested` | `#221d18` | Nested surfaces (same as subtle) |
+| `--bg-dense` | `#0d0b08` | Extremely dense areas |
+| `--bg-info-tint` | `#1a2810` | Info-tinted backgrounds |
+| `--bg-warn-tint` | `#221a08` | Warning-tinted backgrounds |
 
 ### Borders
-| Role | Value | Use |
-|------|-------|-----|
-| Default | `#21262d` | Card borders, dividers |
-| Subtle | `#161b22` | Very light separators |
-| Input / secondary | `#30363d` | Input borders, secondary dividers |
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--border` | `#2c2620` | Card borders, row dividers |
+| `--border-subtle` | `#251f1a` | Very light separators |
+| `--border-input` | `#3d342c` | Input borders, secondary dividers, row chips |
 
 ### Text
-| Role | Value | Use |
-|------|-------|-----|
-| Primary | `#f0f6fc` | Headings, names, key values |
-| Body | `#c9d1d9` | Main body text |
-| Secondary | `#8b949e` | Metadata, labels, helper text |
-| Dim | `#7d8590` | Placeholders, oldest log entries |
 
-### Interactive / Semantic
-| Role | Value | Use |
-|------|-------|-----|
-| Blue (action) | `#1f6feb` | Primary buttons, active tabs, progress bar |
-| Blue (highlight) | `#58a6ff` | Links, active state text, info emphasis |
-| Blue (border accent) | `#1f4f99` | New-candidate card borders |
-| Green (action) | `#238636` | Constructive button bg (Add, Export) |
-| Green (status) | `#3fb950` | Verified status, success text |
-| Red (action border) | `#da3633` | Danger button border |
-| Red (status) | `#f85149` | Error text, left-office status |
-| Yellow | `#e3b341` | Warning text, flags |
-| Amber | `#f59e0b` | Scanning/checking animation |
-| Purple | `#a371f7` | "Ready to invite" stat |
-| Warning border | `#bb8009` | Warning banner border |
+| Token | Value | Use |
+|-------|-------|-----|
+| `--text-heading` | `#f4ede0` | Page titles, row titles, key values |
+| `--text-base` | `#c8bda9` | Body text, list item content |
+| `--text-secondary` | `#8a8170` | Metadata, labels, secondary info |
+| `--text-muted` | `#6a6055` | Placeholders, dim annotations |
+| `--text-dim` | `#756a5e` | Least important content |
 
-**Rule:** Before introducing any new color, search this palette for the closest semantic match and reuse it. Add a new entry only if no existing value fits semantically, and document it here.
+### Accent — Terracotta
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--accent` | `#e57158` | Primary CTA fill, active tab underline, stat highlights |
+| `--accent-highlight` | `#f08c76` | Hover state of accent elements |
+| `--accent-border` | `#7a3426` | Subtle accent-colored borders |
+
+### Semantic
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--success` | `#7ba577` | Confirmed/attending, sent status, success text |
+| `--success-bg` | `#3d5a3a` | Success button fill |
+| `--danger` | `#cc6555` | Error text, declined status, destructive actions |
+| `--danger-dark` | `#a34535` | Danger button border, error input border |
+| `--warning` | `#d4a942` | Warning text, pending/no-response status |
+| `--warning-border` | `#8a6b1e` | Warning chip borders |
+| `--blue` | `#8aabcc` | Informational accents |
+| `--purple` | `#9988cc` | Special-state accents |
+| `--gold` | `#d4a942` | Alias for `--warning`; use for highlight values |
+
+**Rule:** Before introducing any new color, search this table for the closest semantic match and reuse it. Add a new entry only if no existing token fits semantically, and document it here.
 
 ---
 
 ## Typography
 
-Single typeface: **Courier New** (monospace), falling back to system monospace. No other typefaces.
+Two typefaces only. No other font stacks are permitted inline — if you need a new stack, add it to `theme.css` as a `--rf-*` variable.
 
-| Role | Size | Weight | Letter-spacing | Case |
-|------|------|--------|----------------|------|
-| App title | 16–18px | 800 | -0.02em | UPPER |
-| Modal / section headings | 13–14px | 700 | 0 | Sentence |
-| Body / list items | 11–12px | 400–600 | 0 | Sentence |
-| Buttons | 11px desktop / 13px mobile | 400 | 0.04em | As written |
-| Section labels | 9px | 400 | 0.14em | UPPER |
-| Category pills | 9px | 400 | 0.07em | UPPER |
-| Status tags | 9–10px | 400 | 0.07em | UPPER |
-| Metadata / secondary | 9–10px | 400 | 0.08–0.1em | Mixed |
-| Byline | 9px | 400 | 0.12em | Sentence |
+| Token | Stack | Role |
+|-------|-------|------|
+| `--rf-serif` | `'Fraunces', 'Georgia', serif` | Page titles, card row titles, stat values, modal titles — always italic |
+| `--rf-mono` | `'Geist Mono', 'JetBrains Mono', 'Consolas', monospace` | All labels, eyebrows, metadata, buttons, inputs, code |
+| `--rf-sans` | `system-ui, -apple-system, sans-serif` | Body prose only (rare) |
+
+Fonts are loaded in `src/inviteflow/index.html` via Google Fonts (Fraunces variable + Geist Mono).
+
+### Type Scale
+
+| Role | Font | Size | Weight | Letter-spacing | Case | Notes |
+|------|------|------|--------|----------------|------|-------|
+| Page eyebrow | mono | 9–10px | 400 | 0.14–0.16em | UPPER | Above every page header |
+| Page title | serif | 18px | 500 | −0.01em | Sentence | **Always italic** |
+| Section eyebrow | mono | 9–10px | 400 | 0.16em | UPPER | Above a card |
+| Card row title | serif | 14px | 500 | −0.005em | Sentence | Truncates with ellipsis |
+| Card row sub | mono | 10px | 400 | 0.08em | UPPER | Secondary row info |
+| Body | sans | 12px | 400 | — | Sentence | Line-height 1.5 |
+| Micro / label | mono | 9px | 400 | 0.12em | UPPER | Field labels, stat labels |
+| Button text | mono | 10px | 500 | 0.04–0.06em | UPPER | All buttons |
+| Stat value | serif | 18–22px | 500 | — | — | StatChip + large numbers |
+| Code | mono | 10px | 400 | — | — | `.if-code` blocks |
+
+---
+
+## Layout Tokens
+
+Defined in `theme.css` as `--rt-*` variables, mirroring the `RT` object in `redesign-scaffold/roster.jsx`. Mutate here; never compute equivalent strings inline.
+
+| Token | Value | Use |
+|-------|-------|-----|
+| `--rt-page-pad-x` | `20px` | Horizontal page padding |
+| `--rt-section-pad` | `0 20px 8px` | Padding around a section eyebrow |
+| `--rt-card-margin` | `0 0 12px 0` | Bottom margin between cards |
+| `--rt-row-pad` | `11px 14px` | Internal padding of a card row |
+| `--rt-row-gap` | `10px` | Horizontal gap between row elements (chip · body · right · chevron) |
+| `--rt-row-chip` | `28px` | Width and height of a RowChip |
+| `--rt-chip-radius` | `6px` | Border-radius of chips and filter pills |
+| `--rt-card-radius` | `10px` | Border-radius of cards and modals |
+| `--rt-card-pad-x` | `14px` | Horizontal padding inside a padded card |
+| `--rt-header-btn` | `32px` | Width and height of a header action button |
 
 ---
 
@@ -79,150 +132,195 @@ Single typeface: **Courier New** (monospace), falling back to system monospace. 
 
 All spacing is a multiple of 4px.
 
-| Token | Value | Use |
-|-------|-------|-----|
-| 2xs | 2px | Tag internal padding (vertical) |
-| xs | 4–6px | Gaps between inline elements |
-| sm | 8–10px | Internal card padding, tight rows |
-| md | 12–14px | Standard card/row padding |
-| lg | 16–20px | Page-level padding, section gaps |
+| Name | Range | Use |
+|------|-------|-----|
+| 2xs | 2–3px | Tag internal padding (vertical), micro gaps |
+| xs | 4–6px | Gaps between inline chips and labels |
+| sm | 8–10px | Internal chip/tile padding, compact row gaps |
+| md | 11–14px | Standard row padding (`--rt-row-pad`) |
+| lg | 16–20px | Page padding, section gaps |
 | xl | 24–32px | Modal padding, large section gaps |
 
 ---
 
-## Responsive Breakpoints
+## Component Primitives
 
-| Name | Min-width | Layout behavior |
-|------|-----------|-----------------|
-| Mobile | — (base) | Single column, bottom-sheet log, 44px tap targets |
-| Tablet | 768px | Same as mobile, wider content |
-| Desktop | 1024px | Log sidebar always visible, smaller tap targets (36px) |
+All primitives are defined as `.if-*` classes in `src/inviteflow/styles/if.css`. They consume `var(--*)` tokens exclusively — no values are hardcoded inside the stylesheet.
 
-### Mobile-first rules
-- **Containers:** always `width: 100%` with `max-width` where needed. Never fixed `px` widths on layout containers.
-- **Tap targets:** min-height `44px` on mobile (< 768px), `36px` on desktop.
-- **Horizontal scroll:** permitted only inside designated scrolling regions (tab bar, category pills). No page-level horizontal overflow.
-- **Log panel:** hidden by default on mobile/tablet; toggled as a 50dvh bottom sheet via `☰ Log` button. Always visible at ≥ 1024px.
-- **Category column:** hidden in official list rows on mobile (< 768px) — name, email, and status are sufficient.
+### Page Header
 
----
+| Class | Description |
+|-------|-------------|
+| `.if-eyebrow` | Mono caps 9px eyebrow. Sits above `.if-page-title` on every page. |
+| `.if-page-title` | Serif italic 18px heading. Used for tab titles and modal titles. |
+| `.if-header-btn` | 32px square bordered icon button. Used for back/menu/filter actions in the header right slot. |
+| `.if-meta-line` | Mono caps inline run directly under the header. Contains a status dot and `·`-separated segments. |
+| `.if-meta-sep` | `·` separator used inside a `.if-meta-line`. |
 
-## Component Patterns
+### Sections and Cards
 
-### Buttons
+| Class | Description |
+|-------|-------------|
+| `.if-section-label` | 9px mono caps eyebrow above a card or list section. |
+| `.if-card` | Bordered surface container (`--bg-surface` bg, `--border` border, 10px radius). Children are separated by row hairlines. Add `.padded` for non-row content. |
+| `.if-card.padded` | Adds `14px --rt-card-pad-x` internal padding for non-row content (e.g., charts, stat strips). |
 
-Four semantic variants, applied via CSS class:
+### Card Rows
 
-| Class | Bg | Border | Text | Use |
-|-------|----|--------|------|-----|
-| (default) | transparent | `#30363d` | `#8b949e` | Secondary actions |
-| `.pri` | `#1f6feb` | `#1f6feb` | `#fff` | Primary action per context |
-| `.grn` | `#238636` | `#238636` | `#fff` | Constructive (add, export) |
-| `.del` | transparent | `#da3633` | `#f85149` | Destructive (delete, clear) |
+The canonical row pattern inside a `.if-card`. Use it for every list item, workflow step, settings entry, or action item.
 
-Add `.sm` for compact contexts. All buttons require `:hover` and `:disabled` states. Disabled: `opacity: 0.4`, `cursor: not-allowed`.
+| Class | Description |
+|-------|-------------|
+| `.if-card-row` | Full-width flex row: chip · body · right · chevron. `cursor: pointer`, hover dims to `--bg-subtle`. Add `.last` to suppress bottom border. Add `.no-action` for non-interactive rows. |
+| `.if-card-row-body` | `flex: 1; min-width: 0` wrapper for title + sub. |
+| `.if-card-row-title` | Serif 14px truncating title inside a row. |
+| `.if-card-row-sub` | Mono 10px 0.08em-spaced subtitle inside a row. |
+| `.if-card-row-right` | Mono 11px semi-bold right-side value. Add `.accent` for terracotta color. |
 
-### Status Tags
+### Chips and Indicators
 
-Inline bordered pill, no background fill:
-```
-border: 1px solid {color}; color: {color};
-padding: 2px 7px; border-radius: 4px; font-size: 9–10px; letter-spacing: 0.07em
-```
-Active states (checking/scanning) use `cs-pulse` animation.
+| Class | Description |
+|-------|-------------|
+| `.if-row-chip` | 28×28px square chip in the left slot of a `.if-card-row`. Shows a number, icon, or status. Modifiers: `.filled` (accent fill), `.good` (success tint), `.warn` (warning tint), `.bad` (danger tint). |
+| `.if-stat-chip` | Small bordered tile (`flex: 1`). Contains `.if-stat-chip-label` (mono 8px caps) and `.if-stat-chip-value` (serif 20px). Use in a horizontal flex row for stat strips. |
+| `.if-status-pill` | Mono 9px bordered pill. Right-side status indicator. Tones: `.good`, `.warn`, `.bad`, `.accent`. |
+| `.if-filter-chip` | Mono 9px caps filter pill. Active state: ink fill (heading color bg, root color text). Shows a `.count` span at 60% opacity. |
+| `.if-tag` | Inline 9px bordered badge. Color applied via `color` + `border-color` inline (use semantic vars). |
+| `.if-stat` | Legacy stat card with 3px left accent border. **Prefer `.if-stat-chip` in new code.** |
 
-### Cards / Panels
+### Controls
 
-```
-background: #0d1117; border: 1px solid #21262d; border-radius: 8px; padding: 14–20px
-```
+| Class | Description |
+|-------|-------------|
+| `.if-tab-switcher` | Pill toggle container. Children are `.if-tab-option`. Active segment: ink-fill (heading bg, root text). |
+| `.if-tab-option` | Segment inside `.if-tab-switcher`. Add `.active` for the selected state. |
+| `.if-primary-btn` | Full-width terracotta CTA. Mono 13px 0.06em. Use as the main action at the bottom of a screen. Disabled: `opacity: 0.4`. |
+| `.if-btn` | Base bordered button (mono 10px, 34px height, `--border-input` border). Modifiers: `.pri` (accent fill), `.grn` (success fill), `.del` (danger border + text), `.ghost` (subtle border), `.sm` (28px / 9px), `.lg` (40px / 11px). |
+| `.if-nav-tab` | Top-level tab button (mono 10px, border-bottom underline). Active: `--accent` underline + `--text-heading` text. |
 
-### Modals
+### Inputs and Forms
 
-- Backdrop: `rgba(0,0,0,0.8)`, covers full screen
-- Panel: `max-width: 460px`, `border-radius: 10px`, `padding: 24px`
-- Clicking outside dismisses
-- Max-height `90dvh`, scrollable internally on small screens
+| Class | Description |
+|-------|-------------|
+| `.if-label` | Mono 9px caps field label. Always sits directly above `.if-input`. |
+| `.if-input` | Bordered input (36px min-height, `--bg-surface` bg, `--border-input` border). Focus: `--accent` border. Error: add `.err` for danger border. |
 
-### Banners
+### Feedback and Status
 
-Full-width strips pinned below header. Always contain an actionable button — never purely informational.
+| Class | Description |
+|-------|-------------|
+| `.if-status` | Inline mono 10px status text. Tones: `.ok` (success), `.err` (danger), `.info` (accent highlight). |
+| `.if-empty` | Empty-state block (48px vertical padding, serif italic 14px, centered). Always pair with an `.if-empty-sub` (mono 10px) and a next-step action. Never use a passive "nothing here" message alone. |
+| `.if-progress-track` / `.if-progress-fill` | 3px horizontal progress bar. Fill color: `--accent`. Always pair with an inline `done / total` counter. |
+| `.if-bar-track` | 8px stacked bar (e.g., attending / pending / declined breakdown in Tracker). Child divs set `width` as a percentage. |
+| `.if-bulk-bar` | Flex bar that appears when table rows are selected. Holds bulk action buttons. |
 
-| Variant | Bg | Border | Text color |
-|---------|-----|--------|-----------|
-| `.info` | `#060d1a` | `#1f6feb` | `#58a6ff` |
-| `.warn` | `#1a0e00` | `#bb8009` | `#e3b341` |
+### Overlays
 
-### Empty States
+| Class | Description |
+|-------|-------------|
+| `.if-modal-backdrop` | Full-screen `rgba(0,0,0,0.8)` overlay. Flex-centers `.if-modal`. Clicking outside dismisses. |
+| `.if-modal` | Modal panel (`--bg-surface` bg, `--border-input` border, 10px radius, 24px padding, max-width 460px, max-height 90dvh, scrollable). |
+| `.if-modal-title` | Serif italic 16px modal heading. |
+| `.if-modal-sub` | Mono 10px modal subheading / description text. |
 
-Every empty list/panel must include:
-1. Short plain-language explanation (13–14px, `#c9d1d9`)
-2. One primary action button
-3. Optional supporting line (11px, `#8b949e`)
+### Utility
 
-Never use a standalone "Nothing here yet." message.
-
-### Progress Indicator
-
-Thin 3px horizontal bar:
-```
-track: #21262d; fill: #1f6feb; border-radius: 2px
-```
-Always paired with a `done/total` counter inline.
-
----
-
-## Animation
-
-| Name | Timing | Use |
-|------|--------|-----|
-| `cs-pulse` | `opacity: 1→0.35→1`, 1.4s ease-in-out infinite | Checking / scanning states |
-| `cs-spin` | `rotate(360deg)`, 1s linear infinite | Loading spinner |
-
-Keep animation minimal. Only use it to communicate live system state (not decoration).
-
----
-
-## Layout Architecture
-
-The app is a fixed-height shell (`100dvh`) with internal scrolling:
-
-```
-┌─────────────────────────────────────────┐
-│ Header (flex-shrink: 0)                 │
-│ Banners (flex-shrink: 0, conditional)   │
-│ Stats bar (flex-shrink: 0, conditional) │
-│ Tab bar (flex-shrink: 0)                │
-├─────────────────────────┬───────────────┤
-│ Main scroll area        │ Log sidebar   │
-│ (flex: 1, overflow-y)   │ (240px, ≥1024)│
-└─────────────────────────┴───────────────┘
-```
-
-On mobile/tablet, the log sidebar becomes a toggled bottom sheet overlay.
+| Class | Description |
+|-------|-------------|
+| `.if-code` | Code block (`--bg-subtle` bg, mono 10px, horizontally scrollable, 1.6 line-height). |
+| `.if-activity-row` | Feed row: time chip · type stamp · sentence. Add `.last` to suppress bottom border. |
+| `.if-serif` | Applies `var(--rf-serif)` font family. |
+| `.if-mono` | Applies `var(--rf-mono)` font family. |
 
 ---
 
-## Sequential Workflow
+## Interaction States
 
-ContactScout has three steps, reflected in the tab order:
+Every interactive element must have visually distinct `:hover` and `:focus-visible` states.
 
-1. **Discover** — Run scans; review new candidates
-2. **Officials** — Manage list; verify who is still in office
-3. **Export** — Send to InviteFlow, download CSV, backup/restore
+| State | Treatment |
+|-------|-----------|
+| `:hover` on buttons | Border brightens to `--accent-highlight`; text lightens to `--text-heading` |
+| `:hover` on card rows | Background shifts to `--bg-subtle` |
+| `:focus-visible` | `2px solid var(--accent); outline-offset: 2px` on all buttons and inputs |
+| `:disabled` | `opacity: 0.4; cursor: not-allowed` |
+| Active filter chip / tab option | Ink fill: `--text-heading` bg, `--bg-root` text |
 
-First-run onboarding sequence (via banners, not modals):
-1. No API key → welcome banner with "Add API Key" CTA
-2. API key set but no jurisdiction → warning banner with "Configure Jurisdiction" CTA
-3. Both set → no banner; user proceeds to Discover tab
+---
+
+## Responsive Layout
+
+The suite is **desktop-first but must not break below 900px**.
+
+| Breakpoint | Width | Behavior |
+|------------|-------|----------|
+| Desktop | ≥ 900px | Default layout; 32px tap targets |
+| Narrow laptop | 900px | Max-width containers compress; tables scroll horizontally |
+| Mobile | < 768px | Touch targets scale up (44px buttons, 44px inputs); font sizes step up |
+
+### Rules
+
+- **Containers:** always `max-width` + `width: 100%`. Never fixed `px` widths on layout wrappers.
+- **Tables:** wrap in `<div class="overflow-x-auto">` so they scroll horizontally at narrow viewports rather than overflowing the page.
+- **Test at:** 1440px (desktop) and 900px (narrow laptop) before committing any layout change.
+
+### Mobile overrides (< 768px)
+
+Defined at the bottom of `if.css`:
+
+| Element | Desktop | Mobile |
+|---------|---------|--------|
+| `.if-btn` | 34px / 10px | 44px / 12px |
+| `.if-btn.sm` | 28px / 9px | 36px / 10px |
+| `.if-input` | 36px / 12px | 44px / 13px |
+| `.if-nav-tab` | 34px / 10px | 44px / 11px |
+| `.if-primary-btn` | 13px font | 14px font, extra padding |
 
 ---
 
 ## Accessibility
 
-- All interactive elements have `:focus-visible` outlines: `2px solid #58a6ff; outline-offset: 2px`
+- All interactive elements have `:focus-visible` outlines: `2px solid var(--accent); outline-offset: 2px`
 - Status is never communicated by color alone — text labels always accompany colored indicators
-- Touch targets ≥ 44px tall on mobile
-- Form inputs have explicit `<label>` or `.cs-section-label` above them
-- Destructive actions (clear all) require browser `confirm()` before executing
-- Modal backdrops can be dismissed by clicking outside
+- Touch targets ≥ 44px tall on mobile (< 768px)
+- All form inputs have an explicit `.if-label` element directly above them
+- Destructive actions (delete, clear) show an **inline confirmation** before executing — never a `window.confirm()` or `alert()`
+- Modal backdrops dismiss on click outside
+
+---
+
+## Animation
+
+Keep animation minimal. Use it only to communicate live system state, not decoration.
+
+| Name | Timing | Use |
+|------|--------|-----|
+| Progress fill transition | `width 0.2s` | `.if-progress-fill` width change during sends |
+| Button / border transitions | `0.15s` | Hover state changes on buttons, inputs, tabs |
+
+---
+
+## UX Conventions
+
+These are enforced at the code level, not just guidelines.
+
+| Principle | Implementation |
+|-----------|---------------|
+| Empty states are never passive | Every `.if-empty` pairs with an `.if-empty-sub` and a next-step button or instruction |
+| Feedback is always inline | Status messages use `.if-status.ok` / `.if-status.err` in the page — never `alert()` |
+| Destructive actions require confirmation | Show an inline "are you sure?" prompt before delete/clear executes |
+| Progress is always visible | Bulk operations use `.if-progress-track` + a `done / total` counter; a spinner alone is not sufficient |
+| Labels describe outcomes | "Send Invitations", not "Run Loop"; "Import Contacts", not "Load Array" |
+
+---
+
+## File Locations
+
+| File | Purpose |
+|------|---------|
+| `src/inviteflow/theme.css` | All CSS custom properties (`--bg-*`, `--text-*`, `--accent`, `--rt-*`, `--rf-*`) |
+| `src/inviteflow/styles/if.css` | All `.if-*` primitive classes |
+| `src/inviteflow/styles/primereact-reset.css` | PrimeReact token overrides (mapped to warm palette at `:root`) |
+| `redesign-scaffold/roster.jsx` | Reference implementation: `R_DARK` palette, `RT` tokens, all React primitives |
+| `redesign-scaffold/CLAUDE_CODE_HANDOFF.md` | Engineering handoff: rules, route map, TODO items |
