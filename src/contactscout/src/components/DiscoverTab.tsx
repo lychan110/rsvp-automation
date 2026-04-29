@@ -8,6 +8,7 @@ interface Props {
   scanMeta: Record<string, CSScanMeta>;
   newOfficials: CSOfficial[];
   running: boolean;
+  hasOsKey: boolean;
   runScan: (id: string) => void;
   addNew: (o: CSOfficial) => void;
   dismissNew: (name: string) => void;
@@ -16,7 +17,7 @@ interface Props {
 
 export default function DiscoverTab({
   jx, scanStatus, scanMeta, newOfficials,
-  running, runScan, addNew, dismissNew, onConfigureJx,
+  running, hasOsKey, runScan, addNew, dismissNew, onConfigureJx,
 }: Props) {
   const jxMissing = !jx.state.trim();
   const anyDone   = Object.values(scanStatus).some(s => s === 'done');
@@ -52,6 +53,7 @@ export default function DiscoverTab({
         const meta  = scanMeta[t.id];
         const fresh = newOfficials.filter(o => o._scanId === t.id);
         const withSched = fresh.filter(o => !!o.schedulerEmail).length;
+        const isStateLeg = t.id === 'state-senate' || t.id === 'state-house';
 
         return (
           <div key={t.id} style={{ marginBottom: 10 }}>
@@ -59,7 +61,14 @@ export default function DiscoverTab({
             <div className="if-card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, color: 'var(--text-heading)', fontWeight: 500, marginBottom: 2 }}>{t.label}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-heading)', fontWeight: 500 }}>{t.label}</div>
+                    {isStateLeg && hasOsKey && (
+                      <span style={{ fontSize: 8, border: '1px solid var(--success-bg)', color: 'var(--success)', borderRadius: 3, padding: '0 4px', letterSpacing: '0.05em' }}>
+                        OPEN STATES
+                      </span>
+                    )}
+                  </div>
                   <div style={{ fontSize: 10, color: 'var(--text-secondary)' }}>{t.desc}</div>
                   {meta && (
                     <div style={{ fontSize: 10, color: 'var(--text-secondary)', marginTop: 4 }}>
