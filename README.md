@@ -1,8 +1,8 @@
-# InviteFlow v4
+# InviteFlow v4.1.0
 
 > Event invitation management for Google Workspace — by Lenya Chan
 
-InviteFlow v4 is a **serverless**, single-page application for managing VIP event invitations. It runs entirely in the browser against Google APIs — no backend server, no database to maintain. Guest data lives in Google Sheets; event configs live in Google Drive's `appDataFolder`.
+InviteFlow v4.1.0 is a **serverless**, single-page application for managing VIP event invitations. It runs entirely in the browser against Google APIs — no backend server, no database to maintain. Guest data lives in Google Sheets; event configs live in Google Drive's `appDataFolder`.
 
 ---
 

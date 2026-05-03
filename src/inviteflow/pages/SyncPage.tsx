@@ -8,7 +8,7 @@ import { sheetsGet, sheetsUpdate, sheetsClear, extractSheetId } from '../api/she
 
 const MASTER_COLUMNS = ['FirstName', 'LastName', 'Title', 'Category', 'Email', 'RSVP_Link', 'InviteSent', 'InviteSentDate', 'RSVP_Status', 'RSVP_Date', 'Notes'];
 
-const GAS_CODE = `// InviteFlow v4 — RSVP ingest trigger
+const GAS_CODE = `// InviteFlow v4.1.0 — RSVP ingest trigger
 // Deploy: Extensions → Apps Script → add trigger: onFormSubmit (Form Submit)
 // Set script property MASTER_SHEET_URL via Project Settings → Script Properties
 
