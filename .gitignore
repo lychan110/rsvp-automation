@@ -37,7 +37,9 @@ env/
 
 # OS
 .DS_Store
+.env
 .env.local
+.env.*.local
 .secret_key
 
 # User data and secrets
