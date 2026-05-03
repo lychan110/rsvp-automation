@@ -11,6 +11,10 @@ const dist = join(root, 'dist');
   console.log(`Copied ${file} → dist/${file}`);
 });
 
+// Promote inviteflow.html to root index.html for GitHub Pages redirect
+copyFileSync(join(dist, 'src', 'inviteflow', 'index.html'), join(dist, 'index.html'));
+console.log(`Promoted dist/src/inviteflow/index.html → dist/index.html`);
+
 // Promote nested app HTMLs to root-level named files
 const apps = ['inviteflow', 'contactscout'];
 for (const app of apps) {
