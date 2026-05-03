@@ -9,7 +9,8 @@ export type RouteId =
   | 'send'
   | 'tracker'
   | 'sync'
-  | 'settings';
+  | 'settings'
+  | 'scout';
 
 interface RouterContextValue {
   route: RouteId;
