@@ -8,8 +8,7 @@
     "build": "tsc && vite build && node scripts/inject-version.js",
     "copy-static": "node scripts/copy-static.js",
     "predeploy": "npm run build && node scripts/copy-static.js",
-    "deploy": "gh-pages -d dist",
-    "prepare": "husky"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.4",
@@ -23,14 +22,10 @@
     "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
-    "@commitlint/cli": "^20.5.3",
-    "@commitlint/config-conventional": "^20.5.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
-    "conventional-changelog-conventionalcommits": "^9.3.1",
     "gh-pages": "^6.3.0",
-    "husky": "^9.1.7",
     "typescript": "^5.7.3",
     "vite": "^6.3.2"
   }

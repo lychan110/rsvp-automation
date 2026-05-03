@@ -313,17 +313,20 @@ refactor(tracker): extract stat calculation into utility hook
 - Description is ≤100 characters, no period at end
 - Subject line empty or has no trailing punctuation
 - Never use bare messages like "update", "fixes", "changes"
+**Version bumping — agents MUST do this before opening a PR:**
 
-**How version bumps work:**
-- Commit lint runs locally via Husky on `git commit` (blocks bad messages)
-- `release-please` GitHub Action watches `master` and auto-creates a release PR when it detects `feat`/`fix` commits
-- Merging the release PR bumps `package.json` + `.env`, creates a git tag, and publishes a GitHub Release
-- `deploy.yml` reads the version from `package.json` and propagates it to HTML title, README, and GAS comments
+Before submitting a PR, check if the work warrants a version bump:
+- `feat:` commits → bump minor version (e.g. 4.1.0 → 4.2.0)
+- `fix:` commits → bump patch version (e.g. 4.1.0 → 4.1.1)
+- `docs:`, `chore:`, `refactor:` → no version bump needed
 
-**Version lives in three places (all kept in sync automatically):**
-- `.env` → `VITE_APP_VERSION` (local development)
-- `package.json` → `version` (source of truth for release-please)
-- Git tag → `v4.1.0` (created by release-please on release)
+If a bump is warranted, update **both** files in a single commit:
+- `.env` → `VITE_APP_VERSION=4.2.0`
+- `package.json` → `"version": "4.2.0"`
+
+Then commit with: `chore: bump version to v4.2.0`
+
+`scripts/inject-version.js` runs during `npm run build` and propagates the version to HTML title, README, and GAS comments automatically.
 
 ---
 
