@@ -10,6 +10,7 @@ export type RouteId =
   | 'tracker'
   | 'sync'
   | 'settings'
+  | 'help'
   | 'scout';
 
 interface RouterContextValue {
