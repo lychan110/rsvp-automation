@@ -18,7 +18,7 @@ Both run entirely in the browser. InviteFlow uses Gmail + Google Sheets; Contact
 
 ## File structure
 
-**InviteFlow** (React + Vite, v3.1)
+**InviteFlow** (React + Vite, v4.1)
 - Source: `src/inviteflow/` (React + TypeScript + Tailwind v4 + PrimeReact)
 - Built from root: `npm run build` → `dist/src/inviteflow/`
 - Entry: `src/inviteflow/index.html`, mounts `src/inviteflow/main.tsx`
@@ -91,7 +91,7 @@ React app in `src/contact-scout/`. Own `package.json`, own Vite config. State ma
 
 ---
 
-## InviteFlow (React + Vite, v3.1)
+## InviteFlow (React + Vite, v4.1)
 
 **Setup**
 ```bash
