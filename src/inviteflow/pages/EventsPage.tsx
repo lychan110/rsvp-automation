@@ -87,34 +87,38 @@ export default function EventsPage() {
   const upcoming = state.events.filter(e => !e.date || daysUntil(e.date) === null || daysUntil(e.date)! >= 0);
   const past = state.events.filter(e => e.date && daysUntil(e.date) !== null && daysUntil(e.date)! < 0);
 
-  const headerRight = (
-    <button className="if-header-btn" onClick={loadEvents} disabled={loading} aria-label="Refresh">
-      <Icon name="sync" size={13} />
-    </button>
-  );
-
   const hasOAuth = !!localStorage.getItem('gClientId');
 
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-root)' }}>
-      <PageHeader eyebrow="INVITEFLOW" title="Events" right={headerRight} />
+      <PageHeader eyebrow="INVITEFLOW" title="Events"
+        right={
+          <>
+            <button className="if-header-btn" onClick={() => navigate('settings')} aria-label="Settings">
+              <Icon name="menu" size={15} />
+            </button>
+            <button className="if-header-btn" onClick={loadEvents} disabled={loading} aria-label="Refresh">
+              <Icon name="sync" size={13} />
+            </button>
+          </>
+        }
+      />
 
       {!hasOAuth && (
         <div style={{
-          margin: '8px 18px 0', padding: '10px 14px', borderRadius: 8,
-          background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.3)',
-          display: 'flex', alignItems: 'center', gap: 10,
+          margin: '8px 18px 0', padding: '8px 12px', borderRadius: 6,
+          background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)',
+          display: 'flex', alignItems: 'center', gap: 8,
+          fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)',
         }}>
-          <Icon name="lock" size={14} style={{ color: 'var(--warning)', flexShrink: 0 }} />
-          <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', flex: 1 }}>
-            Google OAuth not configured. Set up your client ID to enable event management.
-          </span>
+          <Icon name="lock" size={13} style={{ color: 'var(--warning)', flexShrink: 0 }} />
+          Google OAuth not configured — go to Settings to set up your client ID.
           <button
             className="if-btn sm"
-            style={{ flexShrink: 0, background: 'var(--warning)', color: '#000', border: 'none' }}
+            style={{ flexShrink: 0, background: 'var(--warning)', color: '#000', border: 'none', marginLeft: 'auto' }}
             onClick={() => navigate('settings')}
           >
-            Set up OAuth
+            Settings
           </button>
         </div>
       )}
@@ -127,14 +131,16 @@ export default function EventsPage() {
             <div style={{ fontFamily: 'var(--rf-serif)', fontSize: 16, color: 'var(--text-secondary)', marginBottom: 8, fontStyle: 'italic' }}>
               No events yet
             </div>
-            <div className="if-section-label" style={{ marginBottom: 16 }}>
-              {hasOAuth ? 'CREATE YOUR FIRST EVENT TO GET STARTED' : 'SET UP OAUTH FIRST'}
+            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 20 }}>
+              {hasOAuth ? 'CREATE YOUR FIRST EVENT TO GET STARTED' : 'SET UP OAUTH TO CONTINUE'}
             </div>
             <button
               className="if-btn pri"
+              style={{ minHeight: 44 }}
               onClick={() => hasOAuth ? createEvent() : navigate('settings')}
             >
-              {hasOAuth ? '+ New Event' : 'Set up Google OAuth first'}
+              <Icon name={hasOAuth ? 'plus' : 'lock'} size={13} style={{ marginRight: 6 }} />
+              {hasOAuth ? '+ New Event' : 'Set up Google OAuth'}
             </button>
           </div>
         )}
@@ -220,7 +226,7 @@ export default function EventsPage() {
           )
         )}
 
-        {state.events.length > 0 && (
+        {state.events.length > 0 && hasOAuth && (
           <button
             className="if-btn ghost"
             style={{ width: '100%', marginTop: 8, minHeight: 42, justifyContent: 'center', borderRadius: 'var(--rt-card-radius)' }}
@@ -231,19 +237,6 @@ export default function EventsPage() {
           </button>
         )}
       </div>
-
-      {state.events.length === 0 && (
-        <div style={{ padding: '0 18px 32px' }}>
-          <button
-            className="if-btn pri"
-            style={{ width: '100%', minHeight: 46 }}
-            onClick={() => hasOAuth ? createEvent() : navigate('settings')}
-          >
-            <Icon name={hasOAuth ? 'plus' : 'lock'} size={13} style={{ marginRight: 6 }} />
-            {hasOAuth ? 'NEW EVENT' : 'SET UP GOOGLE OAUTH'}
-          </button>
-        </div>
-      )}
     </div>
   );
 }
