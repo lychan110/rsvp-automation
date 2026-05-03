@@ -153,7 +153,7 @@ export default function SettingsPage() {
           </button>
           <div style={{ padding: 14, display: 'flex', justifyContent: 'center' }}>
             <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-              INVITEFLOW · v3.2 · by Lenya Chan
+              INVITEFLOW · v{__APP_VERSION__} · by Lenya Chan
             </div>
           </div>
         </div>
