@@ -278,6 +278,55 @@ Each calls Claude with a web-search-enabled prompt:
 
 ---
 
+## Commit Message Convention (Required)
+
+All commits MUST follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<scope>): <short description>
+
+[optional body]
+
+[optional footer: BREAKING CHANGE: ...]
+```
+
+**Types that trigger version bumps:**
+- `feat` → **minor** version bump (new feature)
+- `fix` → **patch** version bump (bug fix)
+- `feat!:` or `fix!:` or footer `BREAKING CHANGE:` → **major** version bump
+
+**Types that do NOT trigger a release:**
+- `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+
+**Examples:**
+```
+feat(inviteflow): add event RSVP confirmation modal
+fix(sync): correct OAuth token refresh on expiry
+docs: update README with new setup steps
+chore: bump version to v4.2.0
+refactor(tracker): extract stat calculation into utility hook
+```
+
+**Rules:**
+- Type is always lowercase
+- Scope is optional but uses `kebab-case` (e.g. `inviteflow`, `sync`, `contactscout`)
+- Description is ≤100 characters, no period at end
+- Subject line empty or has no trailing punctuation
+- Never use bare messages like "update", "fixes", "changes"
+
+**How version bumps work:**
+- Commit lint runs locally via Husky on `git commit` (blocks bad messages)
+- `release-please` GitHub Action watches `master` and auto-creates a release PR when it detects `feat`/`fix` commits
+- Merging the release PR bumps `package.json` + `.env`, creates a git tag, and publishes a GitHub Release
+- `deploy.yml` reads the version from `package.json` and propagates it to HTML title, README, and GAS comments
+
+**Version lives in three places (all kept in sync automatically):**
+- `.env` → `VITE_APP_VERSION` (local development)
+- `package.json` → `version` (source of truth for release-please)
+- Git tag → `v4.1.0` (created by release-please on release)
+
+---
+
 ## Cross-app conventions
 
 **Code style**
