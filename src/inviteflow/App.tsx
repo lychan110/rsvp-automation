@@ -9,6 +9,7 @@ import SendPage from './pages/SendPage';
 import TrackerPage from './pages/TrackerPage';
 import SyncPage from './pages/SyncPage';
 import SettingsPage from './pages/SettingsPage';
+import HelpPage from './pages/HelpPage';
 import ScoutPage from './pages/ScoutPage';
 
 function PageContent() {
@@ -23,6 +24,7 @@ function PageContent() {
     case 'tracker':     return <TrackerPage />;
     case 'sync':        return <SyncPage />;
     case 'settings':    return <SettingsPage />;
+    case 'help':        return <HelpPage />;
     case 'scout':       return <ScoutPage />;
   }
 }

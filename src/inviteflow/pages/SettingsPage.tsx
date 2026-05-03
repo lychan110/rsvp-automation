@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
+import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import { getToken, setClientId } from '../api/auth';
@@ -7,6 +8,7 @@ import { getToken, setClientId } from '../api/auth';
 export default function SettingsPage() {
   const state = useAppState();
   const dispatch = useAppDispatch();
+  const { navigate } = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [clientIdDraft, setClientIdDraft] = useState(localStorage.getItem('gClientId') ?? '');
@@ -131,9 +133,28 @@ export default function SettingsPage() {
         </div>
 
         <div className="if-section-label" style={{ padding: '8px 0 8px' }}>ABOUT</div>
-        <div className="if-card" style={{ padding: 14, textAlign: 'center' }}>
-          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-            INVITEFLOW · v3.2 · by Lenya Chan
+        <div className="if-card" style={{ marginBottom: 12 }}>
+          <button
+            onClick={() => navigate('help')}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: 'var(--rt-row-pad)', background: 'transparent', border: 'none',
+              borderBottom: '1px solid var(--border)', textAlign: 'left', cursor: 'pointer',
+            }}
+          >
+            <div style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--bg-root)', border: '1px solid var(--border)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icon name="help-circle" size={13} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="if-card-row-title">Quick Start Guide</div>
+              <div className="if-card-row-sub">FIRST-TIME SETUP WALKTHROUGH</div>
+            </div>
+            <Icon name="chevron-right" size={13} style={{ color: 'var(--text-muted)' }} />
+          </button>
+          <div style={{ padding: 14, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              INVITEFLOW · v3.2 · by Lenya Chan
+            </div>
           </div>
         </div>
       </div>

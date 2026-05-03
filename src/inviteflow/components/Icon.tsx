@@ -39,6 +39,7 @@ export default function Icon({ name, size = 16, stroke = 1.5, style = {} }: Icon
     case 'sync':          return <svg {...props}><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>;
     case 'star':          return <svg {...props}><path d="M12 3l2.6 6.2 6.7.5-5.1 4.4 1.6 6.5L12 17.3 6.2 20.6l1.6-6.5L2.7 9.7l6.7-.5z"/></svg>;
     case 'sparkle':       return <svg {...props}><path d="M12 3l2 6 6 2-6 2-2 6-2-6-6-2 6-2z"/></svg>;
+    case 'help-circle':   return <svg {...props}><circle cx="12" cy="12" r="9"/><path d="M9.1 9a3 3 0 015.8 1.5c0 1.7-1.8 2-1.8 3.5"/><circle cx="12" cy="16.5" r="0.5" fill="currentColor" stroke="none"/></svg>;
     default:              return <svg {...props}/>;
   }
 }
