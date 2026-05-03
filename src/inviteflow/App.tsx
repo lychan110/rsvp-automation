@@ -9,6 +9,7 @@ import SendPage from './pages/SendPage';
 import TrackerPage from './pages/TrackerPage';
 import SyncPage from './pages/SyncPage';
 import SettingsPage from './pages/SettingsPage';
+import ScoutPage from './pages/ScoutPage';
 
 function PageContent() {
   const { route } = useRouter();
@@ -22,6 +23,7 @@ function PageContent() {
     case 'tracker':     return <TrackerPage />;
     case 'sync':        return <SyncPage />;
     case 'settings':    return <SettingsPage />;
+    case 'scout':       return <ScoutPage />;
   }
 }
 
