@@ -148,7 +148,7 @@ export default function EventDashboard() {
             chip={<Icon name="sparkle" size={13} />}
             title="Discover Officials"
             sub="FIND ELECTED OFFICIALS WITH CONTACTSCOUT"
-            route="invitees"
+            route="scout"
             isLast
           />
         </div>
