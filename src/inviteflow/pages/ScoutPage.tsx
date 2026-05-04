@@ -22,6 +22,7 @@ import { useAppState, useAppDispatch } from '../state/AppContext';
 import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
+import ScoutKeysModal from '../components/ScoutKeysModal';
 import type { Invitee } from '../types';
 
 // ── Types ───────────────────────────────────────────────────────────────────────
@@ -55,6 +56,7 @@ export default function ScoutPage() {
   const [selected,   setSelected]   = useState<Set<string>>(new Set());
   const [error,      setError]      = useState('');
   const [scanTarget, setScanTarget] = useState<string>('openstates');
+  const [showKeysModal, setShowKeysModal] = useState(false);
 
   // Load saved results from sessionStorage
   useEffect(() => {
@@ -133,6 +135,24 @@ export default function ScoutPage() {
     }
   }
 
+  function handleSaveKeys(apiKey: string, endpoint: string, searchKey: string, osKey: string) {
+    if (apiKey) sessionStorage.setItem(CS_APIKEY_SK, apiKey);
+    else sessionStorage.removeItem(CS_APIKEY_SK);
+
+    if (endpoint) sessionStorage.setItem(CS_ENDPOINT_SK, endpoint);
+    else sessionStorage.removeItem(CS_ENDPOINT_SK);
+
+    if (searchKey) sessionStorage.setItem(CS_SEARCH_KEY, searchKey);
+    else sessionStorage.removeItem(CS_SEARCH_KEY);
+
+    if (osKey) sessionStorage.setItem(CS_OS_KEY, osKey);
+    else sessionStorage.removeItem(CS_OS_KEY);
+
+    // Update local state
+    // (will auto-update on next render via sessionStorage reads)
+    setShowKeysModal(false);
+  }
+
   function toggle(id: string) {
     setSelected(s => {
       const next = new Set(s);
@@ -188,18 +208,18 @@ export default function ScoutPage() {
               API keys required
             </div>
             <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>
-              Open ContactScout to configure your LiteLLM and (optionally) SerpAPI keys. They are stored in sessionStorage and carry over automatically.
+              Configure your LiteLLM API key and endpoint. Optionally add SerpAPI key for web search.
             </div>
-            <a
-              href="/contactscout/"
+            <button
+              onClick={() => setShowKeysModal(true)}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 fontFamily: 'var(--rf-mono)', fontSize: 11,
-                color: 'var(--accent)', textDecoration: 'none',
+                color: 'var(--accent)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
               }}
             >
-              <Icon name="chevron-right" size={11} /> Open ContactScout
-            </a>
+              <Icon name="chevron-right" size={11} /> Configure API Keys
+            </button>
           </div>
         )}
 
@@ -322,6 +342,17 @@ export default function ScoutPage() {
               Clear results
             </button>
           </>
+        )}
+        {/* Settings modal */}
+        {showKeysModal && (
+          <ScoutKeysModal
+            apiKey={apiKey}
+            endpoint={endpoint}
+            searchKey={searchKey}
+            osKey={osKey}
+            onSave={handleSaveKeys}
+            onClose={() => setShowKeysModal(false)}
+          />
         )}
       </div>
     </div>
