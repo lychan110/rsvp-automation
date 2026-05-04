@@ -117,7 +117,7 @@ export default function ApiKeyModal({ apiKey, endpoint, searchKey, osKey, onSave
             <a href="https://openstates.org/api/" target="_blank" rel="noreferrer" style={{ color: '#58a6ff' }}>
               openstates.org/api
             </a>
-            {' '}}for a free key.
+            {' '}for a free key.
           </div>
           <input
             className="if-input"
