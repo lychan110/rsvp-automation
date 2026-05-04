@@ -45,7 +45,7 @@ npm run dev        # Vite dev server → http://localhost:5173/inviteflow.html
 npm run deploy     # vite build → copy static files → gh-pages publish
 ```
 
-`index.html` and `contactscout.html` are copied into `dist/` alongside the built `inviteflow.html` before publishing to the `gh-pages` branch.
+`index.html` is copied into `dist/` alongside the built `inviteflow.html` before publishing to the `gh-pages` branch.
 
 ---
 
@@ -54,7 +54,6 @@ npm run deploy     # vite build → copy static files → gh-pages publish
 ```
 src/
   inviteflow/
-  contactscout/
 gas/              # Google App Scripts
 ```
 

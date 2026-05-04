@@ -1,23 +1,28 @@
 // ── ContactScout engine (direct imports — same logic as ContactScout standalone app) ───
-import { callGemini } from '../../contactscout/src/api';
-import { fetchStateLegislators } from '../../contactscout/src/openStates';
+import { callLiteLLM } from '../../scout/api';
+import { searchWeb, buildSearchQuery } from '../../scout/search';
+import { fetchStateLegislators } from '../../scout/openStates';
 import {
   SCAN_TARGETS,
   SCAN_SYS,
   MODEL_SCAN,
   CS_APIKEY_SK,
+  CS_ENDPOINT_SK,
+  CS_SEARCH_KEY,
   CS_JX_KEY,
   CS_OS_KEY,
-} from '../../contactscout/src/constants';
-import { officialToInvitee, buildScanPrompts } from '../../contactscout/src/utils';
-import { bestEmail } from '../../contactscout/src/emailPatterns';
-import type { CSOfficial, CSJurisdiction } from '../../contactscout/src/types';
+  DEFAULT_ENDPOINT,
+} from '../../scout/constants';
+import { officialToInvitee, buildScanPrompts } from '../../scout/utils';
+import { bestEmail } from '../../scout/emailPatterns';
+import type { CSOfficial, CSJurisdiction } from '../../scout/types';
 
 import { useEffect, useState } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
 import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
+import ScoutKeysModal from '../components/ScoutKeysModal';
 import type { Invitee } from '../types';
 
 // ── Types ───────────────────────────────────────────────────────────────────────
@@ -38,17 +43,20 @@ export default function ScoutPage() {
   const dispatch = useAppDispatch();
   const { goBack } = useRouter();
 
-  const apiKey    = sessionStorage.getItem(CS_APIKEY_SK) ?? ''; // CS_APIKEY_SK = '***'
-  const osKey     = sessionStorage.getItem(CS_OS_KEY) ?? '';
-  const hasGemini = !!apiKey;
-  const hasOS     = !!osKey;
-  const hasKeys   = hasGemini || hasOS;
+  const apiKey    = sessionStorage.getItem(CS_APIKEY_SK) ?? ''; // CS_APIKEY_SK='***'
+  const endpoint   = sessionStorage.getItem(CS_ENDPOINT_SK) ?? DEFAULT_ENDPOINT;
+  const searchKey  = sessionStorage.getItem(CS_SEARCH_KEY) ?? '';
+  const osKey      = sessionStorage.getItem(CS_OS_KEY) ?? '';
+  const hasLiteLLM = !!apiKey;
+  const hasOS      = !!osKey;
+  const hasKeys    = hasLiteLLM || hasOS;
 
   const [scanState,  setScanState]  = useState<ScanState>('idle');
   const [results,    setResults]    = useState<DiscoveredOfficial[]>([]);
   const [selected,   setSelected]   = useState<Set<string>>(new Set());
   const [error,      setError]      = useState('');
   const [scanTarget, setScanTarget] = useState<string>('openstates');
+  const [showKeysModal, setShowKeysModal] = useState(false);
 
   // Load saved results from sessionStorage
   useEffect(() => {
@@ -86,7 +94,7 @@ export default function ScoutPage() {
         const { officials: house } = await fetchStateLegislators(osKey, state, 'lower');
         officials = [...leg, ...house];
       } else {
-        // Gemini web search
+        // LiteLLM web search (with SerpAPI pre-fetch)
         const jx = JSON.parse(sessionStorage.getItem(CS_JX_KEY) ?? '{}') as CSJurisdiction;
         const target = SCAN_TARGETS.find(t => t.id === scanTarget);
         if (!target) throw new Error(`Unknown scan target: ${scanTarget}`);
@@ -94,7 +102,18 @@ export default function ScoutPage() {
         const prompts = buildScanPrompts(jx);
         const targetPrompt = prompts[scanTarget] ?? target.desc;
 
-        const raw = await callGemini(apiKey, MODEL_SCAN, SCAN_SYS, targetPrompt);
+        let finalPrompt = targetPrompt;
+        if (searchKey) {
+          try {
+            const searchQ = buildSearchQuery(scanTarget, jx.state);
+            const results = await searchWeb(searchQ, searchKey);
+            finalPrompt = `${results}\n\n${targetPrompt}`;
+          } catch (e) {
+            console.warn('Search failed, proceeding without results:', e);
+          }
+        }
+
+        const raw = await callLiteLLM(apiKey, endpoint, MODEL_SCAN, SCAN_SYS, finalPrompt);
         officials = (raw.officials as CSOfficial[]) ?? [];
       }
 
@@ -114,6 +133,24 @@ export default function ScoutPage() {
       setError(String(e));
       setScanState('error');
     }
+  }
+
+  function handleSaveKeys(apiKey: string, endpoint: string, searchKey: string, osKey: string) {
+    if (apiKey) sessionStorage.setItem(CS_APIKEY_SK, apiKey);
+    else sessionStorage.removeItem(CS_APIKEY_SK);
+
+    if (endpoint) sessionStorage.setItem(CS_ENDPOINT_SK, endpoint);
+    else sessionStorage.removeItem(CS_ENDPOINT_SK);
+
+    if (searchKey) sessionStorage.setItem(CS_SEARCH_KEY, searchKey);
+    else sessionStorage.removeItem(CS_SEARCH_KEY);
+
+    if (osKey) sessionStorage.setItem(CS_OS_KEY, osKey);
+    else sessionStorage.removeItem(CS_OS_KEY);
+
+    // Update local state
+    // (will auto-update on next render via sessionStorage reads)
+    setShowKeysModal(false);
   }
 
   function toggle(id: string) {
@@ -171,18 +208,18 @@ export default function ScoutPage() {
               API keys required
             </div>
             <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>
-              Open ContactScout to configure your Gemini and Open States API keys. They are stored in sessionStorage and carry over automatically.
+              Configure your LiteLLM API key and endpoint. Optionally add SerpAPI key for web search.
             </div>
-            <a
-              href="/contactscout/"
+            <button
+              onClick={() => setShowKeysModal(true)}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
                 fontFamily: 'var(--rf-mono)', fontSize: 11,
-                color: 'var(--accent)', textDecoration: 'none',
+                color: 'var(--accent)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
               }}
             >
-              <Icon name="chevron-right" size={11} /> Open ContactScout
-            </a>
+              <Icon name="chevron-right" size={11} /> Configure API Keys
+            </button>
           </div>
         )}
 
@@ -203,7 +240,7 @@ export default function ScoutPage() {
               <optgroup label="Fast — no web search">
                 <option value="openstates">State Legislators (Open States — all chambers)</option>
               </optgroup>
-              <optgroup label="Gemini web search">
+              <optgroup label="LiteLLM + SerpAPI web search">
                 {SCAN_TARGETS.map(t => (
                   <option key={t.id} value={t.id}>{t.label}</option>
                 ))}
@@ -223,7 +260,7 @@ export default function ScoutPage() {
               Scanning...
             </div>
             <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--rf-mono)', fontSize: 11 }}>
-              Gemini scans may take 30–60 seconds
+              LiteLLM scans with web search may take 30–60 seconds
             </div>
           </div>
         )}
@@ -305,6 +342,17 @@ export default function ScoutPage() {
               Clear results
             </button>
           </>
+        )}
+        {/* Settings modal */}
+        {showKeysModal && (
+          <ScoutKeysModal
+            apiKey={apiKey}
+            endpoint={endpoint}
+            searchKey={searchKey}
+            osKey={osKey}
+            onSave={handleSaveKeys}
+            onClose={() => setShowKeysModal(false)}
+          />
         )}
       </div>
     </div>
