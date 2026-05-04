@@ -2,7 +2,7 @@
  * Open States v3 API client — fetches current state legislators.
  *
  * Used for state-senate and state-house scan targets as a structured-data
- * alternative to Gemini web search. Returns actual email addresses from the
+ * alternative to LLM-based web search. Returns actual email addresses from the
  * official Open States dataset rather than LLM-inferred addresses.
  *
  * Free tier: no rate limit enforced on v3. Pagination: max 100 per page.
@@ -13,7 +13,7 @@
  * user dismisses those outside their tracked counties.
  *
  * Scheduler/chief-of-staff fields are left empty; the Verify flow fills them
- * individually via Gemini web search when the user verifies an official.
+ * individually via LLM web search when the user verifies an official.
  */
 
 import type { CSOfficial, EmailSource } from './types';
