@@ -4,6 +4,7 @@ import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import { getToken, setClientId } from '../api/auth';
+import { DEFAULT_ENDPOINT } from '../../scout/constants';
 
 export default function SettingsPage() {
   const state = useAppState();
@@ -13,6 +14,9 @@ export default function SettingsPage() {
 
   const [clientIdDraft, setClientIdDraft] = useState(localStorage.getItem('gClientId') ?? '');
   const [status, setStatus] = useState('');
+  const [llmApiKey, setLlmApiKey] = useState(sessionStorage.getItem('cs_api_key') ?? '');
+  const [llmEndpoint, setLlmEndpoint] = useState(sessionStorage.getItem('cs_endpoint') ?? DEFAULT_ENDPOINT);
+  const [serpApiKey, setSerpApiKey] = useState(sessionStorage.getItem('cs_search_key') ?? '');
 
   async function authorize(scope: string) {
     setStatus('');
@@ -23,6 +27,13 @@ export default function SettingsPage() {
   function saveClientId() {
     setClientId(clientIdDraft);
     setStatus('Client ID saved.');
+  }
+
+  function saveLlmConfig() {
+    sessionStorage.setItem('cs_api_key', llmApiKey);
+    sessionStorage.setItem('cs_endpoint', llmEndpoint || DEFAULT_ENDPOINT);
+    sessionStorage.setItem('cs_search_key', serpApiKey);
+    setStatus('LLM & SerpAPI configuration saved.');
   }
 
   function exportData() {
@@ -121,6 +132,49 @@ export default function SettingsPage() {
               REQUIRED FOR ALL GOOGLE API CALLS
             </span>
             <button className="if-btn grn sm" onClick={saveClientId}>Save</button>
+          </div>
+        </div>
+
+        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>DISCOVER (LLM + WEB SEARCH)</div>
+        <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
+          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>LLM API KEY</label>
+          <input
+            className="if-input"
+            style={{ width: '100%', marginBottom: 8 }}
+            type="password"
+            value={llmApiKey}
+            onChange={e => setLlmApiKey(e.target.value)}
+            placeholder="e.g., sk-ant-... (Anthropic) or your LiteLLM API key"
+          />
+
+          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>LLM ENDPOINT (OPENAI-COMPATIBLE)</label>
+          <input
+            className="if-input"
+            style={{ width: '100%', marginBottom: 8 }}
+            value={llmEndpoint}
+            onChange={e => setLlmEndpoint(e.target.value)}
+            placeholder={DEFAULT_ENDPOINT}
+          />
+          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.5 }}>
+            Default: {DEFAULT_ENDPOINT}<br />
+            Must be OpenAI-compatible /v1/chat/completions endpoint (e.g., LiteLLM, vLLM)
+          </div>
+
+          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>SERPAPI KEY</label>
+          <input
+            className="if-input"
+            style={{ width: '100%', marginBottom: 8 }}
+            type="password"
+            value={serpApiKey}
+            onChange={e => setSerpApiKey(e.target.value)}
+            placeholder="Get from https://serpapi.com/"
+          />
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              OPTIONAL — FOR DISCOVERING OFFICIALS WITH WEB-GROUNDED SEARCH
+            </span>
+            <button className="if-btn grn sm" onClick={saveLlmConfig}>Save</button>
           </div>
         </div>
 
