@@ -1,7 +1,7 @@
 // ── ContactScout engine (direct imports — same logic as ContactScout standalone app) ───
-import { callLiteLLM } from '../../contactscout/src/api';
-import { searchWeb, buildSearchQuery } from '../../contactscout/src/search';
-import { fetchStateLegislators } from '../../contactscout/src/openStates';
+import { callLiteLLM } from '../../scout/api';
+import { searchWeb, buildSearchQuery } from '../../scout/search';
+import { fetchStateLegislators } from '../../scout/openStates';
 import {
   SCAN_TARGETS,
   SCAN_SYS,
@@ -12,10 +12,10 @@ import {
   CS_JX_KEY,
   CS_OS_KEY,
   DEFAULT_ENDPOINT,
-} from '../../contactscout/src/constants';
-import { officialToInvitee, buildScanPrompts } from '../../contactscout/src/utils';
-import { bestEmail } from '../../contactscout/src/emailPatterns';
-import type { CSOfficial, CSJurisdiction } from '../../contactscout/src/types';
+} from '../../scout/constants';
+import { officialToInvitee, buildScanPrompts } from '../../scout/utils';
+import { bestEmail } from '../../scout/emailPatterns';
+import type { CSOfficial, CSJurisdiction } from '../../scout/types';
 
 import { useEffect, useState } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
