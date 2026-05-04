@@ -1,8 +1,6 @@
-import { CS_APIKEY_SK } from './constants';
+import { CS_APIKEY_SK, CS_ENDPOINT_SK } from './constants';
 
-const API_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
-
-/** Extracts JSON from a Gemini response that may contain markdown fences or prose. */
+/** Extracts JSON from a response that may contain markdown fences or prose. */
 function extractJson(text: string): Record<string, unknown> {
   // Strip markdown fences first
   let clean = text.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim();
@@ -21,29 +19,38 @@ function extractJson(text: string): Record<string, unknown> {
 }
 
 /**
- * Calls the Gemini API with Google Search Grounding enabled.
+ * Calls the LiteLLM endpoint (OpenAI-compatible API) with search results pre-injected.
  * Retries up to 3 times on 429 (rate limit) with exponential backoff.
  * Throws on invalid key and unrecoverable errors.
  *
- * Note: responseMimeType JSON mode is incompatible with google_search grounding,
- * so we instruct the model via system prompt and parse the text response.
+ * Web search results are pre-fetched and included in the user message,
+ * so the LLM receives grounded context without needing tool calls.
  */
-export async function callGemini(
+export async function callLiteLLM(
   key: string,
+  endpoint: string,
   model: string,
   sys: string,
   user: string,
 ): Promise<Record<string, unknown>> {
   const delays = [2000, 4000, 8000];
+  const apiBase = endpoint.endsWith('/v1') ? endpoint : `${endpoint}/v1`;
+  const url = `${apiBase}/chat/completions`;
 
   for (let attempt = 0; attempt <= delays.length; attempt++) {
-    const res = await fetch(`${API_BASE}/${model}:generateContent?key=${key}`, {
+    const res = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${key}`,
+      },
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: sys }] },
-        contents: [{ role: 'user', parts: [{ text: user }] }],
-        tools: [{ google_search: {} }],
+        model,
+        messages: [
+          { role: 'system', content: sys },
+          { role: 'user', content: user },
+        ],
+        temperature: 0.7,
       }),
     });
 
@@ -55,25 +62,25 @@ export async function callGemini(
     }
 
     const d = await res.json() as {
-      candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+      choices?: Array<{ message?: { content?: string } }>;
       error?: { message: string };
     };
 
     if (d.error) {
       const msg = d.error.message ?? 'API error';
-      if (msg.toLowerCase().includes('api key not valid') || res.status === 401) {
+      if (msg.toLowerCase().includes('unauthorized') || msg.toLowerCase().includes('invalid api key') || res.status === 401) {
         sessionStorage.removeItem(CS_APIKEY_SK);
         throw new Error('Invalid API key');
       }
       throw new Error(msg);
     }
 
-    const text = d.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
+    const text = d.choices?.[0]?.message?.content ?? '';
     if (!text) throw new Error('No text response from model');
 
     return extractJson(text);
   }
 
   // Unreachable but satisfies TypeScript
-  throw new Error('callGemini: exhausted retry loop unexpectedly');
+  throw new Error('callLiteLLM: exhausted retry loop unexpectedly');
 }

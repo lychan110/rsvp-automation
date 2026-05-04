@@ -1,12 +1,13 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import {
-  CS_APIKEY_SK, CS_OS_KEY, VERIFY_SYS, SCAN_SYS, SCAN_TARGETS,
-  MODEL_SCAN, MODEL_VERIFY,
+  CS_APIKEY_SK, CS_ENDPOINT_SK, CS_SEARCH_KEY, CS_OS_KEY, VERIFY_SYS, SCAN_SYS, SCAN_TARGETS,
+  MODEL_SCAN, MODEL_VERIFY, DEFAULT_ENDPOINT,
 } from './constants';
 import { loadCSState, saveCSState, loadJurisdiction } from './storage';
 import { sleep, officialToInvitee, buildScanPrompts, downloadBlob, todaySlug } from './utils';
 import { applyEmailInference } from './emailPatterns';
-import { callGemini } from './api';
+import { callLiteLLM } from './api';
+import { searchWeb, buildSearchQuery } from './search';
 import { fetchStateLegislators } from './openStates';
 import ApiKeyModal from './components/ApiKeyModal';
 import JurisdictionModal from './components/JurisdictionModal';
@@ -67,6 +68,8 @@ function ContactScoutInner() {
   const [progress,      setProgress]     = useState({ done: 0, total: 0 });
   const [log,           setLog]          = useState<string[]>([]);
   const [apiKey,        setApiKey]       = useState(() => sessionStorage.getItem(CS_APIKEY_SK) || '');
+  const [endpoint,      setEndpoint]     = useState(() => sessionStorage.getItem(CS_ENDPOINT_SK) || DEFAULT_ENDPOINT);
+  const [searchKey,     setSearchKey]    = useState(() => sessionStorage.getItem(CS_SEARCH_KEY) || '');
   const [osApiKey,      setOsApiKey]     = useState(() => sessionStorage.getItem(CS_OS_KEY) || '');
   const [jx,            setJx]           = useState<CSJurisdiction>(loadJurisdiction);
   const [showKeyModal,  setShowKeyModal]  = useState(false);
@@ -94,10 +97,18 @@ function ContactScoutInner() {
     setShowKeyModal(true);
   }
 
-  function handleKeySave(geminiKey: string, osKey: string) {
-    setApiKey(geminiKey);
-    if (geminiKey) sessionStorage.setItem(CS_APIKEY_SK, geminiKey);
+  function handleKeySave(apiKey: string, endpoint: string, searchKey: string, osKey: string) {
+    setApiKey(apiKey);
+    if (apiKey) sessionStorage.setItem(CS_APIKEY_SK, apiKey);
     else sessionStorage.removeItem(CS_APIKEY_SK);
+
+    setEndpoint(endpoint || DEFAULT_ENDPOINT);
+    if (endpoint) sessionStorage.setItem(CS_ENDPOINT_SK, endpoint);
+    else sessionStorage.removeItem(CS_ENDPOINT_SK);
+
+    setSearchKey(searchKey);
+    if (searchKey) sessionStorage.setItem(CS_SEARCH_KEY, searchKey);
+    else sessionStorage.removeItem(CS_SEARCH_KEY);
 
     setOsApiKey(osKey);
     if (osKey) sessionStorage.setItem(CS_OS_KEY, osKey);
@@ -112,14 +123,29 @@ function ContactScoutInner() {
     model: string,
     sys: string,
     user: string,
+    searchQuery?: string,
   ): Promise<Record<string, unknown>> {
     if (!apiKey) {
       return new Promise((resolve, reject) => {
-        openKeyModal(() => apiCall(model, sys, user).then(resolve).catch(reject));
+        openKeyModal(() => apiCall(model, sys, user, searchQuery).then(resolve).catch(reject));
       });
     }
     try {
-      return await callGemini(apiKey, model, sys, user);
+      let finalUser = user;
+
+      // Pre-fetch search results if a search query is provided and we have a search key
+      if (searchQuery && searchKey) {
+        addLog(`Searching: ${searchQuery}…`);
+        try {
+          const results = await searchWeb(searchQuery, searchKey);
+          finalUser = `${results}\n\n${user}`;
+        } catch (e) {
+          addLog(`⚠ Search failed (${String(e)}) — proceeding without search context`);
+          // Continue without search results; the model can still use its training data
+        }
+      }
+
+      return await callLiteLLM(apiKey, endpoint, model, sys, finalUser);
     } catch (e) {
       if (String(e).includes('Invalid API key')) setApiKey('');
       throw e;
@@ -206,7 +232,7 @@ function ContactScoutInner() {
     const isStateLeg = id === 'state-senate' || id === 'state-house';
     const useOpenStates = isStateLeg && !!osApiKey;
 
-    // Open States scans don't need a Gemini key; all other scans do.
+    // Open States scans don't need an LLM key; all other scans do.
     if (!useOpenStates && !apiKey) { openKeyModal(() => runScan(id)); return; }
 
     abortRef.current = false;
@@ -252,8 +278,9 @@ function ContactScoutInner() {
           addLog(`✓ Open States: All ${total} already in list.`);
         }
       } else {
-        // Gemini path
-        const r = await apiCall(MODEL_SCAN, SCAN_SYS, buildScanPrompts(jx)[id]);
+        // LiteLLM path with search
+        const searchQ = buildSearchQuery(id, jx.state);
+        const r = await apiCall(MODEL_SCAN, SCAN_SYS, buildScanPrompts(jx)[id], searchQ);
         const currentNames = new Set(officials.map(o => o.name.toLowerCase().trim()));
         const found = ((r.officials as CSOfficial[]) ?? []).map(normaliseOfficial);
         const fresh = found.filter(o => !currentNames.has(o.name.toLowerCase().trim()));
@@ -469,7 +496,7 @@ function ContactScoutInner() {
             className={`if-btn sm${apiKey ? ' grn' : ' del'}`}
             onClick={() => openKeyModal()}
           >
-            ⚙ Key{apiKey ? ' ✓' : ''}{osApiKey ? ' + OS' : ''}
+            ⚙ Key{apiKey ? ' ✓' : ''}{endpoint !== DEFAULT_ENDPOINT ? ' · EP' : ''}{searchKey ? ' + SR' : ''}{osApiKey ? ' + OS' : ''}
           </button>
           {running && (
             <button className="if-btn sm del" onClick={() => { abortRef.current = true; }}>■ Stop</button>
@@ -483,10 +510,10 @@ function ContactScoutInner() {
           <div className="if-banner-body">
             <div className="if-banner-title">Welcome to ContactScout</div>
             <div className="if-banner-text">
-              Add your Google Gemini API key to start discovering officials and their schedulers.
-              Get a free key at aistudio.google.com (no credit card required).
+              Add your LiteLLM API key and endpoint to start discovering officials and their schedulers.
+              Also add a SerpAPI key for web search (highly recommended).
             </div>
-            <button className="if-btn pri sm" onClick={() => openKeyModal()}>Add Gemini API Key</button>
+            <button className="if-btn pri sm" onClick={() => openKeyModal()}>Configure API Keys</button>
           </div>
         </div>
       )}
@@ -593,7 +620,9 @@ function ContactScoutInner() {
       {/* Modals */}
       {showKeyModal && (
         <ApiKeyModal
-          geminiKey={apiKey}
+          apiKey={apiKey}
+          endpoint={endpoint}
+          searchKey={searchKey}
           osKey={osApiKey}
           onSave={handleKeySave}
           onClose={() => { setShowKeyModal(false); pendingRef.current = null; }}
