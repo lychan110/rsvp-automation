@@ -237,7 +237,7 @@ src/contact-scout/
 ```
 
 **Customization before first use**
-The scan prompts in `src/App.tsx` (`SCAN_PROMPTS`) contain placeholder text: `[YOUR STATE]`, `[YOUR COUNTIES]`, `[CITY 1]`, `[CITY 2]`, `[CITY 3]`. Replace these with the actual state, counties, and cities before scanning. `needsCustomization()` detects these placeholders and shows a banner in the Scan tab.
+The scan prompts in `src/scout/utils.ts` (`SCAN_PROMPTS`) contain placeholder text: `[YOUR STATE]`, `[YOUR COUNTIES]`, `[CITY 1]`, `[CITY 2]`, `[CITY 3]`. Replace these with the actual state, counties, and cities before scanning. The Discover page shows a banner if these placeholders are detected.
 
 **State & persistence**
 - `localStorage` key: `contactscout_state` — stores `{ officials, newOfficials, scanStatus, scanMeta }`
