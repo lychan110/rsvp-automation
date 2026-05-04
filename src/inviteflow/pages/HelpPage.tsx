@@ -9,7 +9,7 @@ const sections = [
   },
   {
     id: 'workflow',
-    label: 'THE 3-STEP WORKFLOW',
+    label: 'THE 4-STEP WORKFLOW',
     steps: [
       {
         num: '01',
@@ -18,11 +18,16 @@ const sections = [
       },
       {
         num: '02',
+        title: 'Discover',
+        body: 'Use the Discover page to find and verify elected officials for your jurisdiction. Configure LiteLLM endpoint, API key, and SerpAPI key in the Settings modal, then run a scan. Add discovered officials directly to your guest list.',
+      },
+      {
+        num: '03',
         title: 'Compose',
         body: 'Write your invite email using {{template tokens}} like {{FirstName}}, {{EventDate}}, or {{Venue}}. InviteFlow merges each guest\'s data before sending.',
       },
       {
-        num: '03',
+        num: '04',
         title: 'Send',
         body: 'InviteFlow sends personalized emails from your Gmail account in batches. Track opens, RSVPs, and responses from the Tracker tab.',
       },
@@ -52,6 +57,11 @@ const sections = [
         title: 'Set Up Your Guest Sheet',
         body: 'Create a Google Sheet with these columns in order: FirstName · LastName · Title · Category · Email · RSVP_Link · InviteSent · InviteSentDate · RSVP_Status · RSVP_Date · Notes. Email is the primary key — every guest needs a unique email.',
       },
+      {
+        num: '05',
+        title: 'Configure LiteLLM + SerpAPI (Optional)',
+        body: 'To use the Discover page for official discovery: 1) Get a SerpAPI key from https://serpapi.com/; 2) Set up LiteLLM proxy (default: http://127.0.0.1:4000/v1); 3) Go to Discover → Settings and enter your LiteLLM endpoint, API key, and SerpAPI key. These are stored in session memory only — never persisted.',
+      },
     ],
   },
   {
@@ -79,6 +89,7 @@ const sections = [
     label: 'TIPS',
     bullets: [
       'Start small — test with 3–5 guests before your full list.',
+      'Use Discover to find officials for your jurisdiction — search results are grounded with real-time web data via SerpAPI.',
       'Use Compose → Preview to check merged emails before sending.',
       'InviteFlow sends in batches with delays to respect Gmail\'s rate limits.',
       'Connect a Google Form to RSVP_Link and RSVPs surface automatically in the Tracker.',
