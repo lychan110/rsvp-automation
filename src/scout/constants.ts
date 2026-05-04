@@ -1,14 +1,19 @@
 import type { CSStatus } from './types';
 
-export const CS_LS_KEY    = 'contactscout_state';
-export const CS_JX_KEY    = 'contactscout_jurisdiction';
-export const CS_APIKEY_SK = 'cs_api_key';
-export const CS_OS_KEY    = 'cs_os_key';
-export const SCOUT_PW     = 'scout2025';
+export const CS_LS_KEY     = 'contactscout_state';
+export const CS_JX_KEY     = 'contactscout_jurisdiction';
+export const CS_APIKEY_SK  = 'cs_api_key';
+export const CS_ENDPOINT_SK= 'cs_endpoint';
+export const CS_SEARCH_KEY = 'cs_search_key';
+export const CS_OS_KEY     = 'cs_os_key';
+export const SCOUT_PW      = 'scout2025';
+
+// LiteLLM defaults
+export const DEFAULT_ENDPOINT = 'http://127.0.0.1:4000/v1';
 
 // Model IDs — update here when new releases drop; api.ts + App.tsx read these.
-export const MODEL_SCAN   = 'gemini-2.5-flash';
-export const MODEL_VERIFY = 'gemini-2.5-flash';
+export const MODEL_SCAN   = 'claude-haiku-4-5';
+export const MODEL_VERIFY = 'claude-haiku-4-5';
 
 export const SCAN_TARGETS = [
   { id: 'us-congress',  label: 'US Congress',          desc: 'All current US reps + senators for your state' },
