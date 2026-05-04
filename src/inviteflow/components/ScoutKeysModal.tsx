@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { DEFAULT_ENDPOINT } from '../../contactscout/src/constants';
+import { DEFAULT_ENDPOINT } from '../../scout/constants';
 
 interface Props {
   apiKey: string;

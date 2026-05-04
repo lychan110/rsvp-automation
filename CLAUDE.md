@@ -241,17 +241,21 @@ The scan prompts in `src/App.tsx` (`SCAN_PROMPTS`) contain placeholder text: `[Y
 
 **State & persistence**
 - `localStorage` key: `contactscout_state` — stores `{ officials, newOfficials, scanStatus, scanMeta }`
-- `sessionStorage` key: `cs_api_key` — stores Claude API key for this session
+- `sessionStorage` key: `cs_api_key` — stores LiteLLM API key for this session
+- `sessionStorage` key: `cs_endpoint` — stores LiteLLM endpoint URL (default: `http://127.0.0.1:4000/v1`)
+- `sessionStorage` key: `cs_search_key` — stores SerpAPI key for web search
 - `sessionStorage` key: `cs_unlocked` — set to `'1'` after password gate is passed
 
-**Claude API setup**
-ContactScout calls the Anthropic API directly from the browser.
-1. Go to https://console.anthropic.com/ → API Keys → Create Key.
-2. Copy the key (starts with `sk-ant-`).
-3. In the app, click **Key** in the header and paste the key.
-4. The key is stored in `sessionStorage` only — never persisted to `localStorage`.
-5. Required header: `anthropic-dangerous-direct-browser-access: true`.
-6. Model and tools configured in `src/constants.ts` — check `MODEL_ID` and tool definitions. Update when new Sonnet/Opus versions release.
+**LiteLLM + SerpAPI setup**
+ScoutPage (in InviteFlow) uses LiteLLM proxy with SerpAPI for web search grounding.
+1. Configure LiteLLM proxy (runs on `http://127.0.0.1:4000` in WSL)
+2. Get SerpAPI key from https://serpapi.com/
+3. In InviteFlow → Discover page → Settings, enter:
+   - LiteLLM API key
+   - LiteLLM endpoint (default: `http://127.0.0.1:4000/v1`)
+   - SerpAPI key
+4. Keys are stored in `sessionStorage` only — never persisted to `localStorage`
+5. Scout functionality is in `src/scout/` and integrated into InviteFlow's Discover workflow
 
 **Export formats**
 - **InviteFlow JSON** (`export_invitees`): `{ exportedAt, source, count, invitees[] }` in InviteFlow's schema for direct import

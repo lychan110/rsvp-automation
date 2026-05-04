@@ -16,7 +16,7 @@ copyFileSync(join(dist, 'src', 'inviteflow', 'index.html'), join(dist, 'index.ht
 console.log(`Promoted dist/src/inviteflow/index.html → dist/index.html`);
 
 // Promote nested app HTMLs to root-level named files
-const apps = ['inviteflow', 'contactscout'];
+const apps = ['inviteflow'];
 for (const app of apps) {
   copyFileSync(join(dist, 'src', app, 'index.html'), join(dist, `${app}.html`));
   console.log(`Renamed dist/src/${app}/index.html → dist/${app}.html`);
