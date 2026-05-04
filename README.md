@@ -32,6 +32,19 @@ InviteFlow v4.1.0 is a **serverless**, single-page application for managing VIP 
 
 ---
 
+## Current Features
+
+- **Event management** — Create, update, and manage multiple events with custom details (name, date, venue, contact info).
+- **Official discovery** — Integrated Discover page powered by LiteLLM + SerpAPI for finding elected officials (Congress, State, City) with web-grounded search results.
+- **Contact import** — Import guest lists from Google Sheets or discover officials directly into your event.
+- **Personalized emails** — Compose rich-text invitations using `{{template tokens}}` (FirstName, EventDate, Venue, etc.) with live preview.
+- **Gmail integration** — Send personalized invites directly from your Gmail account with automatic batching and rate-limit handling.
+- **RSVP tracking** — Connect Google Forms to track responses automatically; monitor attendance status in real-time.
+- **Data export** — Export guest lists as JSON (InviteFlow format) or CSV; import backups to restore state.
+- **Serverless architecture** — Runs entirely in the browser; no backend server or database required. All data lives in your Google account.
+
+---
+
 ## Quick Start (local dev)
 
 ```bash
@@ -53,7 +66,8 @@ npm run deploy     # vite build → copy static files → gh-pages publish
 
 ```
 src/
-  inviteflow/
+  inviteflow/     # Main InviteFlow app (events, compose, send, tracker)
+  scout/          # Official discovery engine (LiteLLM + SerpAPI)
 gas/              # Google App Scripts
 ```
 
