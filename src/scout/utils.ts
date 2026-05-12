@@ -25,6 +25,7 @@ export function officialToInvitee(o: CSOfficial): InviteeExport {
   }
 
   return {
+    eventId: '',
     firstName: parts[0] ?? '',
     lastName: parts.slice(1).join(' '),
     title: o.title,

@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useAppDispatch } from '../state/AppContext';
+import { useAppState, useAppDispatch } from '../state/AppContext';
 import type { Invitee } from '../types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -96,6 +96,7 @@ const INPUT = "bg-white border border-gray-300 text-gray-900 text-xs font-mono p
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function ContactScoutPanel() {
+  const state = useAppState();
   const dispatch = useAppDispatch();
 
   const [open, setOpen] = useState(false);
@@ -246,6 +247,7 @@ export default function ContactScoutPanel() {
         const parts = full.split(' ');
         const inv: Invitee = {
           id: crypto.randomUUID(),
+          eventId: state.activeEventId ?? '',
           firstName: parts[0] ?? '',
           lastName: parts.slice(1).join(' '),
           title: c.title ?? '',

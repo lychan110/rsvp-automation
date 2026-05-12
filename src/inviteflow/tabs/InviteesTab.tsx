@@ -9,6 +9,7 @@ import type { Invitee } from '../types';
 function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
   return {
     id: crypto.randomUUID(),
+    eventId: '',
     firstName: '',
     lastName: '',
     title: '',

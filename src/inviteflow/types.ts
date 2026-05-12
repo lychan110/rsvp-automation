@@ -20,6 +20,7 @@ export interface AppEvent {
 
 export interface Invitee {
   id: string;
+  eventId: string;
   firstName: string;
   lastName: string;
   title: string;
