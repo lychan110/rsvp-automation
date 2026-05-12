@@ -2,7 +2,7 @@ import { useEffect, useCallback, useState } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { useAppState, useAppDispatch } from '../state/AppContext';
-import { personalize } from '../api/gmail';
+import { personalize } from '../api/email';
 
 const TOKENS = [
   'FirstName', 'LastName', 'FullName', 'FullTitle',
