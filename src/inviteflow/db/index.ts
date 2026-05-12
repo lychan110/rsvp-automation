@@ -21,6 +21,11 @@ class ConveneDB extends Dexie {
       invitees: '&id, eventId, email, inviteStatus',
       syncLog: '++id, action, timestamp',
     });
+    this.version(2).stores({
+      events: '&id, name, date',
+      invitees: '&id, eventId, email, inviteStatus',
+      syncLog: '++id, action, timestamp',
+    });
   }
 }
 
