@@ -180,17 +180,9 @@ export default function SettingsPage() {
             </div>
             <Icon name="chevron-right" size={13} style={{ color: 'var(--text-muted)' }} />
           </button>
-          <div style={{ padding: 14 }}>
-            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-              <div style={{ marginBottom: 8 }}><strong style={{ color: 'var(--text-heading)' }}>What is InviteFlow?</strong></div>
-              <div style={{ marginBottom: 8, color: 'var(--text-base)' }}>
-                A local-first app for sending personalized event invitations. All data stays in your browser — no Google account required.
-              </div>
-              <div style={{ marginBottom: 8 }}><strong style={{ color: 'var(--text-heading)' }}>1. Setup</strong> — Create your event with date, venue, contact info</div>
-              <div style={{ marginBottom: 8 }}><strong style={{ color: 'var(--text-heading)' }}>2. Invitees</strong> — Add guests manually or import from CSV</div>
-              <div style={{ marginBottom: 8 }}><strong style={{ color: 'var(--text-heading)' }}>3. Compose</strong> — Write emails with {"{{FirstName}}"} tokens</div>
-              <div style={{ marginBottom: 8 }}><strong style={{ color: 'var(--text-heading)' }}>4. Send</strong> — Test first, then bulk send via Resend</div>
-              <div><strong style={{ color: 'var(--text-heading)' }}>5. Track</strong> — Monitor RSVPs in the Tracker tab</div>
+          <div style={{ padding: 14, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              INVITEFLOW · v{__APP_VERSION__} · by Lenya Chan
             </div>
           </div>
         </div>
