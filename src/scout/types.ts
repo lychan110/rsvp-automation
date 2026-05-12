@@ -57,6 +57,7 @@ export interface CSPersistedState {
 }
 
 export interface InviteeExport {
+  eventId: string;
   firstName: string;
   lastName: string;
   title: string;

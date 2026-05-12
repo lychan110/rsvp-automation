@@ -100,12 +100,18 @@ export default function SendTab() {
     const from = ev.contactEmail || 'me';
     const mockInvitee = state.invitees.find(i => i.email) || {
       id: 'test',
+      eventId: state.activeEventId ?? '',
       firstName: 'Test',
       lastName: 'User',
+      title: '',
+      category: '',
       email: testEmail,
+      rsvpLink: '',
       inviteStatus: 'pending' as const,
-      rsvpStatus: 'pending' as const,
-      tags: [],
+      sentAt: '',
+      rsvpStatus: 'No Response',
+      rsvpDate: '',
+      notes: '',
     };
     const personalizedHtml = personalize(state.htmlBody, mockInvitee, ev);
     const personalizedSubject = personalize(state.textSubject, mockInvitee, ev);

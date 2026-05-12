@@ -4,7 +4,9 @@ import type { AppEvent, Invitee } from '../types';
 interface SyncLogEntry {
   id?: number;
   action: string;
+  source: string;
   timestamp: string;
+  details: string;
 }
 
 class ConveneDB extends Dexie {

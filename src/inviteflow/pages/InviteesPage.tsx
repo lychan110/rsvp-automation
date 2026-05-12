@@ -5,15 +5,23 @@ import { useAppState, useAppDispatch } from '../state/AppContext';
 import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
-import { getToken } from '../api/auth';
-import { sheetsGet, extractSheetId } from '../api/sheets';
 import type { Invitee } from '../types';
 
 function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
   return {
-    id: crypto.randomUUID(), firstName: '', lastName: '', title: '',
-    category: '', email: '', rsvpLink: '', inviteStatus: 'pending',
-    sentAt: '', rsvpStatus: 'No Response', rsvpDate: '', notes: '',
+    id: crypto.randomUUID(),
+    eventId: '',
+    firstName: '',
+    lastName: '',
+    title: '',
+    category: '',
+    email: '',
+    rsvpLink: '',
+    inviteStatus: 'pending',
+    sentAt: '',
+    rsvpStatus: 'No Response',
+    rsvpDate: '',
+    notes: '',
     ...partial,
   };
 }
@@ -32,48 +40,10 @@ export default function InviteesPage() {
   const [selected, setSelected] = useState<Invitee[]>([]);
   const [showAdd, setShowAdd] = useState(false);
   const [draft, setDraft] = useState<Partial<Invitee>>({});
-  const [sheetsUrl, setSheetsUrl] = useState('');
-  const [importing, setImporting] = useState(false);
   const [importStatus, setImportStatus] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
   const ev = state.events.find(e => e.id === state.activeEventId);
-
-  async function importFromSheets() {
-    if (!sheetsUrl.trim()) return;
-    setImporting(true); setImportStatus('');
-    try {
-      const token = await getToken('spreadsheets');
-      const id = extractSheetId(sheetsUrl);
-      const rows = await sheetsGet(token, id, 'Sheet1!A:K');
-      if (rows.length < 2) { setImportStatus('Sheet appears empty.'); return; }
-      const [header, ...data] = rows;
-      const col = (name: string) => header.findIndex(h => h.trim().toLowerCase() === name.toLowerCase());
-      const ci = {
-        fn: col('FirstName'), ln: col('LastName'), title: col('Title'), cat: col('Category'),
-        email: col('Email'), rsvp: col('RSVP_Link'), sent: col('InviteSent'),
-        sentDate: col('InviteSentDate'), rsvpStatus: col('RSVP_Status'),
-        rsvpDate: col('RSVP_Date'), notes: col('Notes'),
-      };
-      const incoming = data.map(r => makeInvitee({
-        firstName: r[ci.fn] ?? '', lastName: r[ci.ln] ?? '', title: r[ci.title] ?? '',
-        category: r[ci.cat] ?? '', email: r[ci.email] ?? '', rsvpLink: r[ci.rsvp] ?? '',
-        inviteStatus: r[ci.sent]?.toLowerCase() === 'true' ? 'sent' : 'pending',
-        sentAt: r[ci.sentDate] ?? '',
-        rsvpStatus: (['Attending', 'Declined'].includes(r[ci.rsvpStatus]) ? r[ci.rsvpStatus] : 'No Response') as Invitee['rsvpStatus'],
-        rsvpDate: r[ci.rsvpDate] ?? '', notes: r[ci.notes] ?? '',
-      })).filter(i => i.email);
-      const merged = [...state.invitees];
-      for (const inc of incoming) {
-        const idx = merged.findIndex(m => m.email.toLowerCase() === inc.email.toLowerCase());
-        if (idx >= 0) merged[idx] = { ...merged[idx], ...inc, id: merged[idx].id };
-        else merged.push(inc);
-      }
-      dispatch({ type: 'SET_INVITEES', invitees: merged });
-      setImportStatus(`Imported ${incoming.length} rows (${merged.length - state.invitees.length} new).`);
-    } catch (e) { setImportStatus('Error: ' + String(e)); }
-    finally { setImporting(false); }
-  }
 
   function importJSON(file: File) {
     const reader = new FileReader();
@@ -168,18 +138,7 @@ export default function InviteesPage() {
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-root)' }}>
       <PageHeader eyebrow="INVITEES" title={`Roster · ${state.invitees.length}`} showBack right={toolbarRight} />
 
-      {/* Toolbar row */}
       <div style={{ padding: '0 18px 10px', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0 }}>
-        <input
-          className="if-input"
-          style={{ flex: 1, minWidth: 200 }}
-          placeholder="Paste Google Sheets URL to import…"
-          value={sheetsUrl}
-          onChange={e => setSheetsUrl(e.target.value)}
-        />
-        <button className="if-btn ghost sm" onClick={importFromSheets} disabled={importing}>
-          {importing ? 'Importing…' : 'Import Sheets'}
-        </button>
         <button className="if-btn sm" onClick={exportCSV}>Export CSV</button>
         <button className="if-btn sm" onClick={generateAllRsvpLinks}>Gen RSVP Links</button>
         <input ref={fileRef} type="file" accept=".json" style={{ display: 'none' }}
@@ -217,7 +176,7 @@ export default function InviteesPage() {
           virtualScrollerOptions={{ itemSize: 36 }}
           size="small"
           filterDisplay="row"
-          emptyMessage="No invitees yet. Add one above or import from Sheets."
+          emptyMessage="No invitees yet. Add one above or import from JSON."
           style={{ fontSize: 11 }}
           onRowEditComplete={e => dispatch({ type: 'UPDATE_INVITEE', invitee: e.newData as Invitee })}
           editMode="row"

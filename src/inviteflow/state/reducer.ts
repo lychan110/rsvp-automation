@@ -51,6 +51,8 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, sending: false };
     case 'SET_UNSAVED':
       return { ...state, unsaved: action.unsaved };
+    case 'REFRESH_INVITEES':
+      return { ...state };
     case 'LOAD_STATE':
       return { ...state, ...action.partial };
     default:

@@ -21,12 +21,31 @@ export async function loadInvitees(eventId: string): Promise<Invitee[]> {
   return db.invitees.where('eventId').equals(eventId).toArray();
 }
 
-interface SyncLogEntry {
-  action: string;
-  timestamp: string;
+export async function loadAllInvitees(): Promise<Invitee[]> {
+  return db.invitees.toArray();
 }
 
-export async function logSync(entry: SyncLogEntry): Promise<number> {
+export async function saveInvitee(invitee: Invitee): Promise<void> {
+  await db.invitees.put(invitee);
+}
+
+export async function deleteInvitee(id: string): Promise<void> {
+  await db.invitees.delete(id);
+}
+
+export async function loadSyncLog(): Promise<SyncLogEntry[]> {
+  return db.syncLog.orderBy('timestamp').reverse().limit(50).toArray();
+}
+
+export interface SyncLogEntry {
+  id?: number;
+  action: string;
+  source: string;
+  timestamp: string;
+  details: string;
+}
+
+export async function logSync(entry: { action: string; source: string; timestamp: string; details: string }): Promise<number> {
   const id = await db.syncLog.add(entry);
   return id as number;
 }
