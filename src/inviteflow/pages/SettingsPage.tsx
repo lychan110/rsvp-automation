@@ -12,9 +12,15 @@ export default function SettingsPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [status, setStatus] = useState('');
+  const [resendKey, setResendKey] = useState(localStorage.getItem('resend_api_key') ?? '');
   const [llmApiKey, setLlmApiKey] = useState(sessionStorage.getItem('cs_api_key') ?? '');
   const [llmEndpoint, setLlmEndpoint] = useState(sessionStorage.getItem('cs_endpoint') ?? DEFAULT_ENDPOINT);
   const [serpApiKey, setSerpApiKey] = useState(sessionStorage.getItem('cs_search_key') ?? '');
+
+  function saveResendConfig() {
+    localStorage.setItem('resend_api_key', resendKey);
+    setStatus('Resend API key saved.');
+  }
 
   function saveLlmConfig() {
     sessionStorage.setItem('cs_api_key', llmApiKey);
@@ -81,19 +87,42 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="if-section-label" style={{ padding: '12px 0 8px' }}>DISCOVER (LLM + WEB SEARCH)</div>
+        <div className="if-section-label" style={{ padding: '12px 0 8px' }}>EMAIL (REQUIRED)</div>
         <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
-          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>LLM API KEY</label>
+          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>RESEND API KEY</label>
+          <input
+            className="if-input"
+            style={{ width: '100%', marginBottom: 8 }}
+            type="password"
+            value={resendKey}
+            onChange={e => setResendKey(e.target.value)}
+            placeholder="re_xxxxxxxxxxxxx — get from resend.com"
+          />
+          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.5 }}>
+            Required to send invitation emails. Free tier: 3,000 emails/month.<br />
+            <a href="https://resend.com" target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Sign up at resend.com →</a>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              REQUIRED FOR SENDING INVITES
+            </span>
+            <button className="if-btn grn sm" onClick={saveResendConfig}>Save</button>
+          </div>
+        </div>
+
+        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>DISCOVER (OPTIONAL)</div>
+        <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
+          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>OPENAI-COMPATIBLE API KEY</label>
           <input
             className="if-input"
             style={{ width: '100%', marginBottom: 8 }}
             type="password"
             value={llmApiKey}
             onChange={e => setLlmApiKey(e.target.value)}
-            placeholder="e.g., sk-ant-... (Anthropic) or your LiteLLM API key"
+            placeholder="sk-... (OpenAI, Anthropic, Ollama, etc.)"
           />
 
-          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>LLM ENDPOINT (OPENAI-COMPATIBLE)</label>
+          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>API ENDPOINT</label>
           <input
             className="if-input"
             style={{ width: '100%', marginBottom: 8 }}
@@ -103,7 +132,7 @@ export default function SettingsPage() {
           />
           <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.5 }}>
             Default: {DEFAULT_ENDPOINT}<br />
-            Must be OpenAI-compatible /v1/chat/completions endpoint (e.g., LiteLLM, vLLM)
+            Supports OpenAI, Anthropic, Ollama, or any OpenAI-compatible endpoint.
           </div>
 
           <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>SERPAPI KEY</label>
@@ -118,7 +147,7 @@ export default function SettingsPage() {
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-              OPTIONAL — FOR DISCOVERING OFFICIALS WITH WEB-GROUNDED SEARCH
+              OPTIONAL — FOR OFFICIAL DISCOVERY
             </span>
             <button className="if-btn grn sm" onClick={saveLlmConfig}>Save</button>
           </div>
@@ -132,25 +161,24 @@ export default function SettingsPage() {
             onChange={e => { const f = e.target.files?.[0]; if (f) importBackup(f); e.target.value = ''; }} />
         </div>
 
+        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>QUICK START</div>
+        <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
+          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-base)', lineHeight: 1.6 }}>
+            <div style={{ marginBottom: 12, color: 'var(--text-heading)', fontWeight: 500 }}>1. SET UP EVENT</div>
+            <div style={{ marginBottom: 12, color: 'var(--text-heading)', fontWeight: 500 }}>2. ADD INVITEES</div>
+            <div style={{ marginBottom: 12, color: 'var(--text-heading)', fontWeight: 500 }}>3. COMPOSE EMAIL</div>
+            <div style={{ marginBottom: 12, color: 'var(--text-heading)', fontWeight: 500 }}>4. SEND (TEST FIRST)</div>
+            <div style={{ color: 'var(--text-heading)', fontWeight: 500 }}>5. TRACK RSVPS</div>
+          </div>
+          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+            <button className="if-btn ghost sm" style={{ width: '100%' }} onClick={() => navigate('help')}>
+              Full Guide →
+            </button>
+          </div>
+        </div>
+
         <div className="if-section-label" style={{ padding: '8px 0 8px' }}>ABOUT</div>
         <div className="if-card" style={{ marginBottom: 12 }}>
-          <button
-            onClick={() => navigate('help')}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-              padding: 'var(--rt-row-pad)', background: 'transparent', border: 'none',
-              borderBottom: '1px solid var(--border)', textAlign: 'left', cursor: 'pointer',
-            }}
-          >
-            <div style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--bg-root)', border: '1px solid var(--border)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Icon name="help-circle" size={13} />
-            </div>
-            <div style={{ flex: 1 }}>
-              <div className="if-card-row-title">Quick Start Guide</div>
-              <div className="if-card-row-sub">FIRST-TIME SETUP WALKTHROUGH</div>
-            </div>
-            <Icon name="chevron-right" size={13} style={{ color: 'var(--text-muted)' }} />
-          </button>
           <div style={{ padding: 14, display: 'flex', justifyContent: 'center' }}>
             <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
               INVITEFLOW · v{__APP_VERSION__} · by Lenya Chan
