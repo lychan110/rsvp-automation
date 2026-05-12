@@ -5,7 +5,7 @@ import { useAppState, useAppDispatch } from '../state/AppContext';
 import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
-import { personalize } from '../api/gmail';
+import { personalize } from '../api/email';
 
 const TOKENS = [
   'FirstName', 'LastName', 'FullName', 'FullTitle',

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
+import { personalize, sendEmail } from '../api/email';
 
 type Filter = 'all' | 'pending' | 'failed';
 
@@ -47,7 +48,28 @@ export default function SendTab() {
     if (!ev) { setErr('No active event — go to Setup.'); return; }
     if (!state.htmlBody.trim()) { setErr('No email body — go to Compose.'); return; }
     if (filtered.length === 0) { setErr('No invitees match the current filter.'); return; }
-    setErr('Email sending is not available in this version.');
+    if (!testSent || !testApproved) { setErr('Complete pre-flight test first.'); return; }
+
+    setErr('');
+    const from = ev.contactEmail || 'invites@resend.dev';
+
+    for (let i = 0; i < filtered.length; i++) {
+      const inv = filtered[i];
+      if (!inv.email) continue;
+
+      try {
+        const subject = ev.name;
+        const html = personalize(state.htmlBody, inv, ev);
+        await sendEmail(from, inv.email, subject, html);
+        dispatch({ type: 'UPDATE_INVITEE', invitee: { ...inv, inviteStatus: 'sent', sentAt: new Date().toISOString() } });
+      } catch (e) {
+        dispatch({ type: 'UPDATE_INVITEE', invitee: { ...inv, inviteStatus: 'failed' } });
+      }
+
+      if (i > 0 && i % BATCH_SIZE === 0) {
+        await new Promise(r => setTimeout(r, BATCH_DELAY_MS));
+      }
+    }
   }
 
   async function sendTestEmail() {
@@ -56,8 +78,24 @@ export default function SendTab() {
     if (!testEmail.trim()) { setErr('Enter a test email address.'); return; }
     setErr('');
     setTestSending(true);
-    setErr('Email sending is not available in this version.');
-    setTestSending(false);
+    try {
+      const testInvitee = state.invitees[0] || {
+        firstName: 'Test',
+        lastName: 'User',
+        title: '',
+        email: testEmail,
+        rsvpLink: 'https://example.com/rsvp',
+      };
+      const subject = `TEST: ${ev.name} Invitation`;
+      const html = personalize(state.htmlBody, testInvitee, ev);
+      const from = ev.contactEmail || 'invites@resend.dev';
+      await sendEmail(from, testEmail, subject, html);
+      setTestSent(true);
+    } catch (e) {
+      setErr(`Send failed: ${e instanceof Error ? e.message : 'Unknown error'}`);
+    } finally {
+      setTestSending(false);
+    }
   }
 
   const progress = state.sendProgress.total > 0
