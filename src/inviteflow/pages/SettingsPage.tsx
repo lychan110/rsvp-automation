@@ -180,11 +180,6 @@ export default function SettingsPage() {
             </div>
             <Icon name="chevron-right" size={13} style={{ color: 'var(--text-muted)' }} />
           </button>
-          <div style={{ padding: 14, display: 'flex', justifyContent: 'center' }}>
-            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-              INVITEFLOW · v{__APP_VERSION__} · by Lenya Chan
-            </div>
-          </div>
         </div>
 
         <div className="if-section-label" style={{ padding: '8px 0 8px' }}>ABOUT</div>
