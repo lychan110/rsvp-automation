@@ -25,6 +25,13 @@ export default function SendTab() {
   const [filter, setFilter] = useState<Filter>('pending');
   const [activePane, setActivePane] = useState<'preflight' | 'log'>('preflight');
   const [err, setErr] = useState('');
+  const [testEmail, setTestEmail] = useState(() => {
+    const ev = state.events.find(e => e.id === state.activeEventId);
+    return ev?.contactEmail || '';
+  });
+  const [testSent, setTestSent] = useState(false);
+  const [testApproved, setTestApproved] = useState(false);
+  const [testSending, setTestSending] = useState(false);
 
   const ev = state.events.find(e => e.id === state.activeEventId);
 
@@ -77,6 +84,43 @@ export default function SendTab() {
     }
 
     dispatch({ type: 'STOP_SEND' });
+  }
+
+  async function sendTestEmail() {
+    if (!ev) { setErr('No active event — go to Setup.'); return; }
+    if (!state.htmlBody.trim()) { setErr('No email body — go to Compose.'); return; }
+    if (!testEmail.trim()) { setErr('Enter a test email address.'); return; }
+    setErr('');
+    setTestSending(true);
+
+    let token: string;
+    try { token = await getToken('gmail.send'); }
+    catch (e) { setErr(String(e)); setTestSending(false); return; }
+
+    const from = ev.contactEmail || 'me';
+    const mockInvitee = state.invitees.find(i => i.email) || {
+      id: 'test',
+      firstName: 'Test',
+      lastName: 'User',
+      email: testEmail,
+      inviteStatus: 'pending' as const,
+      rsvpStatus: 'pending' as const,
+      tags: [],
+    };
+    const personalizedHtml = personalize(state.htmlBody, mockInvitee, ev);
+    const personalizedSubject = personalize(state.textSubject, mockInvitee, ev);
+    const raw = buildMimeRaw(from, testEmail, personalizedSubject, personalizedHtml);
+
+    try {
+      await sendEmail(token, raw);
+      dispatch({ type: 'LOG_SEND', entry: { id: crypto.randomUUID(), email: testEmail, name: 'Test Email', status: 'sent', timestamp: new Date().toISOString() } });
+      setTestSent(true);
+      setTestApproved(false);
+    } catch (e) {
+      setErr(`Test failed: ${String(e)}`);
+    }
+
+    setTestSending(false);
   }
 
   const progress = state.sendProgress.total > 0
@@ -211,6 +255,44 @@ export default function SendTab() {
             </div>
           </div>
 
+          {/* Test Email Section */}
+          <div className="if-section-label mb-2">PRE-FLIGHT TEST</div>
+          <div className="if-card mb-4">
+            <div style={{ padding: 'var(--rt-row-pad)' }}>
+              <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                <input
+                  type="email"
+                  value={testEmail}
+                  onChange={e => { setTestEmail(e.target.value); setTestSent(false); setTestApproved(false); }}
+                  placeholder="test@example.com"
+                  className="if-input"
+                  style={{ flex: 1 }}
+                />
+                <button
+                  className="if-btn"
+                  onClick={sendTestEmail}
+                  disabled={testSending || !testEmail.trim()}
+                  style={{ whiteSpace: 'nowrap' }}
+                >
+                  {testSending ? 'SENDING…' : 'Send Test Email'}
+                </button>
+              </div>
+              {testSent && (
+                <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', userSelect: 'none' }}>
+                  <input
+                    type="checkbox"
+                    checked={testApproved}
+                    onChange={e => setTestApproved(e.target.checked)}
+                    style={{ width: 16, height: 16, accentColor: 'var(--accent)' }}
+                  />
+                  <span style={{ fontSize: 12, color: testApproved ? 'var(--text-base)' : 'var(--text-muted)' }}>
+                    Confirm test email received
+                  </span>
+                </label>
+              )}
+            </div>
+          </div>
+
           {/* Stat strip */}
           <div className="if-section-label mb-2">THIS EVENT</div>
           <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
@@ -249,12 +331,17 @@ export default function SendTab() {
           <button
             className="if-primary-btn"
             onClick={sendBulk}
-            disabled={state.sending || filtered.length === 0}
+            disabled={state.sending || filtered.length === 0 || !testSent || !testApproved}
           >
             {state.sending
               ? `SENDING… ${state.sendProgress.current}/${state.sendProgress.total}`
               : `SEND ${filtered.length} INVITATION${filtered.length !== 1 ? 'S' : ''} →`}
           </button>
+          {(!testSent || !testApproved) && (
+            <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, textAlign: 'center' }}>
+              Send a test email and confirm receipt to enable bulk send
+            </div>
+          )}
         </>
       )}
 
