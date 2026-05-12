@@ -585,12 +585,19 @@
 
 /* ─── MOBILE RESPONSIVE ──────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  .if-btn            { min-height: 44px; padding: 0 18px; font-size: 12px; border-radius: 8px; }
-  .if-btn.sm         { min-height: 36px; padding: 0 14px; font-size: 10px; }
-  .if-btn.lg         { min-height: 48px; }
-  .if-input          { min-height: 44px; padding: 10px 12px; font-size: 13px; }
-  .if-nav-tab        { min-height: 44px; font-size: 11px; padding: 0 16px; }
-  .if-pill           { min-height: 36px; font-size: 10px; }
-  .if-filter-chip    { min-height: 36px; font-size: 10px; }
-  .if-primary-btn    { padding: 15px; font-size: 14px; }
+  .if-btn            { min-height: 44px; padding: 0 18px; font-size: 13px; border-radius: 8px; }
+  .if-btn.sm         { min-height: 36px; padding: 0 14px; font-size: 11px; }
+  .if-btn.lg         { min-height: 48px; font-size: 14px; }
+  .if-input          { min-height: 44px; padding: 10px 12px; font-size: 14px; }
+  .if-nav-tab        { min-height: 44px; font-size: 12px; padding: 0 16px; }
+  .if-pill           { min-height: 36px; font-size: 11px; }
+  .if-filter-chip    { min-height: 36px; font-size: 11px; }
+  .if-primary-btn    { padding: 15px; font-size: 15px; }
+  .if-label          { font-size: 11px; }
+  .if-status         { font-size: 11px; }
+  .if-card-row-title { font-size: 15px; }
+  .if-card-row-sub   { font-size: 11px; }
+  .if-page-title     { font-size: 20px; }
+  .if-eyebrow        { font-size: 11px; }
+  .if-meta-line      { font-size: 11px; }
 }
