@@ -3,8 +3,7 @@ import { useAppState, useAppDispatch } from '../state/AppContext';
 import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
-import { getToken } from '../api/auth';
-import { listAppDataFiles, getAppDataFile, createAppDataFile, deleteAppDataFile } from '../api/drive';
+import { loadEvents as fetchEventsFromDb, saveEvent, deleteEvent } from '../api/storage';
 import type { AppEvent } from '../types';
 
 function blankEvent(id: string): AppEvent {
@@ -35,45 +34,33 @@ export default function EventsPage() {
   const [err, setErr] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  async function loadEvents() {
+  async function refresh() {
     setLoading(true); setErr('');
     try {
-      const token = await getToken('drive.appdata');
-      const files = await listAppDataFiles(token);
-      const configs = await Promise.all(
-        files
-          .filter(f => f.name.endsWith('.json'))
-          .map(async f => {
-            const data = await getAppDataFile(token, f.id) as AppEvent;
-            return { ...data, id: f.id };
-          })
-      );
-      dispatch({ type: 'SET_EVENTS', events: configs });
+      const events = await fetchEventsFromDb();
+      dispatch({ type: 'SET_EVENTS', events });
     } catch (e) { setErr(String(e)); }
     finally { setLoading(false); }
   }
 
-  useEffect(() => { loadEvents(); }, []);
+  useEffect(() => { refresh(); }, []);
 
   async function createEvent() {
     setErr('');
     try {
-      const token = await getToken('drive.appdata');
-      const tempId = crypto.randomUUID();
-      const ev = blankEvent(tempId);
-      const realId = await createAppDataFile(token, tempId + '.json', ev);
-      ev.id = realId;
+      const id = crypto.randomUUID();
+      const ev = blankEvent(id);
+      await saveEvent(ev);
       dispatch({ type: 'ADD_EVENT', event: ev });
-      dispatch({ type: 'SET_ACTIVE_EVENT', id: realId });
+      dispatch({ type: 'SET_ACTIVE_EVENT', id });
       navigate('event-setup');
     } catch (e) { setErr(String(e)); }
   }
 
-  async function deleteEvent(id: string) {
+  async function handleDelete(id: string) {
     setErr('');
     try {
-      const token = await getToken('drive.appdata');
-      await deleteAppDataFile(token, id);
+      await deleteEvent(id);
       dispatch({ type: 'DELETE_EVENT', id });
     } catch (e) { setErr(String(e)); }
     finally { setConfirmDelete(null); }
@@ -87,8 +74,6 @@ export default function EventsPage() {
   const upcoming = state.events.filter(e => !e.date || daysUntil(e.date) === null || daysUntil(e.date)! >= 0);
   const past = state.events.filter(e => e.date && daysUntil(e.date) !== null && daysUntil(e.date)! < 0);
 
-  const hasOAuth = !!localStorage.getItem('gClientId');
-
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-root)' }}>
       <PageHeader eyebrow="INVITEFLOW" title="Events"
@@ -97,31 +82,12 @@ export default function EventsPage() {
             <button className="if-header-btn" onClick={() => navigate('settings')} aria-label="Settings">
               <Icon name="menu" size={15} />
             </button>
-            <button className="if-header-btn" onClick={loadEvents} disabled={loading} aria-label="Refresh">
+            <button className="if-header-btn" onClick={refresh} disabled={loading} aria-label="Refresh">
               <Icon name="sync" size={13} />
             </button>
           </>
         }
       />
-
-      {!hasOAuth && (
-        <div style={{
-          margin: '8px 18px 0', padding: '8px 12px', borderRadius: 6,
-          background: 'rgba(251,191,36,0.07)', border: '1px solid rgba(251,191,36,0.25)',
-          display: 'flex', alignItems: 'center', gap: 8,
-          fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)',
-        }}>
-          <Icon name="lock" size={13} style={{ color: 'var(--warning)', flexShrink: 0 }} />
-          Google OAuth not configured — go to Settings to set up your client ID.
-          <button
-            className="if-btn sm"
-            style={{ flexShrink: 0, background: 'var(--warning)', color: '#000', border: 'none', marginLeft: 'auto' }}
-            onClick={() => navigate('settings')}
-          >
-            Settings
-          </button>
-        </div>
-      )}
 
       <div style={{ flex: 1, overflowY: 'auto', padding: '0 18px 32px' }}>
         {err && <div className="if-status err" style={{ marginBottom: 12 }}>{err}</div>}
@@ -132,15 +98,15 @@ export default function EventsPage() {
               No events yet
             </div>
             <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 20 }}>
-              {hasOAuth ? 'CREATE YOUR FIRST EVENT TO GET STARTED' : 'SET UP OAUTH TO CONTINUE'}
+              CREATE YOUR FIRST EVENT TO GET STARTED
             </div>
             <button
               className="if-btn pri"
               style={{ minHeight: 44 }}
-              onClick={() => hasOAuth ? createEvent() : navigate('settings')}
+              onClick={createEvent}
             >
-              <Icon name={hasOAuth ? 'plus' : 'lock'} size={13} style={{ marginRight: 6 }} />
-              {hasOAuth ? '+ New Event' : 'Set up Google OAuth'}
+              <Icon name="plus" size={13} style={{ marginRight: 6 }} />
+              + New Event
             </button>
           </div>
         )}
@@ -202,7 +168,7 @@ export default function EventsPage() {
                         {isConfirming ? (
                           <>
                             <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--danger)' }}>DELETE?</span>
-                            <button className="if-btn del sm" onClick={() => deleteEvent(ev.id)}>Yes</button>
+                            <button className="if-btn del sm" onClick={() => handleDelete(ev.id)}>Yes</button>
                             <button className="if-btn sm" onClick={() => setConfirmDelete(null)}>No</button>
                           </>
                         ) : (
@@ -226,7 +192,7 @@ export default function EventsPage() {
           )
         )}
 
-        {state.events.length > 0 && hasOAuth && (
+        {state.events.length > 0 && (
           <button
             className="if-btn ghost"
             style={{ width: '100%', marginTop: 8, minHeight: 42, justifyContent: 'center', borderRadius: 'var(--rt-card-radius)' }}

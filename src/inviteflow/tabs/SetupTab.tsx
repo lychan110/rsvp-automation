@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
-import { getToken, setClientId } from '../api/auth';
-import { updateAppDataFile } from '../api/drive';
+import { saveEvent } from '../api/storage';
 import type { AppEvent } from '../types';
 
 const FIELDS: Array<{ key: keyof AppEvent; label: string; type?: string; placeholder?: string }> = [
@@ -51,10 +50,10 @@ export default function SetupTab() {
     setSaving(true);
     setStatus('');
     try {
-      const token = await getToken('drive.appdata');
-      await updateAppDataFile(token, ev!.id, ev);
-      setClientId(clientIdDraft);
-      dispatch({ type: 'UPDATE_EVENT', event: { ...ev!, googleClientId: clientIdDraft } });
+      const saved = { ...ev!, googleClientId: clientIdDraft };
+      localStorage.setItem('gClientId', clientIdDraft);
+      await saveEvent(saved);
+      dispatch({ type: 'UPDATE_EVENT', event: saved });
       setStatus('Saved.');
     } catch (e) {
       setStatus('Error: ' + String(e));
@@ -64,13 +63,7 @@ export default function SetupTab() {
   }
 
   async function authorize(scope: string) {
-    setStatus('');
-    try {
-      await getToken(scope);
-      setStatus(`${scope} authorized.`);
-    } catch (e) {
-      setStatus('Auth error: ' + String(e));
-    }
+    setStatus('OAuth is not available in this version.');
   }
 
   return (

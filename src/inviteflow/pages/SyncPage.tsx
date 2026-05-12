@@ -1,10 +1,7 @@
 import { useState } from 'react';
-import type { Invitee } from '../types';
-import { useAppState, useAppDispatch } from '../state/AppContext';
+import { useAppState } from '../state/AppContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
-import { getToken } from '../api/auth';
-import { sheetsGet, sheetsUpdate, sheetsClear, extractSheetId } from '../api/sheets';
 
 const MASTER_COLUMNS = ['FirstName', 'LastName', 'Title', 'Category', 'Email', 'RSVP_Link', 'InviteSent', 'InviteSentDate', 'RSVP_Status', 'RSVP_Date', 'Notes'];
 
@@ -56,61 +53,16 @@ const CHIP: React.CSSProperties = {
 
 export default function SyncPage() {
   const state = useAppState();
-  const dispatch = useAppDispatch();
   const ev = state.events.find(e => e.id === state.activeEventId) ?? null;
 
-  const [pushing, setPushing] = useState(false);
-  const [pulling, setPulling] = useState(false);
   const [status, setStatus] = useState('');
 
   async function pushToSheets() {
-    if (!ev?.masterSheetUrl) { setStatus('Error: Master Sheet URL not set — go to Event Setup.'); return; }
-    setPushing(true); setStatus('');
-    try {
-      const token = await getToken('spreadsheets');
-      const id = extractSheetId(ev.masterSheetUrl);
-      await sheetsClear(token, id, 'Sheet1!A:K');
-      const rows = state.invitees.map(i => [
-        i.firstName, i.lastName, i.title, i.category, i.email, i.rsvpLink,
-        i.inviteStatus === 'sent' ? 'TRUE' : 'FALSE', i.sentAt,
-        i.rsvpStatus, i.rsvpDate, i.notes,
-      ]);
-      await sheetsUpdate(token, id, 'Sheet1!A1', [MASTER_COLUMNS, ...rows]);
-      setStatus(`Pushed ${rows.length} rows to master sheet.`);
-    } catch (e) { setStatus('Error: ' + String(e)); }
-    finally { setPushing(false); }
+    setStatus('Sheets sync is not available in this version.');
   }
 
   async function pullRsvp() {
-    if (!ev?.rsvpResponseUrl) { setStatus('Error: RSVP Response Sheet URL not set — go to Event Setup.'); return; }
-    setPulling(true); setStatus('');
-    try {
-      const token = await getToken('spreadsheets');
-      const id = extractSheetId(ev.rsvpResponseUrl);
-      const rows = await sheetsGet(token, id, 'Sheet1!A:K');
-      if (rows.length < 2) { setStatus('RSVP sheet appears empty.'); return; }
-      const [header, ...data] = rows;
-      const emailCol  = header.findIndex(h => h.toLowerCase().includes('email'));
-      const statusCol = header.findIndex(h => h.toLowerCase().includes('attend') || h.toLowerCase().includes('rsvp'));
-      const dateCol   = header.findIndex(h => h.toLowerCase().includes('date'));
-      if (emailCol < 0) { setStatus('Cannot find Email column in RSVP sheet.'); return; }
-      let updated = 0;
-      const invitees = state.invitees.map(inv => {
-        const match = data.find(r => r[emailCol]?.toLowerCase() === inv.email.toLowerCase());
-        if (!match) return inv;
-        const rawStatus = match[statusCol] ?? '';
-        const rsvpStatus: Invitee['rsvpStatus'] =
-          rawStatus.toLowerCase().includes('yes') || rawStatus.toLowerCase().includes('attend') ? 'Attending' :
-          rawStatus.toLowerCase().includes('no')  || rawStatus.toLowerCase().includes('declin') ? 'Declined' :
-          'No Response';
-        const rsvpDate = dateCol >= 0 ? (match[dateCol] ?? '') : new Date().toISOString().slice(0, 10);
-        updated++;
-        return { ...inv, rsvpStatus, rsvpDate };
-      });
-      dispatch({ type: 'SET_INVITEES', invitees });
-      setStatus(`Updated ${updated} RSVP responses.`);
-    } catch (e) { setStatus('Error: ' + String(e)); }
-    finally { setPulling(false); }
+    setStatus('Sheets sync is not available in this version.');
   }
 
   return (
@@ -145,8 +97,8 @@ export default function SyncPage() {
                     MASTER SHEET URL NOT SET IN EVENT SETUP
                   </span>
                 )}
-                <button className="if-btn grn sm" onClick={pushToSheets} disabled={pushing}>
-                  {pushing ? 'Pushing…' : `Push ${state.invitees.length} rows`}
+                <button className="if-btn grn sm" onClick={pushToSheets}>
+                  {`Push ${state.invitees.length} rows`}
                 </button>
               </div>
             </div>
@@ -169,8 +121,8 @@ export default function SyncPage() {
                     RSVP RESPONSE URL NOT SET IN EVENT SETUP
                   </span>
                 )}
-                <button className="if-btn ghost sm" onClick={pullRsvp} disabled={pulling}>
-                  {pulling ? 'Pulling…' : 'Pull RSVP responses'}
+                <button className="if-btn ghost sm" onClick={pullRsvp}>
+                  Pull RSVP responses
                 </button>
               </div>
             </div>
