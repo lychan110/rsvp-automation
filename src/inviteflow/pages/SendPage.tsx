@@ -1,18 +1,12 @@
 import { useState } from 'react';
-import { useAppState, useAppDispatch } from '../state/AppContext';
+import { useAppState } from '../state/AppContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
-import { getToken } from '../api/auth';
-import { buildMimeRaw, personalize, sendEmail } from '../api/gmail';
 
 type Filter = 'all' | 'pending' | 'failed';
 
-const BATCH_SIZE = 80;
-const BATCH_DELAY_MS = 61000;
-
 export default function SendPage() {
   const state = useAppState();
-  const dispatch = useAppDispatch();
   const [filter, setFilter] = useState<Filter>('pending');
   const [activePane, setActivePane] = useState<'preflight' | 'log'>('preflight');
   const [err, setErr] = useState('');
@@ -38,38 +32,7 @@ export default function SendPage() {
     if (!ev) { setErr('No active event — go to Event Setup.'); return; }
     if (!state.htmlBody.trim()) { setErr('No email body — go to Compose.'); return; }
     if (filtered.length === 0) { setErr('No invitees match the current filter.'); return; }
-    setErr('');
-
-    dispatch({ type: 'START_SEND', total: filtered.length });
-
-    let token: string;
-    try { token = await getToken('gmail.send'); }
-    catch (e) { setErr(String(e)); dispatch({ type: 'STOP_SEND' }); return; }
-
-    const from = ev.contactEmail || 'me';
-    let sent = 0;
-
-    for (let i = 0; i < filtered.length; i++) {
-      const inv = filtered[i];
-      const html = personalize(state.htmlBody, inv, ev);
-      const subject = personalize(state.textSubject, inv, ev);
-      const raw = buildMimeRaw(from, inv.email, subject, html);
-      try {
-        await sendEmail(token, raw);
-        dispatch({ type: 'UPDATE_INVITEE', invitee: { ...inv, inviteStatus: 'sent', sentAt: new Date().toISOString() } });
-        dispatch({ type: 'LOG_SEND', entry: { id: crypto.randomUUID(), email: inv.email, name: `${inv.firstName} ${inv.lastName}`, status: 'sent', timestamp: new Date().toISOString() } });
-      } catch (e) {
-        dispatch({ type: 'UPDATE_INVITEE', invitee: { ...inv, inviteStatus: 'failed' } });
-        dispatch({ type: 'LOG_SEND', entry: { id: crypto.randomUUID(), email: inv.email, name: `${inv.firstName} ${inv.lastName}`, status: 'failed', timestamp: new Date().toISOString(), error: String(e) } });
-      }
-      sent++;
-      dispatch({ type: 'SEND_PROGRESS', current: sent });
-      if (sent % BATCH_SIZE === 0 && i < filtered.length - 1) {
-        await new Promise(r => setTimeout(r, BATCH_DELAY_MS));
-      }
-    }
-
-    dispatch({ type: 'STOP_SEND' });
+    setErr('Email sending is not available in this version.');
   }
 
   return (

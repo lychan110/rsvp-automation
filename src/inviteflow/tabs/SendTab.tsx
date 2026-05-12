@@ -1,7 +1,5 @@
 import { useState } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
-import { getToken } from '../api/auth';
-import { buildMimeRaw, personalize, sendEmail } from '../api/gmail';
 
 type Filter = 'all' | 'pending' | 'failed';
 
@@ -49,41 +47,7 @@ export default function SendTab() {
     if (!ev) { setErr('No active event — go to Setup.'); return; }
     if (!state.htmlBody.trim()) { setErr('No email body — go to Compose.'); return; }
     if (filtered.length === 0) { setErr('No invitees match the current filter.'); return; }
-    setErr('');
-
-    dispatch({ type: 'START_SEND', total: filtered.length });
-
-    let token: string;
-    try { token = await getToken('gmail.send'); }
-    catch (e) { setErr(String(e)); dispatch({ type: 'STOP_SEND' }); return; }
-
-    const from = ev.contactEmail || 'me';
-    let sent = 0;
-
-    for (let i = 0; i < filtered.length; i++) {
-      const inv = filtered[i];
-      const personalizedHtml    = personalize(state.htmlBody, inv, ev);
-      const personalizedSubject = personalize(state.textSubject, inv, ev);
-      const raw = buildMimeRaw(from, inv.email, personalizedSubject, personalizedHtml);
-
-      try {
-        await sendEmail(token, raw);
-        dispatch({ type: 'UPDATE_INVITEE', invitee: { ...inv, inviteStatus: 'sent', sentAt: new Date().toISOString() } });
-        dispatch({ type: 'LOG_SEND', entry: { id: crypto.randomUUID(), email: inv.email, name: `${inv.firstName} ${inv.lastName}`, status: 'sent', timestamp: new Date().toISOString() } });
-      } catch (e) {
-        dispatch({ type: 'UPDATE_INVITEE', invitee: { ...inv, inviteStatus: 'failed' } });
-        dispatch({ type: 'LOG_SEND', entry: { id: crypto.randomUUID(), email: inv.email, name: `${inv.firstName} ${inv.lastName}`, status: 'failed', timestamp: new Date().toISOString(), error: String(e) } });
-      }
-
-      sent++;
-      dispatch({ type: 'SEND_PROGRESS', current: sent });
-
-      if (sent % BATCH_SIZE === 0 && i < filtered.length - 1) {
-        await new Promise(r => setTimeout(r, BATCH_DELAY_MS));
-      }
-    }
-
-    dispatch({ type: 'STOP_SEND' });
+    setErr('Email sending is not available in this version.');
   }
 
   async function sendTestEmail() {
@@ -92,40 +56,7 @@ export default function SendTab() {
     if (!testEmail.trim()) { setErr('Enter a test email address.'); return; }
     setErr('');
     setTestSending(true);
-
-    let token: string;
-    try { token = await getToken('gmail.send'); }
-    catch (e) { setErr(String(e)); setTestSending(false); return; }
-
-    const from = ev.contactEmail || 'me';
-    const mockInvitee = state.invitees.find(i => i.email) || {
-      id: 'test',
-      eventId: state.activeEventId ?? '',
-      firstName: 'Test',
-      lastName: 'User',
-      title: '',
-      category: '',
-      email: testEmail,
-      rsvpLink: '',
-      inviteStatus: 'pending' as const,
-      sentAt: '',
-      rsvpStatus: 'No Response',
-      rsvpDate: '',
-      notes: '',
-    };
-    const personalizedHtml = personalize(state.htmlBody, mockInvitee, ev);
-    const personalizedSubject = personalize(state.textSubject, mockInvitee, ev);
-    const raw = buildMimeRaw(from, testEmail, personalizedSubject, personalizedHtml);
-
-    try {
-      await sendEmail(token, raw);
-      dispatch({ type: 'LOG_SEND', entry: { id: crypto.randomUUID(), email: testEmail, name: 'Test Email', status: 'sent', timestamp: new Date().toISOString() } });
-      setTestSent(true);
-      setTestApproved(false);
-    } catch (e) {
-      setErr(`Test failed: ${String(e)}`);
-    }
-
+    setErr('Email sending is not available in this version.');
     setTestSending(false);
   }
 

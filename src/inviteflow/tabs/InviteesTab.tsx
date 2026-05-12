@@ -2,8 +2,6 @@ import { useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useAppState, useAppDispatch } from '../state/AppContext';
-import { getToken } from '../api/auth';
-import { sheetsGet, extractSheetId } from '../api/sheets';
 import type { Invitee } from '../types';
 
 function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
@@ -50,50 +48,7 @@ export default function InviteesTab() {
   const ev = state.events.find(e => e.id === state.activeEventId);
 
   async function importFromSheets() {
-    if (!sheetsUrl.trim()) return;
-    setImporting(true);
-    setImportStatus('');
-    try {
-      const token = await getToken('spreadsheets');
-      const id = extractSheetId(sheetsUrl);
-      const rows = await sheetsGet(token, id, 'Sheet1!A:K');
-      if (rows.length < 2) { setImportStatus('Sheet appears empty (need header + data rows).'); return; }
-      const [header, ...data] = rows;
-      const col = (name: string) => header.findIndex(h => h.trim().toLowerCase() === name.toLowerCase());
-      const ci = {
-        fn: col('FirstName'), ln: col('LastName'), title: col('Title'), cat: col('Category'),
-        email: col('Email'), rsvp: col('RSVP_Link'), sent: col('InviteSent'),
-        sentDate: col('InviteSentDate'), rsvpStatus: col('RSVP_Status'),
-        rsvpDate: col('RSVP_Date'), notes: col('Notes'),
-      };
-
-      const incoming = data.map(r => makeInvitee({
-        firstName:   r[ci.fn] ?? '',
-        lastName:    r[ci.ln] ?? '',
-        title:       r[ci.title] ?? '',
-        category:    r[ci.cat] ?? '',
-        email:       r[ci.email] ?? '',
-        rsvpLink:    r[ci.rsvp] ?? '',
-        inviteStatus: r[ci.sent]?.toLowerCase() === 'true' ? 'sent' : 'pending',
-        sentAt:      r[ci.sentDate] ?? '',
-        rsvpStatus:  (['Attending', 'Declined'].includes(r[ci.rsvpStatus]) ? r[ci.rsvpStatus] : 'No Response') as Invitee['rsvpStatus'],
-        rsvpDate:    r[ci.rsvpDate] ?? '',
-        notes:       r[ci.notes] ?? '',
-      })).filter(i => i.email);
-
-      const merged = [...state.invitees];
-      for (const inc of incoming) {
-        const idx = merged.findIndex(m => m.email.toLowerCase() === inc.email.toLowerCase());
-        if (idx >= 0) merged[idx] = { ...merged[idx], ...inc, id: merged[idx].id };
-        else merged.push(inc);
-      }
-      dispatch({ type: 'SET_INVITEES', invitees: merged });
-      setImportStatus(`Imported ${incoming.length} rows (${merged.length - state.invitees.length} new, rest merged).`);
-    } catch (e) {
-      setImportStatus('Error: ' + String(e));
-    } finally {
-      setImporting(false);
-    }
+    setImportStatus('Sheets import is not available in this version.');
   }
 
   function importJSON(file: File) {

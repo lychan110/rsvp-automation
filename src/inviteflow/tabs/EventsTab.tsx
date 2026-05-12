@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
-import { getToken } from '../api/auth';
-import { listAppDataFiles, getAppDataFile, createAppDataFile, deleteAppDataFile } from '../api/drive';
+import { loadEvents, saveEvent, deleteEvent as storageDeleteEvent } from '../api/storage';
 import type { AppEvent } from '../types';
 
 function blankEvent(id: string): AppEvent {
@@ -31,20 +30,11 @@ export default function EventsTab() {
   const [err, setErr] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
-  async function loadEvents() {
+  async function loadEventsFromStorage() {
     setLoading(true);
     setErr('');
     try {
-      const token = await getToken('drive.appdata');
-      const files = await listAppDataFiles(token);
-      const configs = await Promise.all(
-        files
-          .filter(f => f.name.endsWith('.json'))
-          .map(async f => {
-            const data = await getAppDataFile(token, f.id) as AppEvent;
-            return { ...data, id: f.id };
-          })
-      );
+      const configs = await loadEvents();
       dispatch({ type: 'SET_EVENTS', events: configs });
     } catch (e) {
       setErr(String(e));
@@ -53,18 +43,16 @@ export default function EventsTab() {
     }
   }
 
-  useEffect(() => { loadEvents(); }, []);
+  useEffect(() => { loadEventsFromStorage(); }, []);
 
   async function createEvent() {
     setErr('');
     try {
-      const token = await getToken('drive.appdata');
       const tempId = crypto.randomUUID();
       const ev = blankEvent(tempId);
-      const realId = await createAppDataFile(token, tempId + '.json', ev);
-      ev.id = realId;
+      await saveEvent(ev);
       dispatch({ type: 'ADD_EVENT', event: ev });
-      dispatch({ type: 'SET_ACTIVE_EVENT', id: realId });
+      dispatch({ type: 'SET_ACTIVE_EVENT', id: ev.id });
       dispatch({ type: 'SET_TAB', tab: 'setup' });
     } catch (e) {
       setErr(String(e));
@@ -74,8 +62,7 @@ export default function EventsTab() {
   async function deleteEvent(id: string) {
     setErr('');
     try {
-      const token = await getToken('drive.appdata');
-      await deleteAppDataFile(token, id);
+      await storageDeleteEvent(id);
       dispatch({ type: 'DELETE_EVENT', id });
     } catch (e) {
       setErr(String(e));
@@ -98,7 +85,7 @@ export default function EventsTab() {
           <div className="if-page-title">Events</div>
         </div>
         <div className="flex gap-2 items-center">
-          <button className="if-btn ghost" onClick={loadEvents} disabled={loading}>
+          <button className="if-btn ghost" onClick={loadEventsFromStorage} disabled={loading}>
             {loading ? 'Loading…' : 'Refresh'}
           </button>
           <button className="if-btn pri" onClick={createEvent}>+ New Event</button>

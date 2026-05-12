@@ -3,8 +3,7 @@ import type { AppEvent } from '../types';
 import { useAppState, useAppDispatch } from '../state/AppContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
-import { getToken, setClientId } from '../api/auth';
-import { updateAppDataFile } from '../api/drive';
+import { saveEvent } from '../api/storage';
 
 const FIELDS: Array<{ key: keyof AppEvent; label: string; type?: string; placeholder?: string }> = [
   { key: 'name',            label: 'Event Name',              placeholder: 'Annual Civic Leadership Reception' },
@@ -50,10 +49,9 @@ export default function EventSetupPage() {
     if (!draft) return;
     setSaving(true); setStatus('');
     try {
-      const token = await getToken('drive.appdata');
       const saved = { ...draft, googleClientId: clientIdDraft };
-      await updateAppDataFile(token, draft.id, saved);
-      setClientId(clientIdDraft);
+      localStorage.setItem('gClientId', clientIdDraft);
+      await saveEvent(saved);
       dispatch({ type: 'UPDATE_EVENT', event: saved });
       setStatus('Saved.');
     } catch (e) { setStatus('Error: ' + String(e)); }
@@ -61,9 +59,7 @@ export default function EventSetupPage() {
   }
 
   async function authorize(scope: string) {
-    setStatus('');
-    try { await getToken(scope); setStatus(`${scope} authorized.`); }
-    catch (e) { setStatus('Auth error: ' + String(e)); }
+    setStatus('OAuth is not available in this version.');
   }
 
   return (
