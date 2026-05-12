@@ -162,18 +162,28 @@ export default function SettingsPage() {
         </div>
 
         <div className="if-section-label" style={{ padding: '8px 0 8px' }}>QUICK START</div>
-        <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
-          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-base)', lineHeight: 1.6 }}>
-            <div style={{ marginBottom: 12, color: 'var(--text-heading)', fontWeight: 500 }}>1. SET UP EVENT</div>
-            <div style={{ marginBottom: 12, color: 'var(--text-heading)', fontWeight: 500 }}>2. ADD INVITEES</div>
-            <div style={{ marginBottom: 12, color: 'var(--text-heading)', fontWeight: 500 }}>3. COMPOSE EMAIL</div>
-            <div style={{ marginBottom: 12, color: 'var(--text-heading)', fontWeight: 500 }}>4. SEND (TEST FIRST)</div>
-            <div style={{ color: 'var(--text-heading)', fontWeight: 500 }}>5. TRACK RSVPS</div>
-          </div>
-          <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
-            <button className="if-btn ghost sm" style={{ width: '100%' }} onClick={() => navigate('help')}>
-              Full Guide →
-            </button>
+        <div className="if-card" style={{ marginBottom: 12 }}>
+          <button
+            onClick={() => navigate('help')}
+            style={{
+              width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+              padding: 'var(--rt-row-pad)', background: 'transparent', border: 'none',
+              borderBottom: '1px solid var(--border)', textAlign: 'left', cursor: 'pointer',
+            }}
+          >
+            <div style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--bg-root)', border: '1px solid var(--border)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <Icon name="book-open" size={13} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div className="if-card-row-title">Quick Start Guide</div>
+              <div className="if-card-row-sub">FIRST-TIME SETUP WALKTHROUGH</div>
+            </div>
+            <Icon name="chevron-right" size={13} style={{ color: 'var(--text-muted)' }} />
+          </button>
+          <div style={{ padding: 14, display: 'flex', justifyContent: 'center' }}>
+            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+              INVITEFLOW · v{__APP_VERSION__} · by Lenya Chan
+            </div>
           </div>
         </div>
 

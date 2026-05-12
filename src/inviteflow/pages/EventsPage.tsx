@@ -106,7 +106,7 @@ export default function EventsPage() {
               onClick={createEvent}
             >
               <Icon name="plus" size={13} style={{ marginRight: 6 }} />
-              + New Event
+              New Event
             </button>
           </div>
         )}
