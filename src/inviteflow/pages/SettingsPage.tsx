@@ -3,7 +3,6 @@ import { useAppState, useAppDispatch } from '../state/AppContext';
 import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
-import { getToken, setClientId } from '../api/auth';
 import { DEFAULT_ENDPOINT } from '../../scout/constants';
 
 export default function SettingsPage() {
@@ -12,22 +11,10 @@ export default function SettingsPage() {
   const { navigate } = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [clientIdDraft, setClientIdDraft] = useState(localStorage.getItem('gClientId') ?? '');
   const [status, setStatus] = useState('');
   const [llmApiKey, setLlmApiKey] = useState(sessionStorage.getItem('cs_api_key') ?? '');
   const [llmEndpoint, setLlmEndpoint] = useState(sessionStorage.getItem('cs_endpoint') ?? DEFAULT_ENDPOINT);
   const [serpApiKey, setSerpApiKey] = useState(sessionStorage.getItem('cs_search_key') ?? '');
-
-  async function authorize(scope: string) {
-    setStatus('');
-    try { await getToken(scope); setStatus(`${scope} authorized.`); }
-    catch (e) { setStatus('Error: ' + String(e)); }
-  }
-
-  function saveClientId() {
-    setClientId(clientIdDraft);
-    setStatus('Client ID saved.');
-  }
 
   function saveLlmConfig() {
     sessionStorage.setItem('cs_api_key', llmApiKey);
@@ -62,22 +49,6 @@ export default function SettingsPage() {
     reader.readAsText(file);
   }
 
-  const authRow = (icon: string, title: string, sub: string, scope: string, isLast = false) => (
-    <div style={{
-      display: 'flex', alignItems: 'center', gap: 10, padding: 'var(--rt-row-pad)',
-      borderBottom: isLast ? 'none' : '1px solid var(--border)',
-    }}>
-      <div style={{ width: 28, height: 28, borderRadius: 6, background: 'var(--bg-root)', border: '1px solid var(--border)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <Icon name={icon} size={13} />
-      </div>
-      <div style={{ flex: 1 }}>
-        <div className="if-card-row-title">{title}</div>
-        <div className="if-card-row-sub">{sub}</div>
-      </div>
-      <button className="if-btn ghost sm" onClick={() => authorize(scope)}>Authorize</button>
-    </div>
-  );
-
   const actionRow = (icon: string, title: string, sub: string, onClick: () => void, isLast = false) => (
     <button
       onClick={onClick}
@@ -110,32 +81,7 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="if-section-label" style={{ padding: '12px 0 8px' }}>GOOGLE OAUTH</div>
-        <div className="if-card" style={{ marginBottom: 12 }}>
-          {authRow('mail',     'Gmail · Send',              'AUTHORIZE GMAIL SENDING',        'gmail.send')}
-          {authRow('building', 'Google Sheets',             'AUTHORIZE SPREADSHEET ACCESS',   'spreadsheets')}
-          {authRow('user',     'Google Drive AppData',      'AUTHORIZE EVENT STORAGE',        'drive.appdata', true)}
-        </div>
-
-        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>CLIENT ID</div>
-        <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
-          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>GOOGLE CLIENT ID</label>
-          <input
-            className="if-input"
-            style={{ width: '100%', marginBottom: 8 }}
-            value={clientIdDraft}
-            onChange={e => setClientIdDraft(e.target.value)}
-            placeholder="123456789-abc.apps.googleusercontent.com"
-          />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
-              REQUIRED FOR ALL GOOGLE API CALLS
-            </span>
-            <button className="if-btn grn sm" onClick={saveClientId}>Save</button>
-          </div>
-        </div>
-
-        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>DISCOVER (LLM + WEB SEARCH)</div>
+        <div className="if-section-label" style={{ padding: '12px 0 8px' }}>DISCOVER (LLM + WEB SEARCH)</div>
         <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
           <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>LLM API KEY</label>
           <input
