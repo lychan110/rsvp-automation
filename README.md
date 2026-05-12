@@ -6,18 +6,44 @@ InviteFlow is a **local-first** single-page application for managing VIP event i
 
 ---
 
-## Quick Start
+## API Keys Setup
 
-```bash
-npm install
-npm run dev
-```
+InviteFlow requires one **required** API key and supports two **optional** keys for enhanced features.
 
-Open `http://localhost:5173/inviteflow.html` in your browser.
+### Required
 
-Add your Resend API key in `.env`:
+**Resend** — Sends invitation emails
+
+1. Go to [resend.com](https://resend.com) — sign up (free, 3,000 emails/month)
+2. API Keys → Create key
+3. Copy the key
+
+Add to `.env`:
 ```
 VITE_RESEND_API_KEY=re_xxxxxxxxxxxxx
+```
+
+### Optional
+
+**LiteLLM** — AI-powered official discovery (Discover page)
+
+1. Run a LiteLLM proxy locally or use a hosted endpoint
+2. Get your API key from the provider (Anthropic, OpenAI, etc.)
+
+Add to `.env`:
+```
+VITE_LITELLM_API_KEY=sk-xxxxxxxxxxxxx
+VITE_LITELLM_ENDPOINT=http://127.0.0.1:4000/v1
+```
+
+**SerpAPI** — Web search for official discovery
+
+1. Go to [serpapi.com](https://serpapi.com) — sign up
+2. Copy your API key
+
+Add to `.env`:
+```
+VITE_SERPAPI_KEY=xxxxxxxxxxxxxxxxxxxx
 ```
 
 ---
@@ -29,6 +55,7 @@ VITE_RESEND_API_KEY=re_xxxxxxxxxxxxx
 | Data storage | Dexie.js (IndexedDB) — all data stays in your browser |
 | Data sync | CSV/JSON import/export via Sync tab |
 | Email sending | Resend API — no Gmail account needed |
+| Official discovery | LiteLLM + SerpAPI (optional) |
 | RSVP tracking | Google Apps Script (optional) — writes responses to a Sheet |
 
 ---
@@ -81,18 +108,3 @@ To restore: **Sync** tab → **Import** → Upload your backup
 - TipTap (rich text editor)
 - Dexie.js (IndexedDB)
 - Resend (email delivery)
-
----
-
-## Project Structure
-
-```
-src/inviteflow/     # Main app
-  api/              # Storage (Dexie), email (Resend)
-  components/       # UI primitives
-  pages/            # Route pages
-  tabs/             # Tab components
-  state/            # AppContext + reducer
-gas/                 # Google Apps Script for RSVP (optional)
-docs/               # Documentation
-```
