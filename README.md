@@ -1,108 +1,101 @@
 # InviteFlow v4.1.0
 
-> Event invitation management for Google Workspace — by Lenya Chan
+> Event invitation management — no Google account required
 
-InviteFlow v4.1.0 is a **serverless**, single-page application for managing VIP event invitations. It runs entirely in the browser against Google APIs — no backend server, no database to maintain. Guest data lives in Google Sheets; event configs live in Google Drive's `appDataFolder`.
-
----
-
-## Stack
-
-| Layer | Technology | Rationale |
-|---|---|---|
-| Frontend | React 18 + TypeScript + Vite | Component model handles 200+ guest DataTable; Vite gives fast HMR; TS catches errors early |
-| UI | PrimeReact | Production-grade DataTable with virtual scroll, filter, sort, export |
-| Rich text | TipTap (starter kit only) | Headless, React-native, `{{placeholder}}` merging |
-| Auth | OAuth 2.0 PKCE via Google Identity Services | Browser-only, no server-side secret |
-| Persistence | Google Sheets | Primary key = Email; non-tech users already live here |
-| Config storage | Google Drive `appDataFolder` | Per-event JSON configs, hidden from user's Drive UI |
-| Email | Gmail API | 100 quota units/send; exponential backoff on 429 |
-| RSVP ingest | Google Apps Script `onFormSubmit` | Lightweight trigger writes one row; no complex logic |
-| Deployment | GitHub Pages | Static, no server |
-
-### Stack decisions challenged
-
-**Web Workers (template merge):** Omitted. Merging 200 templates takes <50 ms on the main thread — Web Workers add build complexity and message-passing overhead with zero user-visible benefit at this scale.
-
-**GAS scope:** Limited to RSVP ingest only (one trigger function, one Sheets row write). All send/sync logic stays browser-side where it is debuggable and fast to iterate.
-
-**TipTap extensions:** Starter kit only. No additional extensions unless a specific feature demands them — each extension adds ~30 KB and a maintenance surface.
-
-**Gmail rate limiting:** Sends are capped at 80/min (conservative below the 100-unit/send × 15k-unit/min quota). Between batches the UI shows estimated time remaining.
+InviteFlow is a **local-first** single-page application for managing VIP event invitations. All data lives in your browser (IndexedDB); email is sent via Resend. No backend server, no Google account needed.
 
 ---
 
-## Current Features
-
-- **Event management** — Create, update, and manage multiple events with custom details (name, date, venue, contact info).
-- **Official discovery** — Integrated Discover page powered by LiteLLM + SerpAPI for finding elected officials (Congress, State, City) with web-grounded search results.
-- **Contact import** — Import guest lists from Google Sheets or discover officials directly into your event.
-- **Personalized emails** — Compose rich-text invitations using `{{template tokens}}` (FirstName, EventDate, Venue, etc.) with live preview.
-- **Gmail integration** — Send personalized invites directly from your Gmail account with automatic batching and rate-limit handling.
-- **RSVP tracking** — Connect Google Forms to track responses automatically; monitor attendance status in real-time.
-- **Data export** — Export guest lists as JSON (InviteFlow format) or CSV; import backups to restore state.
-- **Serverless architecture** — Runs entirely in the browser; no backend server or database required. All data lives in your Google account.
-
----
-
-## Quick Start (local dev)
+## Quick Start
 
 ```bash
 npm install
-npm run dev        # Vite dev server → http://localhost:5173/inviteflow.html
+npm run dev        # → http://localhost:5173/inviteflow.html
 ```
 
-## Deploy to GitHub Pages
+Add your Resend API key in `.env`:
+```
+VITE_RESEND_API_KEY=re_xxxxxxxxxxxxx
+```
 
+Deploy to GitHub Pages:
 ```bash
-npm run deploy     # vite build → copy static files → gh-pages publish
+npm run deploy
 ```
 
-`index.html` is copied into `dist/` alongside the built `inviteflow.html` before publishing to the `gh-pages` branch.
+---
+
+## How It Works
+
+| Feature | Implementation |
+|---------|----------------|
+| Data storage | Dexie.js (IndexedDB) — all data stays in your browser |
+| Data sync | CSV/JSON import/export via Sync tab |
+| Email sending | Resend API — no Gmail account needed |
+| RSVP tracking | Google Apps Script (optional) — writes responses to a Sheet |
+
+---
+
+## The Workflow
+
+1. **Setup** — Create an event with name, date, venue, contact info
+2. **Invitees** — Add guests manually or import from CSV/JSON
+3. **Compose** — Write your invite using `{{FirstName}}`, `{{EventDate}}`, etc.
+4. **Send** — Send test first, then bulk send to all guests
+5. **Track** — Monitor RSVPs (if using Google Form for responses)
+
+---
+
+## Template Tokens
+
+| Token | Replaces |
+|-------|----------|
+| `{{FirstName}}` | Guest's first name |
+| `{{LastName}}` | Guest's last name |
+| `{{FullName}}` | First + Last combined |
+| `{{EventName}}` | Your event name |
+| `{{EventDate}}` | Event date |
+| `{{Venue}}` | Venue name |
+| `{{RSVP_Link}}` | Pre-filled RSVP form link |
+| `{{FullTitle}}` | Guest's title |
+| `{{OrgName}}` | Organization name |
+| `{{ContactName}}` | Your name |
+| `{{ContactEmail}}` | Your email |
+| `{{VIPStart}}` | VIP window start |
+| `{{VIPEnd}}` | VIP window end |
+| `{{Date_Sent}}` | Date invite was sent |
+
+---
+
+## Data Backup
+
+All data is in your browser. To back up:
+- Go to **Sync** tab → **Export** → Download CSV
+- Or go to **Settings** → **Export all data** → Download JSON
+
+To restore: **Sync** tab → **Import** → Upload your backup
+
+---
+
+## Tech Stack
+
+- React 18 + TypeScript + Vite
+- PrimeReact (DataTable)
+- TipTap (rich text editor)
+- Dexie.js (IndexedDB)
+- Resend (email delivery)
 
 ---
 
 ## Project Structure
 
 ```
-src/
-  inviteflow/     # Main InviteFlow app (events, compose, send, tracker)
-  scout/          # Official discovery engine (LiteLLM + SerpAPI)
-gas/              # Google App Scripts
+src/inviteflow/     # Main app
+  api/              # Storage (Dexie), email (Resend)
+  components/       # UI primitives
+  pages/            # Route pages
+  tabs/             # Tab components
+  state/            # AppContext + reducer
+gas/                 # Google Apps Script for RSVP (optional)
+docs/               # Documentation
 ```
-
----
-
-## Template Tokens
-
-`{{FirstName}}` `{{LastName}}` `{{FullName}}` `{{EventName}}` `{{EventDate}}` `{{Venue}}` `{{RSVP_Link}}` `{{FullTitle}}` `{{OrgName}}` `{{ContactName}}` `{{ContactEmail}}` `{{VIPStart}}` `{{VIPEnd}}` `{{Date_Sent}}`
-
----
-
-## Google Sheets Schema
-
-Master sheet columns (in order):
-
-| Column | Description |
-|---|---|
-| FirstName | Guest first name |
-| LastName | Guest last name |
-| Title | Official title |
-| Category | e.g. Congress, State Senate, City Council |
-| Email | Primary key |
-| RSVP_Link | Pre-filled Google Form URL |
-| InviteSent | TRUE / FALSE |
-| InviteSentDate | ISO date string |
-| RSVP_Status | Attending / Declined / No Response |
-| RSVP_Date | ISO date string |
-| Notes | Free text |
-
----
-
-## OAuth Scopes
-
-| Scope | Purpose |
-|---|---|
-| `https://www.googleapis.com/auth/spreadsheets` | Read/write guest Sheets |
-| `https://www.googleapis.com/auth/gmail.send` | Send invite emails |
-| `https://www.googleapis.com/auth/drive.appdata` | Store event configs |
