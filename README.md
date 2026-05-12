@@ -10,17 +10,14 @@ InviteFlow is a **local-first** single-page application for managing VIP event i
 
 ```bash
 npm install
-npm run dev        # → http://localhost:5173/inviteflow.html
+npm run dev
 ```
+
+Open `http://localhost:5173/inviteflow.html` in your browser.
 
 Add your Resend API key in `.env`:
 ```
 VITE_RESEND_API_KEY=re_xxxxxxxxxxxxx
-```
-
-Deploy to GitHub Pages:
-```bash
-npm run deploy
 ```
 
 ---
