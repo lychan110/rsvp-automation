@@ -25,15 +25,17 @@ VITE_RESEND_API_KEY=re_xxxxxxxxxxxxx
 
 ### Optional
 
-**LiteLLM** — AI-powered official discovery (Discover page)
+**OpenAI-compatible API** — AI-powered official discovery (Discover page)
 
-1. Run a LiteLLM proxy locally or use a hosted endpoint
-2. Get your API key from the provider (Anthropic, OpenAI, etc.)
+Supports OpenAI, Anthropic, Ollama, or any OpenAI-compatible endpoint.
+
+1. Get an API key from your provider
+2. If using a local/custom endpoint, note the base URL
 
 Add to `.env`:
 ```
-VITE_LITELLM_API_KEY=sk-xxxxxxxxxxxxx
-VITE_LITELLM_ENDPOINT=http://127.0.0.1:4000/v1
+VITE_OPENAI_API_KEY=sk-xxxxxxxxxxxxx
+VITE_OPENAI_ENDPOINT=https://api.openai.com/v1  # optional, for custom endpoints
 ```
 
 **SerpAPI** — Web search for official discovery
@@ -55,7 +57,7 @@ VITE_SERPAPI_KEY=xxxxxxxxxxxxxxxxxxxx
 | Data storage | Dexie.js (IndexedDB) — all data stays in your browser |
 | Data sync | CSV/JSON import/export via Sync tab |
 | Email sending | Resend API — no Gmail account needed |
-| Official discovery | LiteLLM + SerpAPI (optional) |
+| Official discovery | OpenAI-compatible API + SerpAPI (optional) |
 | RSVP tracking | Google Apps Script (optional) — writes responses to a Sheet |
 
 ---
