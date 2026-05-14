@@ -26,6 +26,9 @@ export default defineConfig(({ mode }) => {
     define: {
       __APP_VERSION__: JSON.stringify(env.VITE_APP_VERSION ?? '0.0.0'),
     },
+    server: {
+      allowedHosts: true,
+    },
     base: env.VITE_BASE_URL ?? './',
     build: {
       outDir: 'dist',
