@@ -24,7 +24,6 @@ import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import ScoutKeysModal from '../components/ScoutKeysModal';
 import type { Invitee } from '../types';
-import type { CSJurisdiction } from '../../scout/types';
 
 // ── Types ───────────────────────────────────────────────────────────────────────
 
