@@ -48,14 +48,38 @@ export default function InviteesTab() {
   const ev = state.events.find(e => e.id === state.activeEventId);
 
   async function importFromSheets() {
-    setImportStatus('Sheets import is not available in this version.');
+    if (!sheetsUrl.trim()) {
+      setImportStatus('Paste a Google Sheets URL first.');
+      return;
+    }
+    setImportStatus('Google Sheets import requires full OAuth setup. For now, export your sheet as CSV and import using the CSV/JSON button above.');
   }
 
-  function importJSON(file: File) {
+  function parseCSV(text: string): Array<Record<string, string>> {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return [];
+    const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    const rows: Array<Record<string, string>> = [];
+    for (let i = 1; i < lines.length; i++) {
+      const vals = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const obj: Record<string, string> = {};
+      header.forEach((h, idx) => { obj[h] = vals[idx] ?? ''; });
+      rows.push(obj);
+    }
+    return rows;
+  }
+
+  function importFile(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const raw = JSON.parse(reader.result as string) as Array<Record<string, string>>;
+        let raw: Array<Record<string, string>>;
+        if (file.name.endsWith('.csv')) {
+          raw = parseCSV(reader.result as string);
+        } else {
+          raw = JSON.parse(reader.result as string) as Array<Record<string, string>>;
+        }
+
         const parsed = raw.map(r => {
           const full = r.name ?? `${r.firstName ?? ''} ${r.lastName ?? ''}`.trim();
           const parts = full.split(' ');
@@ -67,14 +91,15 @@ export default function InviteesTab() {
             email:     r.email ?? '',
           });
         }).filter(i => i.email);
+
         const merged = [...state.invitees];
         for (const inc of parsed) {
           const idx = merged.findIndex(m => m.email.toLowerCase() === inc.email.toLowerCase());
           if (idx < 0) merged.push(inc);
         }
         dispatch({ type: 'SET_INVITEES', invitees: merged });
-        setImportStatus(`JSON import: ${parsed.length} rows.`);
-      } catch (e) { setImportStatus('JSON parse error: ' + String(e)); }
+        setImportStatus(`Import: ${parsed.length} rows added.`);
+      } catch (e) { setImportStatus('Import error: ' + String(e)); }
     };
     reader.readAsText(file);
   }
@@ -158,11 +183,11 @@ export default function InviteesTab() {
           <input
             ref={fileRef}
             type="file"
-            accept=".json"
+            accept=".csv,.json"
             style={{ display: 'none' }}
-            onChange={e => e.target.files?.[0] && importJSON(e.target.files[0])}
+            onChange={e => e.target.files?.[0] && importFile(e.target.files[0])}
           />
-          <button className="if-btn sm" onClick={() => fileRef.current?.click()}>Import JSON</button>
+          <button className="if-btn sm" onClick={() => fileRef.current?.click()}>Import CSV/JSON</button>
         </div>
       </div>
 

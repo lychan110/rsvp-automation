@@ -24,6 +24,7 @@ import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import ScoutKeysModal from '../components/ScoutKeysModal';
 import type { Invitee } from '../types';
+import type { CSJurisdiction } from '../../scout/types';
 
 // ── Types ───────────────────────────────────────────────────────────────────────
 
@@ -43,13 +44,15 @@ export default function ScoutPage() {
   const dispatch = useAppDispatch();
   const { goBack } = useRouter();
 
-  const apiKey    = sessionStorage.getItem(CS_APIKEY_SK) ?? ''; // CS_APIKEY_SK='***'
+  const apiKey    = sessionStorage.getItem(CS_APIKEY_SK) ?? '';
   const endpoint   = sessionStorage.getItem(CS_ENDPOINT_SK) ?? DEFAULT_ENDPOINT;
   const searchKey  = sessionStorage.getItem(CS_SEARCH_KEY) ?? '';
   const osKey      = sessionStorage.getItem(CS_OS_KEY) ?? '';
+  const jx         = JSON.parse(sessionStorage.getItem(CS_JX_KEY) ?? '{}') as CSJurisdiction;
   const hasLiteLLM = !!apiKey;
   const hasOS      = !!osKey;
   const hasKeys    = hasLiteLLM || hasOS;
+  const hasJx      = !!jx.state;
 
   const [scanState,  setScanState]  = useState<ScanState>('idle');
   const [results,    setResults]    = useState<DiscoveredOfficial[]>([]);
@@ -135,7 +138,7 @@ export default function ScoutPage() {
     }
   }
 
-  function handleSaveKeys(apiKey: string, endpoint: string, searchKey: string, osKey: string) {
+  function handleSaveKeys(apiKey: string, endpoint: string, searchKey: string, osKey: string, jx: CSJurisdiction) {
     if (apiKey) sessionStorage.setItem(CS_APIKEY_SK, apiKey);
     else sessionStorage.removeItem(CS_APIKEY_SK);
 
@@ -148,8 +151,8 @@ export default function ScoutPage() {
     if (osKey) sessionStorage.setItem(CS_OS_KEY, osKey);
     else sessionStorage.removeItem(CS_OS_KEY);
 
-    // Update local state
-    // (will auto-update on next render via sessionStorage reads)
+    sessionStorage.setItem(CS_JX_KEY, JSON.stringify(jx));
+
     setShowKeysModal(false);
   }
 
@@ -218,7 +221,33 @@ export default function ScoutPage() {
                 color: 'var(--accent)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
               }}
             >
-              <Icon name="chevron-right" size={11} /> Configure API Keys
+              <Icon name="chevron-right" size={11} /> Configure API Keys & Jurisdiction
+            </button>
+          </div>
+        )}
+
+        {/* Jurisdiction banner */}
+        {hasKeys && !hasJx && (
+          <div style={{
+            marginTop: 8, padding: '14px 16px', borderRadius: 8,
+            background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.25)',
+            marginBottom: 12,
+          }}>
+            <div style={{ fontFamily: 'var(--rf-serif)', fontSize: 13, color: 'var(--text-heading)', marginBottom: 6 }}>
+              Jurisdiction not configured
+            </div>
+            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>
+              Set your state and location(s) to enable targeted scans.
+            </div>
+            <button
+              onClick={() => setShowKeysModal(true)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                fontFamily: 'var(--rf-mono)', fontSize: 11,
+                color: 'var(--accent)', background: 'transparent', border: 'none', cursor: 'pointer', padding: 0,
+              }}
+            >
+              <Icon name="chevron-right" size={11} /> Configure Jurisdiction
             </button>
           </div>
         )}
@@ -350,6 +379,7 @@ export default function ScoutPage() {
             endpoint={endpoint}
             searchKey={searchKey}
             osKey={osKey}
+            jx={jx}
             onSave={handleSaveKeys}
             onClose={() => setShowKeysModal(false)}
           />

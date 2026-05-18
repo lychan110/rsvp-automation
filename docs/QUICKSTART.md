@@ -2,35 +2,7 @@
 
 ## What is InviteFlow?
 
-InviteFlow sends personalized event invitations and tracks RSVPs. All data stays in your browser — no Google account needed.
-
----
-
-## Setup
-
-### 1. Get a Resend API Key
-
-InviteFlow uses Resend to send emails.
-
-1. Go to [resend.com](https://resend.com) — sign up (free, 3,000 emails/month)
-2. API Keys → Create key
-3. Copy the key
-
-### 2. Configure the App
-
-Create or edit `.env` in the project root:
-```
-VITE_RESEND_API_KEY=re_xxxxxxxxxxxxx
-```
-
-### 3. Run the App
-
-```bash
-npm install
-npm run dev
-```
-
-Open `http://localhost:5173/inviteflow.html` in your browser.
+InviteFlow manages VIP event invitations end-to-end — from drafting personalized emails to tracking RSVPs. All data stays in your browser or Google account; nothing is stored on external servers.
 
 ---
 
@@ -38,59 +10,90 @@ Open `http://localhost:5173/inviteflow.html` in your browser.
 
 ### Step 1 — Create an Event
 
-Go to **Setup** tab. Fill in:
+Go to the **Setup** tab. Fill in:
 - Event name, date, venue
 - Organization name
-- Contact name, contact email (this is the "from" address for invites)
+- Contact name and email (this is the "from" address for invites)
 
 Save. Your event is now stored in your browser.
 
-### Step 2 — Add Guests
+Optionally, you can also set up:
+- Google Sheet URL for your guest list
+- Google Form URL for RSVP tracking
+- Image URL for emblem
 
-Go to **Invitees** tab.
-- **Add manually** — click + to add each guest
-- **Import** — go to **Sync** tab → Import CSV or JSON
+### Step 2 — Add Invitees
 
-CSV format:
+Go to the **Invitees** tab. Add guests by:
+- **Manually** — click the + button and fill in guest details
+- **Import CSV** — click "Import CSV/JSON" and select a CSV file with columns: FirstName, LastName, Email, Title, Category, Notes
+- **Import JSON** — upload a JSON file with invitee records
+
+CSV format example:
 ```
 FirstName,LastName,Title,Category,Email
 John,Doe,Mayor,City,john@example.com
+Jane,Smith,Senator,State,jane@example.com
 ```
+
+Email is required for every guest.
 
 ### Step 3 — Compose Your Invite
 
-Go to **Compose** tab. Write your email. Use template tokens:
+Go to the **Compose** tab. Write your email template using {{template tokens}}:
 
 ```
 Dear {{FirstName}},
 
 You're invited to {{EventName}} on {{EventDate}} at {{Venue}}.
 
-RSVP here: {{RSVP_Link}}
+We'd love to have you join us. RSVP here: {{RSVP_Link}}
 
 Best,
 {{ContactName}}
 ```
 
-Preview with any guest to see how it looks.
+Use **Preview** to check how emails will look with merged data before sending.
 
-### Step 4 — Send
+### Step 4 — Send Invitations
 
-Go to **Send** tab.
+Go to the **Send** tab.
 
-1. **Test first** — Enter your email, click "Send Test Email"
-2. **Confirm** — Check your inbox, then check "Confirm test received"
-3. **Send bulk** — Now the "Send Bulk" button is enabled
+1. **Review checks** — verify sender email, template, and all recipients have emails
+2. **Send** — click the send button to send invitations in batches
+3. **Track** — monitor progress and failures in the send log
 
-The app sends in batches to respect Resend's rate limits.
+InviteFlow sends in batches with automatic delays to respect rate limits.
 
-### Step 5 — Track (Optional)
+### Step 5 — Track RSVPs (Optional)
 
-If you use a Google Form for RSVPs:
-1. Create a Google Form
-2. Add the form URL to your event's `formUrl` in Setup
-3. Set up the included Google Apps Script to write responses to a Sheet
-4. View responses in the Tracker tab
+If you connected a Google Form for RSVPs:
+1. Go to the Tracker tab to view RSVP statistics
+2. See responses by category
+3. Export data from Settings for further analysis
+
+---
+
+## Template Tokens
+
+Use these tokens in your email template. InviteFlow will replace them with each guest's data:
+
+| Token | Replaces with |
+|-------|---|
+| `{{FirstName}}` | Guest first name |
+| `{{LastName}}` | Guest last name |
+| `{{FullName}}` | First + Last |
+| `{{EventName}}` | Event name |
+| `{{EventDate}}` | Event date |
+| `{{Venue}}` | Venue |
+| `{{RSVP_Link}}` | RSVP form link |
+| `{{FullTitle}}` | Guest title |
+| `{{OrgName}}` | Organization |
+| `{{ContactName}}` | Your name |
+| `{{ContactEmail}}` | Your email |
+| `{{VIPStart}}` | VIP window start time |
+| `{{VIPEnd}}` | VIP window end time |
+| `{{Date_Sent}}` | Send date |
 
 ---
 
@@ -98,37 +101,78 @@ If you use a Google Form for RSVPs:
 
 ### Exporting Data
 
-- **Sync tab** → Export CSV for current event's guest list
-- **Settings** → Export all data (JSON backup)
+- **Invitees tab** → "Export CSV" to download current event's guest list
+- **Settings** → "Export all data" for a complete JSON backup of all events and settings
 
 ### Importing Data
 
-- **Sync tab** → Import CSV or JSON
-- Shows a preview of what will be added/updated
+- **Invitees tab** → "Import CSV/JSON" to add guests from a file
+- Shows a preview before importing — merges with existing guests (no deletion)
 
 ### Clearing Data
 
-- **Settings** → Clear all data — removes everything from browser storage
+- **Settings** → "Clear all data" to remove everything from browser storage
+
+---
+
+## Discover Officials (Optional)
+
+Use the Discover page to find and verify elected officials for your jurisdiction.
+
+### Setup
+
+1. **Get a SerpAPI key** — Sign up at https://serpapi.com/ (free tier: 100 searches/month)
+2. **Set up LiteLLM proxy** — Run locally on `http://127.0.0.1:4000` (or your configured endpoint)
+3. **Configure in Discover**:
+   - Go to Discover tab → click Settings
+   - Enter your LiteLLM endpoint, API key, and SerpAPI key
+   - Set your jurisdiction: State, Counties, Cities
+   - Keys are stored in session only — never persisted
+
+### Scanning
+
+- Select a scan target (US Congress, State Legislators, City Council, etc.)
+- Click "Start Scan"
+- Review results and select officials to add to your invitees
+- Added officials' contact info merges into your guest list
 
 ---
 
 ## Tips
 
 - **Start small** — test with 3–5 guests before your full list
-- **Preview** — use the Compose tab's preview to check merged emails
-- **Backup** — regularly export your data as JSON
-- **No cloud** — everything lives in your browser. Clear browser cache = lose data. Export often!
+- **Preview before send** — use Compose → Preview to check merged emails
+- **Backup often** — export your data as JSON regularly
+- **No cloud storage** — everything lives in your browser. Clear your cache = lose data. Export often!
+- **Batch sending** — InviteFlow respects rate limits by sending in batches with delays
+- **Google Forms integration** — connect a Google Form to {{RSVP_Link}} and responses populate the Tracker automatically
+- **Discover for officials** — real-time web search grounds results so you find current contact info
 
 ---
 
 ## Troubleshooting
 
-### "Resend API key not configured"
-- Add `VITE_RESEND_API_KEY` to your `.env` file
+### "Data gone after refresh?"
+This is expected — data is local to your browser. Import your JSON backup to restore.
 
-### Emails not sending
-- Check your Resend API key is correct
-- Check your "from" email is verified in Resend (resend.com → Domains)
+### "Template tokens not replacing?"
+Verify token names are exact (case-sensitive): `{{FirstName}}` not `{{firstname}}`.
 
-### Data gone after refresh?
-- This is expected — data is local to this browser. Import your JSON backup to restore.
+### "CSV import failed?"
+- Ensure CSV has a header row
+- Check that the email column exists
+- Verify proper CSV formatting (commas, quotes)
+
+### "Discover not working?"
+- Configure LiteLLM endpoint and API key in Discover → Settings
+- Set your jurisdiction (State field required)
+- Verify SerpAPI key is set for web search scans
+
+### "Emails not sending?"
+- Verify all required setup fields are filled (contact name, contact email)
+- Check that you have a composed email template
+- Ensure all guests have email addresses
+
+---
+
+**Note:** This guide reflects the current app state. For the latest features, check the in-app Help tab.
