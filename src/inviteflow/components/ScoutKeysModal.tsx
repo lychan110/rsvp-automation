@@ -1,20 +1,27 @@
 import { useState } from 'react';
 import { DEFAULT_ENDPOINT } from '../../scout/constants';
+import type { CSJurisdiction } from '../../scout/types';
 
 interface Props {
   apiKey: string;
   endpoint: string;
   searchKey: string;
   osKey: string;
-  onSave: (apiKey: string, endpoint: string, searchKey: string, osKey: string) => void;
+  jx: CSJurisdiction;
+  onSave: (apiKey: string, endpoint: string, searchKey: string, osKey: string, jx: CSJurisdiction) => void;
   onClose: () => void;
 }
 
-export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, onSave, onClose }: Props) {
+export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx, onSave, onClose }: Props) {
   const [keyDraft, setKeyDraft] = useState(apiKey);
   const [endDraft, setEndDraft] = useState(endpoint || DEFAULT_ENDPOINT);
   const [searchDraft, setSearchDraft] = useState(searchKey);
   const [osDraft, setOsDraft] = useState(osKey);
+  const [stateDraft, setStateDraft] = useState(jx.state);
+  const [countiesDraft, setCountiesDraft] = useState(jx.counties);
+  const [city1Draft, setCity1Draft] = useState(jx.city1);
+  const [city2Draft, setCity2Draft] = useState(jx.city2);
+  const [city3Draft, setCity3Draft] = useState(jx.city3);
   const [keyErr, setKeyErr] = useState(false);
   const [endErr, setEndErr] = useState(false);
 
@@ -30,7 +37,14 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, onS
   function save() {
     if (keyDraft && !keyDraft.trim()) { setKeyErr(true); return; }
     if (endDraft && !isValidUrl(endDraft)) { setEndErr(true); return; }
-    onSave(keyDraft.trim(), endDraft.trim() || DEFAULT_ENDPOINT, searchDraft.trim(), osDraft.trim());
+    const jxUpdated: CSJurisdiction = {
+      state: stateDraft.trim(),
+      counties: countiesDraft.trim(),
+      city1: city1Draft.trim(),
+      city2: city2Draft.trim(),
+      city3: city3Draft.trim(),
+    };
+    onSave(keyDraft.trim(), endDraft.trim() || DEFAULT_ENDPOINT, searchDraft.trim(), osDraft.trim(), jxUpdated);
     onClose();
   }
 
@@ -192,8 +206,120 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, onS
           />
         </div>
 
+        <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0' }} />
+
+        {/* Jurisdiction Configuration */}
+        <div style={{ marginBottom: 4 }}>
+          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
+            Jurisdiction <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(for official discovery)</span>
+          </label>
+          <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>
+            Configure your state and location(s) for targeted official discovery scans.
+          </div>
+
+          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>State</label>
+          <input
+            type="text"
+            placeholder="e.g., California"
+            value={stateDraft}
+            onChange={e => setStateDraft(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && save()}
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              background: 'var(--bg-raised)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              color: 'var(--text-base)',
+              fontFamily: 'monospace',
+              boxSizing: 'border-box',
+              marginBottom: 8,
+            }}
+          />
+
+          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>Counties (comma-separated)</label>
+          <input
+            type="text"
+            placeholder="e.g., Santa Clara, San Mateo"
+            value={countiesDraft}
+            onChange={e => setCountiesDraft(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && save()}
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              background: 'var(--bg-raised)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              color: 'var(--text-base)',
+              fontFamily: 'monospace',
+              boxSizing: 'border-box',
+              marginBottom: 8,
+            }}
+          />
+
+          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 1</label>
+          <input
+            type="text"
+            placeholder="e.g., San Jose"
+            value={city1Draft}
+            onChange={e => setCity1Draft(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && save()}
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              background: 'var(--bg-raised)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              color: 'var(--text-base)',
+              fontFamily: 'monospace',
+              boxSizing: 'border-box',
+              marginBottom: 8,
+            }}
+          />
+
+          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 2</label>
+          <input
+            type="text"
+            placeholder="e.g., Palo Alto"
+            value={city2Draft}
+            onChange={e => setCity2Draft(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && save()}
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              background: 'var(--bg-raised)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              color: 'var(--text-base)',
+              fontFamily: 'monospace',
+              boxSizing: 'border-box',
+              marginBottom: 8,
+            }}
+          />
+
+          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 3</label>
+          <input
+            type="text"
+            placeholder="e.g., Mountain View"
+            value={city3Draft}
+            onChange={e => setCity3Draft(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && save()}
+            style={{
+              width: '100%',
+              padding: '8px 10px',
+              background: 'var(--bg-raised)',
+              border: '1px solid var(--border)',
+              borderRadius: 6,
+              color: 'var(--text-base)',
+              fontFamily: 'monospace',
+              boxSizing: 'border-box',
+              marginBottom: 12,
+            }}
+          />
+        </div>
+
         <div style={{ fontSize: 9, color: 'var(--text-muted)', marginTop: 10, lineHeight: 1.6 }}>
-          All keys are stored in session only — never persisted to localStorage.
+          All settings are stored in session only — never persisted to localStorage.
         </div>
 
         <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
