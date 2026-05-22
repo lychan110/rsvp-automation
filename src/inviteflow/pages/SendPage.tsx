@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { useAppState } from '../state/AppContext';
+import { useState, useEffect } from 'react';
+import { useAppState, useAppDispatch } from '../state/AppContext';
+import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 
@@ -7,9 +8,12 @@ type Filter = 'all' | 'pending' | 'failed';
 
 export default function SendPage() {
   const state = useAppState();
+  const dispatch = useAppDispatch();
+  const { navigate } = useRouter();
   const [filter, setFilter] = useState<Filter>('pending');
   const [activePane, setActivePane] = useState<'preflight' | 'log'>('preflight');
   const [err, setErr] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const ev = state.events.find(e => e.id === state.activeEventId);
 
@@ -28,11 +32,27 @@ export default function SendPage() {
     ? Math.round((state.sendProgress.current / state.sendProgress.total) * 100)
     : 0;
 
-  async function sendBulk() {
-    if (!ev) { setErr('No active event — go to Event Setup.'); return; }
-    if (!state.htmlBody.trim()) { setErr('No email body — go to Compose.'); return; }
-    if (filtered.length === 0) { setErr('No invitees match the current filter.'); return; }
+  useEffect(() => {
+    if (!confirmOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setConfirmOpen(false);
+    };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
+  }, [confirmOpen]);
+
+  function handleSendClick() {
+    if (!ev) { setErr('No event selected — go back and choose one.'); return; }
+    if (!state.htmlBody.trim()) { setErr('No invitation template yet — tap Compose to write one.'); return; }
+    if (filtered.length === 0) { setErr('No invitees match this filter — try \'All\'.'); return; }
+    setErr('');
+    setConfirmOpen(true);
+  }
+
+  function handleConfirmSend() {
+    setConfirmOpen(false);
     setErr('Email sending is not available in this version.');
+    // dispatch({ type: 'START_SEND', total: filtered.length });
   }
 
   return (
@@ -142,9 +162,15 @@ export default function SendPage() {
             {/* Progress */}
             {state.sending && (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginBottom: 6, letterSpacing: '0.08em' }}>
-                  <span>SENDING IN PROGRESS</span>
-                  <span>{state.sendProgress.current} / {state.sendProgress.total} ({progress}%)</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between',
+                  fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)',
+                  marginBottom: 8, letterSpacing: '0.06em' }}>
+                  <span style={{ color: 'var(--text-heading)' }}>
+                    Sending to: {state.sendProgress.currentName || '…'}
+                  </span>
+                  <span>
+                    {state.sendProgress.current} of {state.sendProgress.total} ({progress}%)
+                  </span>
                 </div>
                 <div className="if-progress-track">
                   <div className="if-progress-fill" style={{ width: `${progress}%` }} />
@@ -188,17 +214,46 @@ export default function SendPage() {
         )}
       </div>
 
+      {/* Confirmation Modal */}
+      {confirmOpen && (
+        <>
+          <div className="if-modal-backdrop" onClick={() => setConfirmOpen(false)} />
+          <div className="if-modal" style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            zIndex: 1000, maxWidth: 400, width: 'calc(100% - 32px)',
+          }}>
+            <div style={{ marginBottom: 12 }}>
+              <div className="if-page-title">Ready to send?</div>
+            </div>
+            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 12, color: 'var(--text-secondary)', marginBottom: 16, lineHeight: 1.65 }}>
+              Sending to {filtered.length} {filter === 'all' ? 'invitee(s)' : filter + ' invitee(s)'}.<br />
+              From: {ev?.contactEmail || '(not configured)'}<br />
+              Subject: {state.textSubject || '(no subject set)'}<br />
+              This will run in the background once confirmed.
+            </div>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className="if-btn" onClick={() => setConfirmOpen(false)} style={{ flex: 1 }}>
+                Cancel
+              </button>
+              <button className="if-btn pri" onClick={handleConfirmSend} style={{ flex: 1 }}>
+                Confirm & Send
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* Sticky CTA */}
       <div style={{ flexShrink: 0, padding: '12px 18px', borderTop: '1px solid var(--border)', background: 'var(--bg-root)' }}>
         <button
           className="if-primary-btn"
-          onClick={sendBulk}
+          onClick={handleSendClick}
           disabled={state.sending || filtered.length === 0}
           style={{ width: '100%' }}
         >
           {state.sending
-            ? `SENDING… ${state.sendProgress.current}/${state.sendProgress.total}`
-            : `SEND ${filtered.length} INVITATION${filtered.length !== 1 ? 'S' : ''} →`}
+            ? `Sending ${state.sendProgress.current} of ${state.sendProgress.total}…`
+            : `Send to ${filtered.length} pending invitee${filtered.length !== 1 ? 's' : ''} →`}
         </button>
       </div>
     </div>
