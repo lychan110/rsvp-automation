@@ -5,20 +5,26 @@ import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import { saveEvent } from '../api/storage';
 
-const FIELDS: Array<{ key: keyof AppEvent; label: string; type?: string; placeholder?: string }> = [
-  { key: 'name',            label: 'Event Name',              placeholder: 'Annual Civic Leadership Reception' },
-  { key: 'date',            label: 'Event Date',              type: 'date' },
-  { key: 'venue',           label: 'Venue',                   placeholder: 'Veterans Memorial Hall' },
-  { key: 'orgName',         label: 'Organization Name',       placeholder: 'Civic Foundation' },
-  { key: 'contactName',     label: 'Contact Name',            placeholder: 'Lenya Chan' },
-  { key: 'contactEmail',    label: 'Contact Email',           type: 'email', placeholder: 'contact@org.com' },
-  { key: 'vipStart',        label: 'VIP Start Time',          placeholder: '5:30 PM' },
-  { key: 'vipEnd',          label: 'VIP End Time',            placeholder: '6:30 PM' },
-  { key: 'formUrl',         label: 'Google Form Base URL',    placeholder: 'https://docs.google.com/forms/…' },
-  { key: 'entryEmail',      label: 'Form Email Entry ID',     placeholder: 'entry.123456789' },
-  { key: 'rsvpResponseUrl', label: 'RSVP Response Sheet URL', placeholder: 'https://docs.google.com/spreadsheets/…' },
-  { key: 'masterSheetUrl',  label: 'Master Sheet URL',        placeholder: 'https://docs.google.com/spreadsheets/…' },
-  { key: 'imgEmblemUrl',    label: 'Emblem Image URL',        placeholder: 'https://drive.google.com/…' },
+const FIELDS_DETAILS: Array<{ key: keyof AppEvent; label: string; type?: string; placeholder?: string }> = [
+  { key: 'name',     label: 'Event name',         placeholder: 'Annual Civic Leadership Reception' },
+  { key: 'date',     label: 'Event date',         type: 'date' },
+  { key: 'venue',    label: 'Venue',              placeholder: 'Veterans Memorial Hall' },
+  { key: 'orgName',  label: 'Organization name',  placeholder: 'Civic Foundation' },
+  { key: 'vipStart', label: 'VIP start time',     placeholder: '5:30 PM' },
+  { key: 'vipEnd',   label: 'VIP end time',       placeholder: '6:30 PM' },
+];
+
+const FIELDS_CONTACT: Array<{ key: keyof AppEvent; label: string; type?: string; placeholder?: string }> = [
+  { key: 'contactName',  label: 'Contact name',                     placeholder: 'Lenya Chan' },
+  { key: 'contactEmail', label: 'Sender email (used as From address)', type: 'email', placeholder: 'contact@org.com' },
+];
+
+const FIELDS_LINKS: Array<{ key: keyof AppEvent; label: string; type?: string; placeholder?: string }> = [
+  { key: 'formUrl',         label: 'RSVP form URL',                   placeholder: 'https://docs.google.com/forms/…' },
+  { key: 'entryEmail',      label: 'Form email entry ID (entry.XXXXXXXX)', placeholder: 'entry.123456789' },
+  { key: 'rsvpResponseUrl', label: 'RSVP response sheet URL',         placeholder: 'https://docs.google.com/spreadsheets/…' },
+  { key: 'masterSheetUrl',  label: 'Master sheet URL',                placeholder: 'https://docs.google.com/spreadsheets/…' },
+  { key: 'imgEmblemUrl',    label: 'Emblem image URL',                placeholder: 'https://drive.google.com/…' },
 ];
 
 export default function EventSetupPage() {
@@ -93,7 +99,48 @@ export default function EventSetupPage() {
         <div className="if-section-label" style={{ padding: '8px 0 8px' }}>EVENT DETAILS</div>
         <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
           <div style={{ display: 'grid', gap: 12 }}>
-            {FIELDS.map(f => (
+            {FIELDS_DETAILS.map(f => (
+              <div key={f.key}>
+                <label className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
+                <input
+                  className="if-input"
+                  style={{ width: '100%' }}
+                  type={f.type ?? 'text'}
+                  placeholder={f.placeholder}
+                  value={draft[f.key] as string}
+                  onChange={e => setField(f.key, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>
+          CONTACT & SENDER
+          <span style={{ color: 'var(--warning)', fontSize: 9, marginLeft: 6 }}>REQUIRED FOR SENDING</span>
+        </div>
+        <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gap: 12 }}>
+            {FIELDS_CONTACT.map(f => (
+              <div key={f.key}>
+                <label className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
+                <input
+                  className="if-input"
+                  style={{ width: '100%' }}
+                  type={f.type ?? 'text'}
+                  placeholder={f.placeholder}
+                  value={draft[f.key] as string}
+                  onChange={e => setField(f.key, e.target.value)}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>LINKS & CONFIGURATION</div>
+        <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gap: 12 }}>
+            {FIELDS_LINKS.map(f => (
               <div key={f.key}>
                 <label className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
                 <input
@@ -122,7 +169,7 @@ export default function EventSetupPage() {
       }}>
         <button className="if-btn pri" style={{ width: '100%' }} onClick={save} disabled={saving}>
           <Icon name="check" size={13} style={{ marginRight: 6 }} />
-          {saving ? 'SAVING…' : 'SAVE EVENT'}
+          {saving ? 'SAVING…' : 'Save event'}
         </button>
       </div>
     </div>

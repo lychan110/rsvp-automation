@@ -210,10 +210,10 @@ export default function InviteesPage() {
 
       <div style={{ padding: '0 18px 10px', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0 }}>
         <button className="if-btn sm" onClick={exportCSV}>Export CSV</button>
-        <button className="if-btn sm" onClick={generateAllRsvpLinks}>Gen RSVP Links</button>
+        <button className="if-btn sm" onClick={generateAllRsvpLinks}>Generate RSVP links</button>
         <input ref={fileRef} type="file" accept=".json" style={{ display: 'none' }}
           onChange={e => e.target.files?.[0] && importJSON(e.target.files[0])} />
-        <button className="if-btn sm" onClick={() => fileRef.current?.click()}>Import JSON</button>
+        <button className="if-btn sm" onClick={() => fileRef.current?.click()}>Import from JSON</button>
       </div>
 
       {importStatus && (
