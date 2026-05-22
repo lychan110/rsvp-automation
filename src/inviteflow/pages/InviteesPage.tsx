@@ -195,6 +195,7 @@ export default function InviteesPage() {
     setShowAdd(false);
   }
 
+  const isMobile = useIsMobile();
   const toolbarRight = (
     <div style={{ display: 'flex', gap: 6 }}>
       <button className="if-header-btn" onClick={() => setShowAdd(true)} aria-label="Add invitee">
@@ -233,8 +234,15 @@ export default function InviteesPage() {
         </div>
       )}
 
-      <div style={{ flex: 1, overflow: 'hidden', margin: '0 18px 18px', borderRadius: 'var(--rt-card-radius)', border: '1px solid var(--border)' }}>
-        <DataTable
+      {isMobile ? (
+        <InviteeMobileList
+          invitees={state.invitees}
+          onEdit={(inv) => { setDraft(inv); setShowAdd(true); }}
+          dispatch={dispatch}
+        />
+      ) : (
+        <div style={{ flex: 1, overflow: 'hidden', margin: '0 18px 18px', borderRadius: 'var(--rt-card-radius)', border: '1px solid var(--border)' }}>
+          <DataTable
           value={state.invitees}
           selection={selected}
           onSelectionChange={e => setSelected(e.value as Invitee[])}
@@ -285,7 +293,8 @@ export default function InviteesPage() {
           />
           <Column rowEditor style={{ width: 70 }} />
         </DataTable>
-      </div>
+        </div>
+      )}
 
       {showAdd && (
         <div className="if-modal-backdrop">
