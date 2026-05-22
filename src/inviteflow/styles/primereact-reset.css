@@ -3,8 +3,8 @@
    custom properties to match the Roster palette from theme.css. */
 :root {
   color-scheme: dark;
-  --highlight-bg:          #3d2a1e;
-  --highlight-text-color:  var(--accent-highlight);
+  --highlight-bg:          var(--accent-muted);
+  --highlight-text-color:  var(--accent-text);
   --surface-ground:        var(--bg-root);
   --surface-section:       var(--bg-root);
   --surface-card:          var(--bg-surface);

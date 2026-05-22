@@ -1,60 +1,97 @@
-/* Warm dark palette — Roster design direction (2026-04-29)
-   Single source of truth for all color, typography, and layout tokens.
+/* ADHD/auDHD-optimised dark palette — warm dark gray + blue accent (2026-05-22)
+   Single source of truth for all color, typography, spacing, and layout tokens.
    Never hard-code values in components — always reach for a var(--*) here.
+   Research basis: docs/superpowers/specs/2026-05-22-adhd-ux-spec.md
 */
 :root {
-  /* ─── Core palette (R_DARK) ───────────────────────────────────────────── */
-  --bg-root:      #14110d;
-  --bg-surface:   #1c1814;
-  --bg-subtle:    #221d18;
-  --bg-nested:    #221d18;
-  --bg-dense:     #0d0b08;
-  --bg-info-tint: #1a2810;
-  --bg-warn-tint: #221a08;
+  /* ─── Backgrounds (warm dark gray — not pure black; slight warm undertone) ── */
+  --bg-root:      #141416;          /* page background */
+  --bg-surface:   #1C1C1F;          /* cards, panels */
+  --bg-elevated:  #242428;          /* dropdowns, modals */
+  --bg-subtle:    #2A2A2E;          /* hover states, code blocks, selected rows */
+  --bg-nested:    #2A2A2E;          /* nested surfaces */
+  --bg-dense:     #0E0E10;          /* deepest layer */
+  --bg-overlay:   rgba(0,0,0,0.55); /* modal backdrops — less alarming than 0.8 */
 
-  /* ─── Borders ─────────────────────────────────────────────────────────── */
-  --border:        #2c2620;
-  --border-subtle: #251f1a;
-  --border-input:  #3d342c;
+  /* ─── Borders ─────────────────────────────────────────────────────────────── */
+  --border:         #2E2E32;  /* card/panel borders */
+  --border-subtle:  #252528;  /* hairlines */
+  --border-input:   #3A3A3F;  /* input field borders */
+  --border-focus:   #5B8DEF;  /* focus ring — matches accent */
+  --border-strong:  #4A4A50;  /* emphasis separators */
 
-  /* ─── Text ────────────────────────────────────────────────────────────── */
-  --text-heading:   #f4ede0;
-  --text-base:      #c8bda9;
-  --text-secondary: #8a8170;
-  --text-muted:     #6a6055;
-  --text-dim:       #756a5e;
+  /* ─── Text (warm off-white — eliminates halation on dark bg) ─────────────── */
+  --text-heading:    #E8E6E1;  /* headings, primary values — ~14:1 contrast */
+  --text-base:       #C9C7C0;  /* body text, default content — ~9:1 */
+  --text-secondary:  #9B9890;  /* secondary labels, captions — ~5:1 */
+  --text-muted:      #6B6864;  /* disabled, de-emphasised — ~3.5:1 */
+  --text-dim:        #5A5855;  /* placeholder-adjacent */
+  --text-placeholder:#5A5855;  /* input placeholders */
 
-  /* ─── Accent — terracotta ─────────────────────────────────────────────── */
-  --accent:           #e57158;
-  --accent-highlight: #f08c76;
-  --accent-border:    #7a3426;
+  /* ─── Accent — blue (hsl 218°, muted 82% sat; familiar, non-alarming) ────── */
+  --accent:           #5B8DEF;               /* primary interactive, active states */
+  --accent-hover:     #6F9DF2;               /* button hover */
+  --accent-muted:     rgba(91,141,239,0.15); /* selected row backgrounds */
+  --accent-text:      #93B8FF;               /* text links, inline accented text */
+  --accent-border:    #2A3D5A;               /* token button borders */
 
-  /* ─── Semantic ────────────────────────────────────────────────────────── */
-  --success:        #7ba577;
-  --success-bg:     #3d5a3a;
-  --danger:         #cc6555;
-  --danger-dark:    #a34535;
-  --warning:        #d4a942;
-  --warning-border: #8a6b1e;
-  --amber:          #d4a942;
-  --blue:           #8aabcc;
-  --purple:         #9988cc;
-  --gold:           #d4a942;
+  /* ─── Semantic / status (muted — not alarming; always pair with icon+text) ── */
+  --success:          #5CB87A;  /* muted green */
+  --success-bg:       #1A2E1F;  /* success surface */
+  --success-border:   #2D5038;  /* success border */
 
-  /* ─── Typography ──────────────────────────────────────────────────────── */
+  --danger:           #E06464;  /* muted warm red (~50% sat vs pure red) */
+  --danger-bg:        #2E1A1A;  /* danger surface */
+  --danger-dark:      #5A2A2A;  /* danger border / emphasis */
+
+  --warning:          #D4A44C;  /* amber/gold — less searing than bright yellow */
+  --warning-bg:       #2E2518;  /* warning surface */
+  --warning-border:   #5A4820;  /* warning border */
+
+  --info:             #5B8DEF;  /* matches accent — info is not alarming */
+  --info-bg:          #1A2235;  /* info surface */
+  --info-border:      #2A3D5A;  /* info border */
+
+  /* ─── Typography ──────────────────────────────────────────────────────────── */
   --rf-serif: 'Fraunces', 'Georgia', serif;
   --rf-mono:  'Geist Mono', 'JetBrains Mono', 'Consolas', monospace;
-  --rf-sans:  system-ui, -apple-system, sans-serif;
+  --rf-sans:  'Lexend', 'Inter', system-ui, sans-serif;
 
-  /* ─── Layout tokens (mirrors RT.* in roster.jsx) ─────────────────────── */
-  --rt-page-pad-x:   20px;
-  --rt-section-pad:  0 20px 8px;
-  --rt-card-margin:  0 0 12px 0;
-  --rt-row-pad:      11px 14px;
-  --rt-row-gap:      10px;
-  --rt-row-chip:     28px;
-  --rt-chip-radius:  6px;
-  --rt-card-radius:  10px;
-  --rt-card-pad-x:   14px;
-  --rt-header-btn:   32px;
+  /* Semantic font aliases (use these in components) */
+  --font-body:  'Lexend', 'Inter', system-ui, sans-serif;       /* UI copy, buttons, body */
+  --font-label: 'Atkinson Hyperlegible', 'Inter', sans-serif;   /* form labels, captions */
+  --font-mono:  'Geist Mono', 'JetBrains Mono', 'Consolas', monospace; /* code, data */
+
+  /* Line-height tokens */
+  --lh-body:    1.65;  /* body copy — PMC/NCBI validated for reading ease */
+  --lh-ui:      1.4;   /* UI elements, nav labels */
+  --lh-heading: 1.25;  /* headings */
+  --lh-table:   1.4;   /* table cells */
+
+  /* Letter-spacing tokens */
+  --ls-body:        0em;    /* Lexend has spacing built in — don't stack */
+  --ls-label-upper: 0.08em; /* uppercase labels */
+  --ls-micro:       0.12em; /* all-caps micro-labels */
+
+  /* ─── Spacing — 8-point grid ──────────────────────────────────────────────── */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+
+  /* ─── Layout tokens (mirrors RT.* in roster.jsx) ─────────────────────────── */
+  --rt-page-pad-x:  20px;
+  --rt-section-pad: 0 20px 8px;
+  --rt-card-margin: 0 0 12px 0;
+  --rt-row-pad:     11px 14px;
+  --rt-row-gap:     10px;
+  --rt-row-chip:    28px;
+  --rt-chip-radius: 6px;
+  --rt-card-radius: 10px;
+  --rt-card-pad-x:  14px;
+  --rt-header-btn:  32px;
 }

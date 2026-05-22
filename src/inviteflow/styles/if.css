@@ -1,9 +1,15 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   InviteFlow Design System — Roster direction (2026-04-29)
+   InviteFlow Design System — ADHD/auDHD optimised (2026-05-22)
    All values sourced from var(--*) in theme.css. No hard-coded colors or
    spacing. For a new component, inherit an existing class rather than
    writing new primitives; create a new primitive only when inheritance
    is not sufficient, and document it in the table in CLAUDE.md.
+
+   Font rules:
+   - Body copy / button labels / card titles → var(--font-body) [Lexend]
+   - Form labels / captions / data annotations → var(--font-label) [Atkinson Hyperlegible]
+   - Code / chips / status / metadata / nav → var(--rf-mono) [Geist Mono]
+   - Page titles / stat values → var(--rf-serif) [Fraunces]
    ══════════════════════════════════════════════════════════════════════════ */
 
 
@@ -47,7 +53,7 @@
   justify-content: center;
   flex-shrink: 0;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 150ms ease-out, color 150ms ease-out;
   font-size: 14px;
 }
 .if-header-btn:hover { border-color: var(--border-input); color: var(--text-heading); }
@@ -103,7 +109,7 @@
   border-bottom: 1px solid var(--border);
   text-align: left;
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 150ms ease-out;
 }
 .if-card-row:hover { background: var(--bg-subtle); }
 .if-card-row.last  { border-bottom: none; }
@@ -112,19 +118,22 @@
 
 .if-card-row-body { flex: 1; min-width: 0; }
 
+/* Body font for card titles — Lexend reduces reading fatigue vs. serif for UI */
 .if-card-row-title {
-  font-family: var(--rf-serif);
-  font-size: 14px;
+  font-family: var(--font-body);
+  font-size: 15px;
   font-weight: 500;
+  line-height: var(--lh-ui);
   color: var(--text-heading);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Mono for sub-labels — these are metadata, not prose */
 .if-card-row-sub {
   font-family: var(--rf-mono);
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--text-secondary);
   margin-top: 2px;
@@ -162,10 +171,11 @@
   font-weight: 600;
   letter-spacing: 0.04em;
 }
-.if-row-chip.filled  { background: var(--accent);      border-color: var(--accent);      color: #fff; }
-.if-row-chip.good    { background: var(--success-bg);  border-color: var(--success);     color: var(--success); }
-.if-row-chip.warn    { background: var(--bg-warn-tint); border-color: var(--warning-border); color: var(--warning); }
-.if-row-chip.bad     { background: rgba(163,69,53,0.15); border-color: var(--danger-dark); color: var(--danger); }
+/* text-heading not #fff — #5B8DEF blue on pure white fails WCAG AA (~3.4:1) */
+.if-row-chip.filled  { background: var(--accent);      border-color: var(--accent);          color: var(--text-heading); }
+.if-row-chip.good    { background: var(--success-bg);  border-color: var(--success);         color: var(--success); }
+.if-row-chip.warn    { background: var(--warning-bg);  border-color: var(--warning-border);  color: var(--warning); }
+.if-row-chip.bad     { background: var(--danger-bg);   border-color: var(--danger-dark);     color: var(--danger); }
 
 /* ─── STAT CHIP ──────────────────────────────────────────────────────────── */
 /* Small bordered tile: mono caps label + serif value.
@@ -180,7 +190,7 @@
 }
 .if-stat-chip-label {
   font-family: var(--rf-mono);
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 0.1em;
   color: var(--text-secondary);
   text-transform: uppercase;
@@ -209,7 +219,7 @@
   white-space: nowrap;
   flex-shrink: 0;
 }
-.if-status-pill.good   { color: var(--success);  border-color: var(--success-bg); }
+.if-status-pill.good   { color: var(--success);  border-color: var(--success-border); }
 .if-status-pill.warn   { color: var(--warning);  border-color: var(--warning-border); }
 .if-status-pill.bad    { color: var(--danger);   border-color: var(--danger-dark); }
 .if-status-pill.accent { color: var(--accent);   border-color: var(--accent-border); }
@@ -237,7 +247,7 @@
   border: none;
   cursor: pointer;
   text-align: center;
-  transition: background 0.15s, color 0.15s;
+  transition: background 150ms ease-out, color 150ms ease-out;
   white-space: nowrap;
 }
 .if-tab-option.active {
@@ -264,7 +274,7 @@
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
-  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  transition: background 150ms ease-out, color 150ms ease-out, border-color 150ms ease-out;
 }
 .if-filter-chip:hover:not(.active) { color: var(--text-base); border-color: var(--border-input); }
 .if-filter-chip.active {
@@ -275,22 +285,22 @@
 .if-filter-chip .count { opacity: 0.6; }
 
 /* ─── PRIMARY BUTTON ─────────────────────────────────────────────────────── */
-/* Sticky-bottom or section CTA — terracotta fill. */
+/* Sticky-bottom or section CTA — accent fill. */
 .if-primary-btn {
   width: 100%;
   padding: 13px;
   border-radius: 8px;
   background: var(--accent);
-  color: #fff;
-  font-size: 13px;
+  color: var(--text-heading);
+  font-size: 15px;
   font-weight: 600;
-  font-family: var(--rf-mono);
-  letter-spacing: 0.06em;
+  font-family: var(--font-body);
+  letter-spacing: 0.01em;
   border: none;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 150ms ease-out;
 }
-.if-primary-btn:hover:not(:disabled) { background: var(--accent-highlight); }
+.if-primary-btn:hover:not(:disabled) { background: var(--accent-hover); }
 .if-primary-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 /* ─── BUTTONS ─────────────────────────────────────────────────────────────── */
@@ -305,37 +315,37 @@
   border: 1px solid var(--border-input);
   background: transparent;
   color: var(--text-secondary);
-  font-family: var(--rf-mono);
-  font-size: 10px;
-  letter-spacing: 0.04em;
+  font-family: var(--font-body);
+  font-size: 13px;
+  letter-spacing: 0.01em;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
+  transition: border-color 150ms ease-out, background 150ms ease-out, color 150ms ease-out;
   white-space: nowrap;
 }
-.if-btn:hover:not(:disabled) { border-color: var(--accent-highlight); color: var(--text-heading); }
+.if-btn:hover:not(:disabled) { border-color: var(--accent-hover); color: var(--text-heading); }
 .if-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-.if-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.if-btn:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 
 .if-btn.pri {
   border-color: var(--accent);
   background: var(--accent);
-  color: #fff;
+  color: var(--text-heading);
 }
-.if-btn.pri:hover:not(:disabled) { background: var(--accent-highlight); border-color: var(--accent-highlight); }
+.if-btn.pri:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); }
 
 .if-btn.grn {
   border-color: var(--success-bg);
   background: var(--success-bg);
-  color: #fff;
+  color: var(--success);
 }
-.if-btn.grn:hover:not(:disabled) { background: var(--success); border-color: var(--success); }
+.if-btn.grn:hover:not(:disabled) { background: var(--success); border-color: var(--success); color: var(--bg-root); }
 
 .if-btn.del {
   border-color: var(--danger-dark);
   background: transparent;
   color: var(--danger);
 }
-.if-btn.del:hover:not(:disabled) { background: rgba(163, 69, 53, 0.12); }
+.if-btn.del:hover:not(:disabled) { background: var(--danger-bg); }
 
 .if-btn.ghost {
   border-color: var(--border);
@@ -344,8 +354,8 @@
 }
 .if-btn.ghost:hover:not(:disabled) { border-color: var(--border-input); color: var(--text-base); }
 
-.if-btn.sm  { min-height: 28px; padding: 0 10px; font-size: 9px; }
-.if-btn.lg  { min-height: 40px; padding: 0 18px; font-size: 11px; }
+.if-btn.sm  { min-height: 28px; padding: 0 10px; font-size: 11px; }
+.if-btn.lg  { min-height: 40px; padding: 0 18px; font-size: 14px; }
 
 /* ─── INPUTS ──────────────────────────────────────────────────────────────── */
 .if-input {
@@ -356,23 +366,24 @@
   color: var(--text-base);
   padding: 8px 12px;
   border-radius: 6px;
-  font-family: var(--rf-mono);
-  font-size: 12px;
+  font-family: var(--font-body);
+  font-size: 14px;
   outline: none;
-  transition: border-color 0.15s;
-  line-height: 1.6;
+  transition: border-color 150ms ease-out;
+  line-height: var(--lh-ui);
 }
-.if-input:focus { border-color: var(--accent); }
-.if-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.if-input:focus { border-color: var(--border-focus); }
+.if-input:focus-visible { outline: 2px solid var(--border-focus); outline-offset: 2px; }
 .if-input.err { border-color: var(--danger-dark); }
-.if-input::placeholder { color: var(--text-muted); }
+.if-input::placeholder { color: var(--text-placeholder); }
 
 /* ─── FIELD LABEL ─────────────────────────────────────────────────────────── */
+/* Atkinson Hyperlegible for labels — engineered for character disambiguation */
 .if-label {
-  font-family: var(--rf-mono);
-  font-size: 9px;
+  font-family: var(--font-label);
+  font-size: 12px;
   color: var(--text-secondary);
-  letter-spacing: 0.12em;
+  letter-spacing: var(--ls-label-upper);
   text-transform: uppercase;
   display: block;
   margin-bottom: 4px;
@@ -393,7 +404,7 @@
   letter-spacing: 0.07em;
   cursor: pointer;
   text-transform: uppercase;
-  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  transition: color 150ms ease-out, border-color 150ms ease-out, background 150ms ease-out;
 }
 .if-pill:hover:not(.active) { border-color: var(--border-input); color: var(--text-base); }
 .if-pill.active {
@@ -454,29 +465,28 @@
 }
 
 /* ─── EMPTY STATE ─────────────────────────────────────────────────────────── */
+/* Body font — empty states are prose, not data */
 .if-empty {
   padding: 48px 24px;
   text-align: center;
   color: var(--text-secondary);
-  font-family: var(--rf-serif);
-  font-size: 14px;
-  font-style: italic;
-  line-height: 1.7;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: var(--lh-body);
 }
 .if-empty-sub {
-  font-size: 10px;
+  font-size: 12px;
   font-family: var(--rf-mono);
   color: var(--text-muted);
-  font-style: normal;
   letter-spacing: 0.08em;
   margin-bottom: 16px;
 }
 
 /* ─── INLINE STATUS ──────────────────────────────────────────────────────── */
-.if-status       { font-family: var(--rf-mono); font-size: 10px; }
+.if-status       { font-family: var(--rf-mono); font-size: 10px; line-height: var(--lh-ui); }
 .if-status.ok    { color: var(--success); }
 .if-status.err   { color: var(--danger); }
-.if-status.info  { color: var(--accent-highlight); }
+.if-status.info  { color: var(--accent-text); }
 
 /* ─── NAV TABS ────────────────────────────────────────────────────────────── */
 .if-nav-tab {
@@ -492,14 +502,14 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 150ms ease-out, border-color 150ms ease-out;
 }
 .if-nav-tab:hover:not(.active) { color: var(--text-base); }
 .if-nav-tab.active {
   border-bottom-color: var(--accent);
   color: var(--text-heading);
 }
-.if-nav-tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.if-nav-tab:focus-visible { outline: 2px solid var(--border-focus); outline-offset: -2px; }
 
 /* ─── BULK ACTION BAR ────────────────────────────────────────────────────── */
 .if-bulk-bar {
@@ -517,7 +527,7 @@
 .if-modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background: var(--bg-overlay);
   z-index: 50;
   display: flex;
   align-items: center;
@@ -561,7 +571,7 @@
   height: 100%;
   background: var(--accent);
   border-radius: 2px;
-  transition: width 0.2s;
+  transition: width 400ms ease-out;
 }
 
 /* ─── STACKED BAR (tracker overview) ────────────────────────────────────── */
@@ -585,19 +595,30 @@
 
 /* ─── MOBILE RESPONSIVE ──────────────────────────────────────────────────── */
 @media (max-width: 767px) {
-  .if-btn            { min-height: 44px; padding: 0 18px; font-size: 13px; border-radius: 8px; }
-  .if-btn.sm         { min-height: 36px; padding: 0 14px; font-size: 11px; }
-  .if-btn.lg         { min-height: 48px; font-size: 14px; }
-  .if-input          { min-height: 44px; padding: 10px 12px; font-size: 14px; }
+  .if-btn            { min-height: 44px; padding: 0 18px; font-size: 14px; border-radius: 8px; }
+  .if-btn.sm         { min-height: 36px; padding: 0 14px; font-size: 12px; }
+  .if-btn.lg         { min-height: 48px; font-size: 15px; }
+  .if-input          { min-height: 44px; padding: 10px 12px; font-size: 16px; }
   .if-nav-tab        { min-height: 44px; font-size: 12px; padding: 0 16px; }
   .if-pill           { min-height: 36px; font-size: 11px; }
   .if-filter-chip    { min-height: 36px; font-size: 11px; }
-  .if-primary-btn    { padding: 15px; font-size: 15px; }
-  .if-label          { font-size: 11px; }
-  .if-status         { font-size: 11px; }
-  .if-card-row-title { font-size: 15px; }
-  .if-card-row-sub   { font-size: 11px; }
+  .if-primary-btn    { padding: 15px; font-size: 16px; }
+  .if-label          { font-size: 12px; }
+  .if-status         { font-size: 12px; }
+  .if-card-row-title { font-size: 16px; }
+  .if-card-row-sub   { font-size: 12px; }
   .if-page-title     { font-size: 20px; }
   .if-eyebrow        { font-size: 11px; }
   .if-meta-line      { font-size: 11px; }
+  .if-header-btn     { min-height: 44px; width: 44px; }
+}
+
+/* ─── PREFERS-REDUCED-MOTION ─────────────────────────────────────────────── */
+/* Use 0.01ms not 0s — some JS (PrimeReact, progress bar) relies on transitionend */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

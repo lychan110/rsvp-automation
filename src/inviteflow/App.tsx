@@ -39,7 +39,7 @@ export default function App() {
             overflow: 'hidden',
             background: 'var(--bg-root)',
             color: 'var(--text-base)',
-            fontFamily: 'var(--rf-mono)',
+            fontFamily: 'var(--font-body)',
             display: 'flex',
             flexDirection: 'column',
           }}
