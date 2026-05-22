@@ -87,8 +87,11 @@ export default function SettingsPage() {
           </div>
         )}
 
-        <div className="if-section-label" style={{ padding: '12px 0 8px' }}>EMAIL (REQUIRED)</div>
-        <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
+        <div className="if-section-label" style={{ padding: '12px 0 8px' }}>
+          EMAIL
+          <span style={{ color: 'var(--warning)', fontSize: 8, marginLeft: 6 }}>REQUIRED FOR SENDING</span>
+        </div>
+        <div className="if-card" style={{ padding: 14, marginBottom: 12, borderLeft: '3px solid var(--warning)' }}>
           <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>RESEND API KEY</label>
           <input
             className="if-input"
@@ -110,7 +113,10 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>DISCOVER (OPTIONAL)</div>
+        <div className="if-section-label" style={{ padding: '8px 0 8px' }}>
+          DISCOVER
+          <span style={{ color: 'var(--text-muted)', fontSize: 9 }}> · optional</span>
+        </div>
         <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
           <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>OPENAI-COMPATIBLE API KEY</label>
           <input

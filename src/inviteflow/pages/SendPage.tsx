@@ -147,14 +147,15 @@ export default function SendPage() {
             <div className="if-section-label" style={{ marginBottom: 8 }}>THIS EVENT</div>
             <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
               {[
-                { label: 'Pending', value: pendingCount, color: 'var(--text-secondary)' },
-                { label: 'Sent',    value: sentCount,    color: 'var(--success)' },
-                { label: 'Failed',  value: failedCount,  color: 'var(--danger)' },
-                { label: 'Ready',   value: filtered.length, color: 'var(--accent)' },
+                { label: 'Pending', value: pendingCount, sublabel: `of ${state.invitees.length} total`, color: 'var(--text-secondary)' },
+                { label: 'Sent',    value: sentCount,    sublabel: 'sent successfully', color: 'var(--success)' },
+                { label: 'Failed',  value: failedCount,  sublabel: `of ${state.invitees.length} total`, color: 'var(--danger)' },
+                { label: 'Ready',   value: filtered.length, sublabel: 'will receive', color: 'var(--accent)' },
               ].map(s => (
                 <div key={s.label} className="if-stat-chip">
                   <div className="if-stat-chip-label">{s.label}</div>
                   <div className="if-stat-chip-value" style={{ color: s.color }}>{s.value}</div>
+                  <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginTop: 3 }}>{s.sublabel}</div>
                 </div>
               ))}
             </div>

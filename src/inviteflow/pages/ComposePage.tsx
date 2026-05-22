@@ -7,10 +7,10 @@ import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import { personalize } from '../api/email';
 
-const TOKENS = [
-  'FirstName', 'LastName', 'FullName', 'FullTitle',
-  'EventName', 'EventDate', 'Venue', 'OrgName',
-  'ContactName', 'ContactEmail', 'VIPStart', 'VIPEnd', 'RSVP_Link', 'Date_Sent',
+const TOKEN_GROUPS = [
+  { label: 'Guest', tokens: ['FirstName', 'LastName', 'FullName', 'FullTitle'] },
+  { label: 'Event', tokens: ['EventName', 'EventDate', 'Venue', 'VIPStart', 'VIPEnd'] },
+  { label: 'Meta',  tokens: ['OrgName', 'ContactName', 'ContactEmail', 'RSVP_Link', 'Date_Sent'] },
 ];
 
 export default function ComposePage() {
@@ -78,13 +78,21 @@ export default function ComposePage() {
         </div>
 
         {/* Tokens */}
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'center' }}>
-          <span className="if-label" style={{ marginBottom: 0 }}>Insert</span>
-          {TOKENS.map(t => (
-            <button key={t} onClick={() => insertToken(t)} className="if-btn sm"
-              style={{ color: 'var(--accent)', borderColor: 'var(--accent-border)' }}>
-              {`{{${t}}}`}
-            </button>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {TOKEN_GROUPS.map(group => (
+            <div key={group.label} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'flex-start' }}>
+              <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-secondary)', minWidth: 36, marginTop: 4 }}>
+                {group.label}
+              </span>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
+                {group.tokens.map(t => (
+                  <button key={t} onClick={() => insertToken(t)} className="if-btn sm"
+                    style={{ color: 'var(--accent-text)', borderColor: 'var(--accent-border)' }}>
+                    {`{{${t}}}`}
+                  </button>
+                ))}
+              </div>
+            </div>
           ))}
         </div>
 
@@ -145,7 +153,7 @@ export default function ComposePage() {
       <div style={{ flexShrink: 0, padding: '12px 18px', borderTop: '1px solid var(--border)', background: 'var(--bg-root)' }}>
         <button className="if-btn pri" style={{ width: '100%' }} onClick={() => navigate('send')}>
           <Icon name="send" size={13} style={{ marginRight: 6 }} />
-          CONTINUE TO SEND →
+          Continue to send →
         </button>
       </div>
     </div>
