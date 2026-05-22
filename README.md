@@ -1,4 +1,4 @@
-# InviteFlow v4.2.0
+# InviteFlow v4.3.0
 
 > Event invitation management — no Google account required
 
