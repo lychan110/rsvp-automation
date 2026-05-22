@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { useRouter } from '../state/RouterContext';
+import { useAppState } from '../state/AppContext';
 import Icon from './Icon';
 
 interface PageHeaderProps {
@@ -11,6 +12,7 @@ interface PageHeaderProps {
 }
 
 export default function PageHeader({ eyebrow, title, showBack = false, right }: PageHeaderProps) {
+  const state = useAppState();
   const { goBack, navigate } = useRouter();
 
   const rightEl: ReactNode = right === undefined
@@ -37,7 +39,14 @@ export default function PageHeader({ eyebrow, title, showBack = false, right }: 
         </button>
       )}
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div className="if-eyebrow" style={{ marginBottom: 3 }}>{eyebrow}</div>
+        <div className="if-eyebrow" style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+          {eyebrow}
+          {state.unsaved && (
+            <span style={{ display: 'inline-block', width: 5, height: 5, borderRadius: '50%',
+              background: 'var(--warning)', flexShrink: 0 }}
+              aria-label="Unsaved changes" title="You have unsaved changes" />
+          )}
+        </div>
         <div className="if-page-title">{title}</div>
       </div>
       {rightEl}

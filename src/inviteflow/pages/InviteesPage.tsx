@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useAppState, useAppDispatch } from '../state/AppContext';
@@ -6,6 +6,17 @@ import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import type { Invitee } from '../types';
+
+function useIsMobile() {
+  const [mobile, setMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = (e: MediaQueryListEvent) => setMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return mobile;
+}
 
 function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
   return {
@@ -26,6 +37,55 @@ function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
   };
 }
 
+function InviteeMobileList({
+  invitees,
+  onEdit,
+  dispatch,
+}: {
+  invitees: Invitee[];
+  onEdit: (inv: Invitee) => void;
+  dispatch: ReturnType<typeof useAppDispatch>;
+}) {
+  return (
+    <div style={{ flex: 1, overflow: 'auto', padding: '0 18px 18px' }}>
+      {invitees.length === 0 ? (
+        <div className="if-empty">No invitees yet.</div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {invitees.map((inv) => (
+            <div
+              key={inv.id}
+              className="if-card"
+              style={{ padding: '14px 16px', cursor: 'pointer' }}
+              onClick={() => onEdit(inv)}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div className="if-card-row-title">
+                  {inv.firstName} {inv.lastName}
+                </div>
+                <span style={{ fontSize: 9, fontFamily: 'var(--rf-mono)', color: inv.inviteStatus === 'sent' ? 'var(--success)' : inv.inviteStatus === 'failed' ? 'var(--danger)' : 'var(--text-muted)', letterSpacing: '0.07em' }}>
+                  {inv.inviteStatus.toUpperCase()}
+                </span>
+              </div>
+              <div className="if-card-row-sub" style={{ marginBottom: 6 }}>
+                {inv.title} {inv.title && inv.category ? '·' : ''} {inv.category}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'underline', marginBottom: 6 }}>
+                <a href={`mailto:${inv.email}`} onClick={e => e.stopPropagation()}>
+                  {inv.email}
+                </a>
+              </div>
+              <div className="if-tag" style={{ display: 'inline-block', fontSize: 9, borderColor: inv.rsvpStatus === 'Attending' ? 'var(--success)' : inv.rsvpStatus === 'Declined' ? 'var(--danger)' : 'var(--text-muted)' }}>
+                {inv.rsvpStatus}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 const INVITE_COLOR: Record<string, string> = {
   pending: 'var(--text-muted)', sent: 'var(--success)', failed: 'var(--danger)',
 };
@@ -44,6 +104,15 @@ export default function InviteesPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   const ev = state.events.find(e => e.id === state.activeEventId);
+
+  useEffect(() => {
+    if (!showAdd) return;
+    const h = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setShowAdd(false); setDraft({}); }
+    };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [showAdd]);
 
   function importJSON(file: File) {
     const reader = new FileReader();
@@ -126,6 +195,7 @@ export default function InviteesPage() {
     setShowAdd(false);
   }
 
+  const isMobile = useIsMobile();
   const toolbarRight = (
     <div style={{ display: 'flex', gap: 6 }}>
       <button className="if-header-btn" onClick={() => setShowAdd(true)} aria-label="Add invitee">
@@ -140,10 +210,10 @@ export default function InviteesPage() {
 
       <div style={{ padding: '0 18px 10px', display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', flexShrink: 0 }}>
         <button className="if-btn sm" onClick={exportCSV}>Export CSV</button>
-        <button className="if-btn sm" onClick={generateAllRsvpLinks}>Gen RSVP Links</button>
+        <button className="if-btn sm" onClick={generateAllRsvpLinks}>Generate RSVP links</button>
         <input ref={fileRef} type="file" accept=".json" style={{ display: 'none' }}
           onChange={e => e.target.files?.[0] && importJSON(e.target.files[0])} />
-        <button className="if-btn sm" onClick={() => fileRef.current?.click()}>Import JSON</button>
+        <button className="if-btn sm" onClick={() => fileRef.current?.click()}>Import from JSON</button>
       </div>
 
       {importStatus && (
@@ -164,8 +234,15 @@ export default function InviteesPage() {
         </div>
       )}
 
-      <div style={{ flex: 1, overflow: 'hidden', margin: '0 18px 18px', borderRadius: 'var(--rt-card-radius)', border: '1px solid var(--border)' }}>
-        <DataTable
+      {isMobile ? (
+        <InviteeMobileList
+          invitees={state.invitees}
+          onEdit={(inv) => { setDraft(inv); setShowAdd(true); }}
+          dispatch={dispatch}
+        />
+      ) : (
+        <div style={{ flex: 1, overflow: 'hidden', margin: '0 18px 18px', borderRadius: 'var(--rt-card-radius)', border: '1px solid var(--border)' }}>
+          <DataTable
           value={state.invitees}
           selection={selected}
           onSelectionChange={e => setSelected(e.value as Invitee[])}
@@ -216,13 +293,19 @@ export default function InviteesPage() {
           />
           <Column rowEditor style={{ width: 70 }} />
         </DataTable>
-      </div>
+        </div>
+      )}
 
       {showAdd && (
         <div className="if-modal-backdrop">
           <div className="if-modal">
-            <div className="if-modal-title">Add Invitee</div>
-            <div className="if-modal-sub">Email is required.</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div className="if-modal-title">Add invitee</div>
+              <button className="if-header-btn" onClick={() => { setShowAdd(false); setDraft({}); }} aria-label="Close">
+                <Icon name="x" size={13} />
+              </button>
+            </div>
+            <div className="if-modal-sub">Fill in the email address to add someone. All other fields are optional.</div>
             {(['firstName', 'lastName', 'title', 'category', 'email'] as const).map(k => (
               <div key={k} style={{ marginBottom: 10 }}>
                 <label className="if-label">{k}</label>

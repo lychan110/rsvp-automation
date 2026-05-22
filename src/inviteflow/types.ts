@@ -52,6 +52,6 @@ export interface AppState {
   htmlBody: string;
   sendLog: SendLogEntry[];
   sending: boolean;
-  sendProgress: { current: number; total: number };
+  sendProgress: { current: number; total: number; currentName: string };
   unsaved: boolean;
 }

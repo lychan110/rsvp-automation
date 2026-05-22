@@ -10,7 +10,7 @@ export const INITIAL_STATE: AppState = {
   htmlBody: '',
   sendLog: [],
   sending: false,
-  sendProgress: { current: 0, total: 0 },
+  sendProgress: { current: 0, total: 0, currentName: '' },
   unsaved: false,
 };
 
@@ -42,9 +42,9 @@ export function reducer(state: AppState, action: Action): AppState {
     case 'SET_COMPOSE':
       return { ...state, textSubject: action.subject, htmlBody: action.html, unsaved: true };
     case 'START_SEND':
-      return { ...state, sending: true, sendLog: [], sendProgress: { current: 0, total: action.total } };
+      return { ...state, sending: true, sendLog: [], sendProgress: { current: 0, total: action.total, currentName: '' } };
     case 'SEND_PROGRESS':
-      return { ...state, sendProgress: { ...state.sendProgress, current: action.current } };
+      return { ...state, sendProgress: { ...state.sendProgress, current: action.current, currentName: action.currentName } };
     case 'LOG_SEND':
       return { ...state, sendLog: [...state.sendLog, action.entry] };
     case 'STOP_SEND':

@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useAppState } from '../state/AppContext';
+import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 
 type Filter = 'all' | 'attending' | 'pending' | 'declined';
 
 export default function TrackerPage() {
   const state = useAppState();
+  const { navigate } = useRouter();
   const [filter, setFilter] = useState<Filter>('all');
 
   const inv = state.invitees;
@@ -40,8 +42,13 @@ export default function TrackerPage() {
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-root)' }}>
         <PageHeader eyebrow="TRACKER" title="RSVP roster" showBack />
         <div className="if-empty">
-          No invitees yet.
-          <div className="if-empty-sub">ADD THEM IN THE INVITEES PAGE</div>
+          No invitees to track yet.
+          <div className="if-empty-sub" style={{ marginBottom: 16 }}>
+            Add your guest list in the Invitees step first.
+          </div>
+          <button className="if-btn pri" onClick={() => navigate('invitees')}>
+            Go to Invitees →
+          </button>
         </div>
       </div>
     );
@@ -56,14 +63,15 @@ export default function TrackerPage() {
         {/* Stat strip */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, margin: '8px 0 16px' }}>
           {[
-            { label: 'TOTAL',      value: total,      color: 'var(--text-secondary)' },
-            { label: 'SENT',       value: sent,        color: 'var(--success)' },
-            { label: 'ATTENDING',  value: attending,   color: 'var(--accent)' },
-            { label: 'NO RESP.',   value: noResponse,  color: 'var(--text-muted)' },
+            { label: 'Sent', value: sent, sublabel: `of ${total} invited`, color: 'var(--success)' },
+            { label: 'Attending', value: attending, sublabel: `of ${sent} invited`, color: 'var(--accent)' },
+            { label: 'Awaiting', value: noResponse, sublabel: `of ${sent} invited`, color: 'var(--warning)' },
+            { label: 'Declined', value: declined, sublabel: 'declined', color: 'var(--danger)', hideOnMobileIfZero: true },
           ].map(s => (
-            <div key={s.label} className="if-stat" style={{ borderLeftColor: s.color }}>
+            <div key={s.label} className="if-stat" style={{ borderLeftColor: s.color, display: (s.hideOnMobileIfZero && s.value === 0 && typeof window !== 'undefined' && window.innerWidth < 768) ? 'none' : undefined }}>
               <div className="if-stat-label">{s.label}</div>
               <div className="if-stat-value" style={{ color: s.color }}>{s.value}</div>
+              <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginTop: 4 }}>{s.sublabel}</div>
             </div>
           ))}
         </div>
@@ -87,9 +95,9 @@ export default function TrackerPage() {
 
           <div style={{ display: 'flex', gap: 16, fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}>
             {[
-              { label: `${attending} YES`,   dot: 'var(--accent)',   opacity: 1 },
-              { label: `${noResponse} PEND`, dot: 'var(--warning)', opacity: 0.7 },
-              { label: `${declined} NO`,     dot: 'var(--danger)',   opacity: 0.7 },
+              { label: 'attending',   dot: 'var(--accent)',   opacity: 1 },
+              { label: 'awaiting',    dot: 'var(--warning)', opacity: 0.7 },
+              { label: 'declined',    dot: 'var(--danger)',   opacity: 0.7 },
             ].map(l => (
               <span key={l.label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                 <span style={{ width: 6, height: 6, borderRadius: '50%', background: l.dot, opacity: l.opacity, flexShrink: 0, display: 'inline-block' }} />
@@ -102,10 +110,10 @@ export default function TrackerPage() {
         {/* Filter chips */}
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
           {[
-            { k: 'all' as Filter,       l: 'All',     c: total },
-            { k: 'attending' as Filter, l: 'Yes',     c: attending },
-            { k: 'pending' as Filter,   l: 'Pending', c: noResponse },
-            { k: 'declined' as Filter,  l: 'No',      c: declined },
+            { k: 'all' as Filter,       l: 'All',       c: total },
+            { k: 'attending' as Filter, l: 'Attending', c: attending },
+            { k: 'pending' as Filter,   l: 'Awaiting',  c: noResponse },
+            { k: 'declined' as Filter,  l: 'Declined',  c: declined },
           ].map(f => (
             <button key={f.k} className={`if-filter-chip${filter === f.k ? ' active' : ''}`} onClick={() => setFilter(f.k)}>
               {f.l}
@@ -121,7 +129,8 @@ export default function TrackerPage() {
             <div className="if-empty" style={{ padding: 24 }}>No results for this filter.</div>
           ) : filtered.map((o, i) => {
             const rsvpColor = o.rsvpStatus === 'Attending' ? 'var(--accent)' : o.rsvpStatus === 'Declined' ? 'var(--danger)' : 'var(--warning)';
-            const rsvpLabel = o.rsvpStatus === 'Attending' ? 'YES' : o.rsvpStatus === 'Declined' ? 'NO' : 'WAIT';
+            const inviteStatusDisplay = o.inviteStatus === 'sent' ? 'Invited' : o.inviteStatus === 'failed' ? 'Send failed' : undefined;
+            const inviteStatusColor = o.inviteStatus === 'sent' ? 'var(--success)' : o.inviteStatus === 'failed' ? 'var(--danger)' : 'var(--text-muted)';
 
             return (
               <div key={o.id} style={{
@@ -147,11 +156,14 @@ export default function TrackerPage() {
                     </div>
                   )}
                 </div>
-                <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: o.inviteStatus === 'sent' ? 'var(--success)' : o.inviteStatus === 'failed' ? 'var(--danger)' : 'var(--text-muted)', flexShrink: 0, letterSpacing: '0.06em' }}>
-                  {o.inviteStatus.toUpperCase()}
-                </span>
+                {inviteStatusDisplay && (
+                  <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: inviteStatusColor, flexShrink: 0, letterSpacing: '0.06em' }}>
+                    {inviteStatusDisplay}
+                    {o.inviteStatus === 'failed' && <> <a href="#" onClick={e => { e.preventDefault(); }} style={{ color: inviteStatusColor, textDecoration: 'underline' }}>→ retry in Send</a></>}
+                  </span>
+                )}
                 <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, padding: '3px 6px', borderRadius: 3, border: `1px solid ${rsvpColor}`, color: rsvpColor, letterSpacing: '0.1em', flexShrink: 0 }}>
-                  {rsvpLabel}
+                  {o.rsvpStatus}
                 </span>
               </div>
             );

@@ -3,6 +3,7 @@ import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import type { RouteId } from '../state/RouterContext';
+import type { AppState } from '../types';
 
 interface WorkflowRow {
   num: string;
@@ -10,6 +11,43 @@ interface WorkflowRow {
   title: string;
   sub: string;
   route: RouteId;
+}
+
+type StepId = 'invitees' | 'compose' | 'send' | 'tracker';
+
+interface NextStep {
+  id: StepId;
+  route: RouteId;
+  ctaLabel: string;
+  contextLine: string;
+}
+
+function getNextStep(state: AppState): NextStep {
+  const hasInvitees = state.invitees.length > 0;
+  const hasTemplate = !!state.htmlBody.trim();
+  const pendingCount = state.invitees.filter(i => i.inviteStatus === 'pending').length;
+  const sentCount    = state.invitees.filter(i => i.inviteStatus === 'sent').length;
+
+  if (!hasInvitees) return {
+    id: 'invitees', route: 'invitees',
+    ctaLabel: 'Import your guest list →',
+    contextLine: 'No invitees added yet — start here.',
+  };
+  if (!hasTemplate) return {
+    id: 'compose', route: 'compose',
+    ctaLabel: 'Write the invitation email →',
+    contextLine: `${state.invitees.length} invitees ready, no template yet.`,
+  };
+  if (pendingCount > 0) return {
+    id: 'send', route: 'send',
+    ctaLabel: `Send to ${pendingCount} pending invitee${pendingCount !== 1 ? 's' : ''} →`,
+    contextLine: `${sentCount} already sent. ${pendingCount} remaining.`,
+  };
+  return {
+    id: 'tracker', route: 'tracker',
+    ctaLabel: 'Review RSVP responses →',
+    contextLine: `All ${sentCount} invites sent. Waiting for responses.`,
+  };
 }
 
 const WORKFLOW: WorkflowRow[] = [
@@ -68,6 +106,7 @@ export default function EventDashboard() {
   const attending = state.invitees.filter(i => i.rsvpStatus === 'Attending').length;
   const pending   = state.invitees.filter(i => i.rsvpStatus === 'No Response').length;
 
+  const nextStep = getNextStep(state);
   const recent = [...state.sendLog].reverse().slice(0, 5);
 
   if (!ev) {
@@ -92,9 +131,9 @@ export default function EventDashboard() {
         <div className="if-card" style={{ padding: '14px 16px', marginBottom: 12 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 0 }}>
             {[
-              { label: 'INVITED',   value: sent,      color: 'var(--text-heading)' },
-              { label: 'ATTENDING', value: attending, color: 'var(--accent)' },
-              { label: 'PENDING',   value: pending,   color: 'var(--text-muted)' },
+              { label: 'INVITED',   value: sent,      color: 'var(--text-heading)', sub: `of ${total} TOTAL` },
+              { label: 'ATTENDING', value: attending, color: 'var(--accent)', sub: `of ${sent} INVITED` },
+              { label: 'PENDING',   value: pending,   color: 'var(--text-muted)', sub: `of ${sent} INVITED` },
             ].map((s, i) => (
               <div
                 key={s.label}
@@ -120,19 +159,62 @@ export default function EventDashboard() {
           )}
         </div>
 
-        {/* Workflow */}
+        {/* Zone 1: Dominant CTA */}
+        <div className="if-card" style={{ padding: 20, marginBottom: 12 }}>
+          <div className="if-section-label" style={{ marginBottom: 10 }}>NEXT STEP</div>
+          <div style={{ fontSize: 17, fontFamily: 'var(--font-body)', fontWeight: 600, color: 'var(--text-heading)', marginBottom: 6 }}>
+            {nextStep.ctaLabel}
+          </div>
+          <div style={{ fontSize: 12, fontFamily: 'var(--rf-mono)', color: 'var(--text-secondary)', marginBottom: 14 }}>
+            {nextStep.contextLine}
+          </div>
+          <button
+            className="if-primary-btn"
+            style={{ width: '100%' }}
+            onClick={() => navigate(nextStep.route)}
+          >
+            {nextStep.ctaLabel}
+          </button>
+        </div>
+
+        {/* Zone 2: Remaining 4 steps */}
         <div className="if-section-label" style={{ padding: '8px 0 8px' }}>WORKFLOW</div>
-        <div className="if-card" style={{ marginBottom: 12 }}>
-          {WORKFLOW.map((w, i) => (
-            <CardRow
-              key={w.route}
-              chip={<span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9 }}>{w.num}</span>}
-              title={w.title}
-              sub={w.sub}
-              route={w.route}
-              isLast={i === WORKFLOW.length - 1}
-            />
-          ))}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
+          {WORKFLOW.slice(0, 4).map((w) => {
+            const isCompleted = w.route === 'invitees' && state.invitees.length > 0
+              || w.route === 'compose' && !!state.htmlBody.trim()
+              || w.route === 'send' && state.invitees.filter(i => i.inviteStatus === 'sent').length > 0;
+            const isCurrent = nextStep.route === w.route;
+
+            return (
+              <button
+                key={w.route}
+                onClick={() => navigate(w.route)}
+                style={{
+                  width: '100%', display: 'flex', alignItems: 'center', gap: 10,
+                  padding: 'var(--rt-row-pad)', background: 'transparent', border: 'none',
+                  cursor: 'pointer', textAlign: 'left',
+                }}
+              >
+                <div
+                  key={`chip-${nextStep.id}`}
+                  className={`if-row-chip${isCurrent ? ' filled if-step-done' : ''}${isCompleted ? ' good' : ''}`}
+                  style={{
+                    width: 28, height: 28, flexShrink: 0,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontFamily: 'var(--rf-mono)', fontSize: 9,
+                  }}
+                >
+                  {w.num}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="if-card-row-title">{w.title}</div>
+                  <div className="if-card-row-sub">{w.sub}</div>
+                </div>
+                <Icon name="chevron-right" size={13} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
+              </button>
+            );
+          })}
         </div>
 
         {/* More */}
