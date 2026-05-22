@@ -105,6 +105,15 @@ export default function InviteesPage() {
 
   const ev = state.events.find(e => e.id === state.activeEventId);
 
+  useEffect(() => {
+    if (!showAdd) return;
+    const h = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') { setShowAdd(false); setDraft({}); }
+    };
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [showAdd]);
+
   function importJSON(file: File) {
     const reader = new FileReader();
     reader.onload = () => {

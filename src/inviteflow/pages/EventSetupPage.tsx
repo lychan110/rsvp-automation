@@ -53,6 +53,7 @@ export default function EventSetupPage() {
       localStorage.setItem('gClientId', clientIdDraft);
       await saveEvent(saved);
       dispatch({ type: 'UPDATE_EVENT', event: saved });
+      dispatch({ type: 'SET_UNSAVED', unsaved: false });
       setStatus('Saved.');
     } catch (e) { setStatus('Error: ' + String(e)); }
     finally { setSaving(false); }
