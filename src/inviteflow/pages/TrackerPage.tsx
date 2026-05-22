@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useAppState } from '../state/AppContext';
+import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 
 type Filter = 'all' | 'attending' | 'pending' | 'declined';
 
 export default function TrackerPage() {
   const state = useAppState();
+  const { navigate } = useRouter();
   const [filter, setFilter] = useState<Filter>('all');
 
   const inv = state.invitees;
@@ -40,8 +42,13 @@ export default function TrackerPage() {
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column', background: 'var(--bg-root)' }}>
         <PageHeader eyebrow="TRACKER" title="RSVP roster" showBack />
         <div className="if-empty">
-          No invitees yet.
-          <div className="if-empty-sub">ADD THEM IN THE INVITEES PAGE</div>
+          No invitees to track yet.
+          <div className="if-empty-sub" style={{ marginBottom: 16 }}>
+            Add your guest list in the Invitees step first.
+          </div>
+          <button className="if-btn pri" onClick={() => navigate('invitees')}>
+            Go to Invitees →
+          </button>
         </div>
       </div>
     );

@@ -299,8 +299,13 @@ export default function InviteesPage() {
       {showAdd && (
         <div className="if-modal-backdrop">
           <div className="if-modal">
-            <div className="if-modal-title">Add Invitee</div>
-            <div className="if-modal-sub">Email is required.</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+              <div className="if-modal-title">Add invitee</div>
+              <button className="if-header-btn" onClick={() => { setShowAdd(false); setDraft({}); }} aria-label="Close">
+                <Icon name="x" size={13} />
+              </button>
+            </div>
+            <div className="if-modal-sub">Fill in the email address to add someone. All other fields are optional.</div>
             {(['firstName', 'lastName', 'title', 'category', 'email'] as const).map(k => (
               <div key={k} style={{ marginBottom: 10 }}>
                 <label className="if-label">{k}</label>
