@@ -13,7 +13,7 @@ export type Action =
   | { type: 'DELETE_INVITEES'; ids: string[] }
   | { type: 'SET_COMPOSE'; subject: string; html: string }
   | { type: 'START_SEND'; total: number }
-  | { type: 'SEND_PROGRESS'; current: number }
+  | { type: 'SEND_PROGRESS'; current: number; currentName: string }
   | { type: 'LOG_SEND'; entry: SendLogEntry }
   | { type: 'STOP_SEND' }
   | { type: 'SET_UNSAVED'; unsaved: boolean }

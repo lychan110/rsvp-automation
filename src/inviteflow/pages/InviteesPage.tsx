@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useAppState, useAppDispatch } from '../state/AppContext';
@@ -6,6 +6,17 @@ import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import type { Invitee } from '../types';
+
+function useIsMobile() {
+  const [mobile, setMobile] = useState(() => window.innerWidth < 768);
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 767px)');
+    const handler = (e: MediaQueryListEvent) => setMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+  return mobile;
+}
 
 function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
   return {
@@ -24,6 +35,55 @@ function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
     notes: '',
     ...partial,
   };
+}
+
+function InviteeMobileList({
+  invitees,
+  onEdit,
+  dispatch,
+}: {
+  invitees: Invitee[];
+  onEdit: (inv: Invitee) => void;
+  dispatch: ReturnType<typeof useAppDispatch>;
+}) {
+  return (
+    <div style={{ flex: 1, overflow: 'auto', padding: '0 18px 18px' }}>
+      {invitees.length === 0 ? (
+        <div className="if-empty">No invitees yet.</div>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {invitees.map((inv) => (
+            <div
+              key={inv.id}
+              className="if-card"
+              style={{ padding: '14px 16px', cursor: 'pointer' }}
+              onClick={() => onEdit(inv)}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                <div className="if-card-row-title">
+                  {inv.firstName} {inv.lastName}
+                </div>
+                <span style={{ fontSize: 9, fontFamily: 'var(--rf-mono)', color: inv.inviteStatus === 'sent' ? 'var(--success)' : inv.inviteStatus === 'failed' ? 'var(--danger)' : 'var(--text-muted)', letterSpacing: '0.07em' }}>
+                  {inv.inviteStatus.toUpperCase()}
+                </span>
+              </div>
+              <div className="if-card-row-sub" style={{ marginBottom: 6 }}>
+                {inv.title} {inv.title && inv.category ? '·' : ''} {inv.category}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--accent)', textDecoration: 'underline', marginBottom: 6 }}>
+                <a href={`mailto:${inv.email}`} onClick={e => e.stopPropagation()}>
+                  {inv.email}
+                </a>
+              </div>
+              <div className="if-tag" style={{ display: 'inline-block', fontSize: 9, borderColor: inv.rsvpStatus === 'Attending' ? 'var(--success)' : inv.rsvpStatus === 'Declined' ? 'var(--danger)' : 'var(--text-muted)' }}>
+                {inv.rsvpStatus}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 const INVITE_COLOR: Record<string, string> = {
