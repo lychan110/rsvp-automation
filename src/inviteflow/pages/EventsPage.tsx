@@ -95,10 +95,10 @@ export default function EventsPage() {
         {state.events.length === 0 && !loading && (
           <div className="if-card" style={{ textAlign: 'center', padding: '48px 24px', marginTop: 8 }}>
             <div style={{ fontFamily: 'var(--rf-serif)', fontSize: 16, color: 'var(--text-secondary)', marginBottom: 8, fontStyle: 'italic' }}>
-              No events yet
+              Start by creating your first event
             </div>
-            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-muted)', letterSpacing: '0.06em', marginBottom: 20 }}>
-              CREATE YOUR FIRST EVENT TO GET STARTED
+            <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
+              Each event has its own guest list, email template, and send history.
             </div>
             <button
               className="if-btn pri"

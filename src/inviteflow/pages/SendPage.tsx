@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
 import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
@@ -14,6 +14,9 @@ export default function SendPage() {
   const [activePane, setActivePane] = useState<'preflight' | 'log'>('preflight');
   const [err, setErr] = useState('');
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [errAction, setErrAction] = useState<{ label: string; fn: () => void } | null>(null);
+  const [sendComplete, setSendComplete] = useState(false);
+  const prevSending = useRef(false);
 
   const ev = state.events.find(e => e.id === state.activeEventId);
 
@@ -41,15 +44,36 @@ export default function SendPage() {
     return () => document.removeEventListener('keydown', handler);
   }, [confirmOpen]);
 
+  useEffect(() => {
+    if (prevSending.current && !state.sending && state.sendProgress.total > 0) {
+      setSendComplete(true);
+    }
+    prevSending.current = state.sending;
+  }, [state.sending]);
+
   function handleSendClick() {
-    if (!ev) { setErr('No event selected — go back and choose one.'); return; }
-    if (!state.htmlBody.trim()) { setErr('No invitation template yet — tap Compose to write one.'); return; }
-    if (filtered.length === 0) { setErr('No invitees match this filter — try \'All\'.'); return; }
+    if (!ev) {
+      setErr('No event selected — go back and choose one.');
+      setErrAction({ label: 'Go back', fn: () => navigate('event-home') });
+      return;
+    }
+    if (!state.htmlBody.trim()) {
+      setErr('No invitation template yet — compose one first.');
+      setErrAction({ label: 'Go to Compose', fn: () => navigate('compose') });
+      return;
+    }
+    if (filtered.length === 0) {
+      setErr('No invitees match this filter.');
+      setErrAction({ label: 'Show all', fn: () => setFilter('all') });
+      return;
+    }
     setErr('');
+    setErrAction(null);
     setConfirmOpen(true);
   }
 
   function handleConfirmSend() {
+    setSendComplete(false);
     setConfirmOpen(false);
     setErr('Email sending is not available in this version.');
     // dispatch({ type: 'START_SEND', total: filtered.length });
@@ -79,7 +103,18 @@ export default function SendPage() {
           </div>
         </div>
 
-        {err && <div className="if-status err" style={{ marginBottom: 12 }}>{err}</div>}
+        {err && (
+          <div className="if-status err"
+            style={{ marginBottom: 12, display: 'flex', alignItems: 'center',
+              justifyContent: 'space-between', gap: 10 }}>
+            <span>{err}</span>
+            {errAction && (
+              <button className="if-btn sm" onClick={errAction.fn} style={{ flexShrink: 0 }}>
+                {errAction.label}
+              </button>
+            )}
+          </div>
+        )}
 
         {/* ── Pre-flight pane ────────────────────────── */}
         {activePane === 'preflight' && (
@@ -176,6 +211,29 @@ export default function SendPage() {
                 <div className="if-progress-track">
                   <div className="if-progress-fill" style={{ width: `${progress}%` }} />
                 </div>
+              </div>
+            )}
+
+            {sendComplete && !state.sending && (
+              <div className="if-card if-fade-up" style={{
+                padding: '20px 18px', marginBottom: 20,
+                borderLeft: '3px solid var(--success)',
+              }}>
+                <div style={{ fontFamily: 'var(--font-body)', fontSize: 15, fontWeight: 600,
+                  color: 'var(--success)', marginBottom: 4 }}>
+                  ✓ Invites sent
+                </div>
+                <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11,
+                  color: 'var(--text-secondary)', lineHeight: 1.65, marginBottom: 12 }}>
+                  {sentCount} sent successfully
+                  {failedCount > 0
+                    ? ` · ${failedCount} couldn't be reached — see Log below`
+                    : ''}
+                </div>
+                <button className="if-btn pri"
+                  onClick={() => { setSendComplete(false); navigate('tracker'); }}>
+                  See who responded →
+                </button>
               </div>
             )}
           </>

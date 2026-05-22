@@ -198,7 +198,7 @@ export default function EventDashboard() {
               >
                 <div
                   key={`chip-${nextStep.id}`}
-                  className={`if-row-chip${isCurrent ? ' filled' : ''}${isCompleted ? ' good' : ''}`}
+                  className={`if-row-chip${isCurrent ? ' filled if-step-done' : ''}${isCompleted ? ' good' : ''}`}
                   style={{
                     width: 28, height: 28, flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
