@@ -146,7 +146,7 @@ export default function EventDashboard() {
                 <div style={{ fontFamily: 'var(--rf-serif)', fontSize: 28, fontWeight: 500, color: s.color, lineHeight: 1 }}>
                   {s.value}
                 </div>
-                <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 8, color: 'var(--text-muted)', letterSpacing: '0.12em', marginTop: 4 }}>
+                <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.08em', marginTop: 4 }}>
                   {s.label}
                 </div>
               </div>
@@ -250,7 +250,7 @@ export default function EventDashboard() {
                   }}
                 >
                   <span style={{
-                    fontFamily: 'var(--rf-mono)', fontSize: 8, letterSpacing: '0.08em',
+                    fontFamily: 'var(--rf-mono)', fontSize: 10, letterSpacing: '0.08em',
                     color: entry.status === 'sent' ? 'var(--success)' : 'var(--danger)',
                     flexShrink: 0, minWidth: 32,
                   }}>
@@ -259,7 +259,7 @@ export default function EventDashboard() {
                   <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-base)', flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {entry.name}
                   </span>
-                  <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', flexShrink: 0 }}>
+                  <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-secondary)', flexShrink: 0 }}>
                     {entry.timestamp.slice(0, 10)}
                   </span>
                 </div>

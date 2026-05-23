@@ -58,7 +58,7 @@ export default function ComposePage() {
           <div style={{ display: 'flex', gap: 16 }}>
             {[{ label: 'WORDS', value: wordCount }, { label: 'TOKENS', value: tokenCount }, { label: 'RECIPIENTS', value: state.invitees.length }].map(s => (
               <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 7, letterSpacing: '0.1em', color: 'var(--text-muted)' }}>{s.label}</div>
+                <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, letterSpacing: '0.1em', color: 'var(--text-secondary)' }}>{s.label}</div>
                 <div style={{ fontFamily: 'var(--rf-serif)', fontSize: 16, fontWeight: 500, color: 'var(--text-heading)', lineHeight: 1 }}>{s.value}</div>
               </div>
             ))}
@@ -81,7 +81,7 @@ export default function ComposePage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {TOKEN_GROUPS.map(group => (
             <div key={group.label} style={{ display: 'flex', gap: 6, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-              <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-secondary)', minWidth: 36, marginTop: 4 }}>
+              <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-secondary)', minWidth: 36, marginTop: 4 }}>
                 {group.label}
               </span>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', flex: 1 }}>
@@ -106,7 +106,7 @@ export default function ComposePage() {
               { label: '1. List', action: () => editor?.chain().focus().toggleOrderedList().run(), active: () => !!editor?.isActive('orderedList') },
             ].map(({ label, action, active }) => (
               <button key={label} className="if-btn sm"
-                style={active() ? { borderColor: 'var(--accent)', color: 'var(--accent)', background: 'rgba(229,113,88,0.1)' } : {}}
+                style={active() ? { borderColor: 'var(--accent)', color: 'var(--accent)', background: 'var(--accent-muted)' } : {}}
                 onClick={action}>
                 {label}
               </button>
