@@ -71,7 +71,7 @@ export default function TrackerPage() {
             <div key={s.label} className="if-stat" style={{ borderLeftColor: s.color, display: (s.hideOnMobileIfZero && s.value === 0 && typeof window !== 'undefined' && window.innerWidth < 768) ? 'none' : undefined }}>
               <div className="if-stat-label">{s.label}</div>
               <div className="if-stat-value" style={{ color: s.color }}>{s.value}</div>
-              <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginTop: 4 }}>{s.sublabel}</div>
+              <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginTop: 4 }}>{s.sublabel}</div>
             </div>
           ))}
         </div>
@@ -93,7 +93,7 @@ export default function TrackerPage() {
             {declined   > 0 && <div style={{ width: `${declined / total * 100}%`,   background: 'var(--danger)',  opacity: 0.5 }} />}
           </div>
 
-          <div style={{ display: 'flex', gap: 16, fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-secondary)', letterSpacing: '0.08em' }}>
+          <div style={{ display: 'flex', gap: 16, fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>
             {[
               { label: 'attending',   dot: 'var(--accent)',   opacity: 1 },
               { label: 'awaiting',    dot: 'var(--warning)', opacity: 0.7 },
@@ -145,7 +145,7 @@ export default function TrackerPage() {
                       {o.firstName} {o.lastName}
                     </span>
                     {o.category && (
-                      <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 8, color: 'var(--text-muted)', letterSpacing: '0.08em', flexShrink: 0 }}>
+                      <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.06em', flexShrink: 0 }}>
                         {o.category.toUpperCase()}
                       </span>
                     )}

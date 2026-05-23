@@ -22,8 +22,8 @@
 
 .if-eyebrow {
   font-family: var(--rf-mono);
-  font-size: 9px;
-  letter-spacing: 0.16em;
+  font-size: 11px;
+  letter-spacing: 0.12em;
   color: var(--text-secondary);
   text-transform: uppercase;
   line-height: 1;
@@ -66,8 +66,8 @@
   flex-wrap: wrap;
   gap: 0;
   font-family: var(--rf-mono);
-  font-size: 9px;
-  letter-spacing: 0.14em;
+  font-size: 11px;
+  letter-spacing: 0.10em;
   color: var(--text-secondary);
 }
 .if-meta-sep {
@@ -79,9 +79,9 @@
 /* Small mono caps label that sits above a Card. */
 .if-section-label {
   font-family: var(--rf-mono);
-  font-size: 9px;
-  letter-spacing: 0.16em;
-  color: var(--text-secondary);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  color: var(--text-base);
   text-transform: uppercase;
 }
 
@@ -149,7 +149,7 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--text-secondary);
+  color: var(--text-base);
 }
 .if-card-row-right.accent { color: var(--accent); }
 
@@ -213,7 +213,7 @@
   border-radius: 5px;
   border: 1px solid var(--border-input);
   font-family: var(--rf-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   color: var(--text-secondary);
   white-space: nowrap;
@@ -238,7 +238,7 @@
   padding: 7px;
   border-radius: 5px;
   font-family: var(--rf-mono);
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -266,7 +266,7 @@
   border-radius: 6px;
   border: 1px solid var(--border-input);
   font-family: var(--rf-mono);
-  font-size: 9px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   background: transparent;
@@ -314,7 +314,7 @@
   border-radius: 6px;
   border: 1px solid var(--border-input);
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-base);
   font-family: var(--font-body);
   font-size: 13px;
   letter-spacing: 0.01em;
@@ -382,7 +382,7 @@
 .if-label {
   font-family: var(--font-label);
   font-size: 12px;
-  color: var(--text-secondary);
+  color: var(--text-base);
   letter-spacing: var(--ls-label-upper);
   text-transform: uppercase;
   display: block;
@@ -400,8 +400,8 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--rf-mono);
-  font-size: 9px;
-  letter-spacing: 0.07em;
+  font-size: 11px;
+  letter-spacing: 0.05em;
   cursor: pointer;
   text-transform: uppercase;
   transition: color 150ms ease-out, border-color 150ms ease-out, background 150ms ease-out;
@@ -421,8 +421,8 @@
   border-radius: 4px;
   border: 1px solid;
   font-family: var(--rf-mono);
-  font-size: 9px;
-  letter-spacing: 0.07em;
+  font-size: 11px;
+  letter-spacing: 0.05em;
 }
 
 /* ─── STAT CARD (old sidebar stat; prefer .if-stat-chip in new code) ────── */
@@ -436,8 +436,8 @@
 }
 .if-stat-label {
   font-family: var(--rf-mono);
-  font-size: 8px;
-  letter-spacing: 0.12em;
+  font-size: 11px;
+  letter-spacing: 0.08em;
   color: var(--text-secondary);
   text-transform: uppercase;
   margin-bottom: 5px;
@@ -457,7 +457,7 @@
   border-radius: 8px;
   padding: 14px 16px;
   font-family: var(--rf-mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-base);
   overflow-x: auto;
   line-height: 1.6;
@@ -477,13 +477,13 @@
 .if-empty-sub {
   font-size: 12px;
   font-family: var(--rf-mono);
-  color: var(--text-muted);
+  color: var(--text-secondary);
   letter-spacing: 0.08em;
   margin-bottom: 16px;
 }
 
 /* ─── INLINE STATUS ──────────────────────────────────────────────────────── */
-.if-status       { font-family: var(--rf-mono); font-size: 10px; line-height: var(--lh-ui); }
+.if-status       { font-family: var(--rf-mono); font-size: 12px; line-height: var(--lh-ui); }
 .if-status.ok    { color: var(--success); }
 .if-status.err   { color: var(--danger); }
 .if-status.info  { color: var(--accent-text); }
@@ -498,7 +498,7 @@
   background: transparent;
   color: var(--text-secondary);
   font-family: var(--rf-mono);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
@@ -553,10 +553,10 @@
   margin-bottom: 4px;
 }
 .if-modal-sub {
-  font-family: var(--rf-mono);
-  font-size: 10px;
+  font-family: var(--font-body);
+  font-size: 12px;
   color: var(--text-secondary);
-  line-height: 1.7;
+  line-height: 1.65;
   margin-bottom: 16px;
 }
 

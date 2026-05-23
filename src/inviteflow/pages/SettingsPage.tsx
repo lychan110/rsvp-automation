@@ -101,12 +101,12 @@ export default function SettingsPage() {
             onChange={e => setResendKey(e.target.value)}
             placeholder="re_xxxxxxxxxxxxx — get from resend.com"
           />
-          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.5 }}>
+          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>
             Required to send invitation emails. Free tier: 3,000 emails/month.<br />
             <a href="https://resend.com" target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Sign up at resend.com →</a>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+            <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>
               REQUIRED FOR SENDING INVITES
             </span>
             <button className="if-btn grn sm" onClick={saveResendConfig}>Save</button>
@@ -136,7 +136,7 @@ export default function SettingsPage() {
             onChange={e => setLlmEndpoint(e.target.value)}
             placeholder={DEFAULT_ENDPOINT}
           />
-          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.5 }}>
+          <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>
             Default: {DEFAULT_ENDPOINT}<br />
             Supports OpenAI, Anthropic, Ollama, or any OpenAI-compatible endpoint.
           </div>
@@ -152,7 +152,7 @@ export default function SettingsPage() {
           />
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+            <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>
               OPTIONAL — FOR OFFICIAL DISCOVERY
             </span>
             <button className="if-btn grn sm" onClick={saveLlmConfig}>Save</button>
@@ -191,7 +191,7 @@ export default function SettingsPage() {
         <div className="if-section-label" style={{ padding: '8px 0 8px' }}>ABOUT</div>
         <div className="if-card" style={{ marginBottom: 12 }}>
           <div style={{ padding: 14, display: 'flex', justifyContent: 'center' }}>
-            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.06em' }}>
+            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>
               INVITEFLOW · v{__APP_VERSION__} · by Lenya Chan
             </div>
           </div>

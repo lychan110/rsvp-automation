@@ -144,7 +144,7 @@ export default function EventsPage() {
                         background: isActive ? 'var(--accent)' : 'transparent',
                         color: isActive ? 'var(--bg-root)' : 'var(--text-muted)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontFamily: 'var(--rf-mono)', fontSize: 9, letterSpacing: '0.06em',
+                        fontFamily: 'var(--rf-mono)', fontSize: 11, letterSpacing: '0.06em',
                       }}>
                         {isActive ? <Icon name="check" size={11} /> : String(i + 1).padStart(2, '0')}
                       </div>
@@ -153,7 +153,7 @@ export default function EventsPage() {
                         <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 12, color: 'var(--text-heading)', fontWeight: 500 }}>
                           {ev.name || 'Unnamed Event'}
                         </div>
-                        <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 9, color: 'var(--text-muted)', letterSpacing: '0.08em', marginTop: 2 }}>
+                        <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.06em', marginTop: 2 }}>
                           {formatDate(ev.date) || 'No date set'}
                           {ev.venue ? ` · ${ev.venue}` : ''}
                           {days !== null && (
