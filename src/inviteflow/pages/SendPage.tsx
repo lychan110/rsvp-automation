@@ -263,8 +263,8 @@ export default function SendPage() {
                       {entry.status.toUpperCase()}
                     </span>
                     <span style={{ color: 'var(--text-base)', minWidth: 160 }}>{entry.name}</span>
-                    <span style={{ color: 'var(--text-muted)', flex: 1, fontSize: 10 }}>{entry.email}</span>
-                    {entry.error && <span style={{ fontSize: 9, color: 'var(--danger)' }}>{entry.error}</span>}
+                    <span style={{ color: 'var(--text-secondary)', flex: 1, fontSize: 11 }}>{entry.email}</span>
+                    {entry.error && <span style={{ fontSize: 10, color: 'var(--danger)' }}>{entry.error}</span>}
                   </div>
                 ))}
               </div>

@@ -63,12 +63,12 @@ export default function HelpPage() {
                   }}>
                     <code style={{
                       fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--accent)',
-                      background: 'rgba(0,217,205,0.06)', padding: '2px 7px', borderRadius: 4,
-                      border: '1px solid rgba(0,217,205,0.15)', flexShrink: 0,
+                      background: 'var(--accent-muted)', padding: '2px 7px', borderRadius: 4,
+                      border: '1px solid var(--accent-border)', flexShrink: 0,
                     }}>
                       {token}
                     </code>
-                    <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-muted)' }}>
+                    <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)' }}>
                       {desc}
                     </span>
                   </div>

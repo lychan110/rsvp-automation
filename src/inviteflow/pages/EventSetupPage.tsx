@@ -117,7 +117,7 @@ export default function EventSetupPage() {
 
         <div className="if-section-label" style={{ padding: '8px 0 8px' }}>
           CONTACT & SENDER
-          <span style={{ color: 'var(--warning)', fontSize: 9, marginLeft: 6 }}>REQUIRED FOR SENDING</span>
+          <span style={{ color: 'var(--warning)', fontSize: 10, marginLeft: 6 }}>REQUIRED FOR SENDING</span>
         </div>
         <div className="if-card" style={{ padding: 14, marginBottom: 12 }}>
           <div style={{ display: 'grid', gap: 12 }}>
