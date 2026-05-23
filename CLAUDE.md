@@ -1,7 +1,7 @@
 # Invite Automation Suite — Claude Guide
 
 Author: Lenya Chan
-Updated: 2026-04-28
+Updated: 2026-05-23
 
 ## Overview
 
@@ -324,11 +324,12 @@ Before submitting a PR, check if the work warrants a version bump:
 - `fix:` commits → bump patch version (e.g. 4.1.0 → 4.1.1)
 - `docs:`, `chore:`, `refactor:` → no version bump needed
 
-If a bump is warranted, update **both** files in a single commit:
-- `.env` → `VITE_APP_VERSION=4.2.0`
-- `package.json` → `"version": "4.2.0"`
+If a bump is warranted, update **only** `package.json` in a single commit:
+- `package.json` → `"version": "5.1.0"`
 
-Then commit with: `chore: bump version to v4.2.0`
+⚠️ **IMPORTANT:** `.env` is local-only and should NEVER be committed to the repository. It contains sensitive API keys (Resend, OpenAI, SerpAPI). Update your local `.env` file manually; it will not be in version control.
+
+Then commit with: `chore: bump version to v5.1.0`
 
 `scripts/inject-version.js` runs during `npm run build` and propagates the version to HTML title, README, and GAS comments automatically.
 
