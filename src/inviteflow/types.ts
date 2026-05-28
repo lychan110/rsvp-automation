@@ -20,6 +20,7 @@ export interface AppEvent {
 
 export interface Invitee {
   id: string;
+  eventId: string;
   firstName: string;
   lastName: string;
   title: string;
@@ -49,8 +50,10 @@ export interface AppState {
   tab: TabId;
   textSubject: string;
   htmlBody: string;
+  templateId: string | null;
+  templateParams: Record<string, string>;
   sendLog: SendLogEntry[];
   sending: boolean;
-  sendProgress: { current: number; total: number };
+  sendProgress: { current: number; total: number; currentName: string };
   unsaved: boolean;
 }

@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
-import { useAppDispatch } from '../state/AppContext';
+import { useAppState, useAppDispatch } from '../state/AppContext';
+import { readScoutKey, CS_ENV_APIKEY } from '../../scout/constants';
 import type { Invitee } from '../types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -96,6 +97,7 @@ const INPUT = "bg-white border border-gray-300 text-gray-900 text-xs font-mono p
 
 // ── Component ─────────────────────────────────────────────────────────────────
 export default function ContactScoutPanel() {
+  const state = useAppState();
   const dispatch = useAppDispatch();
 
   const [open, setOpen] = useState(false);
@@ -104,7 +106,7 @@ export default function ContactScoutPanel() {
   const [pwErr, setPwErr] = useState(false);
 
   const [scout, setScout] = useState<ScoutState>(loadScoutState);
-  const [apiKey, setApiKey] = useState(() => sessionStorage.getItem(SS_KEY) ?? '');
+  const [apiKey, setApiKey] = useState(() => readScoutKey(SS_KEY, CS_ENV_APIKEY));
   const [apiKeyDraft, setApiKeyDraft] = useState('');
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [running, setRunning] = useState(false);
@@ -246,6 +248,7 @@ export default function ContactScoutPanel() {
         const parts = full.split(' ');
         const inv: Invitee = {
           id: crypto.randomUUID(),
+          eventId: state.activeEventId ?? '',
           firstName: parts[0] ?? '',
           lastName: parts.slice(1).join(' '),
           title: c.title ?? '',

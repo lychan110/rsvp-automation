@@ -2,13 +2,12 @@ import { useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useAppState, useAppDispatch } from '../state/AppContext';
-import { getToken } from '../api/auth';
-import { sheetsGet, extractSheetId } from '../api/sheets';
 import type { Invitee } from '../types';
 
 function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
   return {
     id: crypto.randomUUID(),
+    eventId: '',
     firstName: '',
     lastName: '',
     title: '',
@@ -24,12 +23,12 @@ function makeInvitee(partial: Partial<Invitee> = {}): Invitee {
   };
 }
 
-const STATUS_COLORS: Record<string, string> = {
+const INVITE_STATUS_COLOR: Record<string, string> = {
   pending: 'var(--text-muted)',
   sent:    'var(--success)',
   failed:  'var(--danger)',
 };
-const RSVP_COLORS: Record<string, string> = {
+const RSVP_STATUS_COLOR: Record<string, string> = {
   'No Response': 'var(--text-muted)',
   Attending:     'var(--success)',
   Declined:      'var(--danger)',
@@ -49,52 +48,38 @@ export default function InviteesTab() {
   const ev = state.events.find(e => e.id === state.activeEventId);
 
   async function importFromSheets() {
-    if (!sheetsUrl.trim()) return;
-    setImporting(true);
-    setImportStatus('');
-    try {
-      const token = await getToken('spreadsheets');
-      const id = extractSheetId(sheetsUrl);
-      const rows = await sheetsGet(token, id, 'Sheet1!A:K');
-      if (rows.length < 2) { setImportStatus('Sheet appears empty (need header + data rows).'); return; }
-      const [header, ...data] = rows;
-      const col = (name: string) => header.findIndex(h => h.trim().toLowerCase() === name.toLowerCase());
-      const ci = { fn: col('FirstName'), ln: col('LastName'), title: col('Title'), cat: col('Category'), email: col('Email'), rsvp: col('RSVP_Link'), sent: col('InviteSent'), sentDate: col('InviteSentDate'), rsvpStatus: col('RSVP_Status'), rsvpDate: col('RSVP_Date'), notes: col('Notes') };
-
-      const incoming = data.map(r => makeInvitee({
-        firstName: r[ci.fn] ?? '',
-        lastName:  r[ci.ln] ?? '',
-        title:     r[ci.title] ?? '',
-        category:  r[ci.cat] ?? '',
-        email:     r[ci.email] ?? '',
-        rsvpLink:  r[ci.rsvp] ?? '',
-        inviteStatus: r[ci.sent]?.toLowerCase() === 'true' ? 'sent' : 'pending',
-        sentAt:    r[ci.sentDate] ?? '',
-        rsvpStatus: (['Attending', 'Declined'].includes(r[ci.rsvpStatus]) ? r[ci.rsvpStatus] : 'No Response') as Invitee['rsvpStatus'],
-        rsvpDate:  r[ci.rsvpDate] ?? '',
-        notes:     r[ci.notes] ?? '',
-      })).filter(i => i.email);
-
-      const merged = [...state.invitees];
-      for (const inc of incoming) {
-        const idx = merged.findIndex(m => m.email.toLowerCase() === inc.email.toLowerCase());
-        if (idx >= 0) merged[idx] = { ...merged[idx], ...inc, id: merged[idx].id };
-        else merged.push(inc);
-      }
-      dispatch({ type: 'SET_INVITEES', invitees: merged });
-      setImportStatus(`Imported ${incoming.length} rows (${merged.length - state.invitees.length} new, rest merged).`);
-    } catch (e) {
-      setImportStatus('Error: ' + String(e));
-    } finally {
-      setImporting(false);
+    if (!sheetsUrl.trim()) {
+      setImportStatus('Paste a Google Sheets URL first.');
+      return;
     }
+    setImportStatus('Google Sheets import requires full OAuth setup. For now, export your sheet as CSV and import using the CSV/JSON button above.');
   }
 
-  function importJSON(file: File) {
+  function parseCSV(text: string): Array<Record<string, string>> {
+    const lines = text.trim().split('\n');
+    if (lines.length < 2) return [];
+    const header = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+    const rows: Array<Record<string, string>> = [];
+    for (let i = 1; i < lines.length; i++) {
+      const vals = lines[i].split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+      const obj: Record<string, string> = {};
+      header.forEach((h, idx) => { obj[h] = vals[idx] ?? ''; });
+      rows.push(obj);
+    }
+    return rows;
+  }
+
+  function importFile(file: File) {
     const reader = new FileReader();
     reader.onload = () => {
       try {
-        const raw = JSON.parse(reader.result as string) as Array<Record<string, string>>;
+        let raw: Array<Record<string, string>>;
+        if (file.name.endsWith('.csv')) {
+          raw = parseCSV(reader.result as string);
+        } else {
+          raw = JSON.parse(reader.result as string) as Array<Record<string, string>>;
+        }
+
         const parsed = raw.map(r => {
           const full = r.name ?? `${r.firstName ?? ''} ${r.lastName ?? ''}`.trim();
           const parts = full.split(' ');
@@ -106,14 +91,15 @@ export default function InviteesTab() {
             email:     r.email ?? '',
           });
         }).filter(i => i.email);
+
         const merged = [...state.invitees];
         for (const inc of parsed) {
           const idx = merged.findIndex(m => m.email.toLowerCase() === inc.email.toLowerCase());
           if (idx < 0) merged.push(inc);
         }
         dispatch({ type: 'SET_INVITEES', invitees: merged });
-        setImportStatus(`JSON import: ${parsed.length} rows.`);
-      } catch (e) { setImportStatus('JSON parse error: ' + String(e)); }
+        setImportStatus(`Import: ${parsed.length} rows added.`);
+      } catch (e) { setImportStatus('Import error: ' + String(e)); }
     };
     reader.readAsText(file);
   }
@@ -177,45 +163,45 @@ export default function InviteesTab() {
     setSelected([]);
   }
 
-  const inputStyle: React.CSSProperties = {
-    background: 'var(--bg-surface)', border: '1px solid #30363d', color: 'var(--text-base)',
-    padding: '5px 8px', borderRadius: 4, fontFamily: 'monospace', fontSize: 11, width: '100%',
-  };
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', padding: '16px 20px', gap: 12 }}>
-      {/* Toolbar */}
+      {/* ── Toolbar ────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <span className="if-page-title" style={{ marginRight: 4 }}>
-          INVITEES{' '}
-          <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 400 }}>
-            ({state.invitees.length})
-          </span>
-        </span>
-        <button className="if-btn grn sm" onClick={() => setShowAdd(true)}>+ Add</button>
-        <button className="if-btn sm" onClick={exportCSV}>Export CSV</button>
-        <button className="if-btn sm" onClick={generateAllRsvpLinks}>Gen RSVP Links</button>
-        <input
-          ref={fileRef}
-          type="file"
-          accept=".json"
-          style={{ display: 'none' }}
-          onChange={e => e.target.files?.[0] && importJSON(e.target.files[0])}
-        />
-        <button className="if-btn sm" onClick={() => fileRef.current?.click()}>Import JSON</button>
+        <div>
+          <div className="if-eyebrow" style={{ marginBottom: 2 }}>ROSTER</div>
+          <div style={{ fontFamily: 'var(--rf-serif)', fontSize: 16, fontStyle: 'italic', fontWeight: 500, color: 'var(--text-heading)' }}>
+            Invitees
+            <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, fontStyle: 'normal', fontWeight: 400, color: 'var(--text-muted)', marginLeft: 8 }}>
+              {state.invitees.length}
+            </span>
+          </div>
+        </div>
+        <div className="flex gap-2 ml-auto" style={{ flexWrap: 'wrap' }}>
+          <button className="if-btn grn sm" onClick={() => setShowAdd(true)}>+ Add</button>
+          <button className="if-btn sm" onClick={exportCSV}>Export CSV</button>
+          <button className="if-btn sm" onClick={generateAllRsvpLinks}>Gen RSVP Links</button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".csv,.json"
+            style={{ display: 'none' }}
+            onChange={e => e.target.files?.[0] && importFile(e.target.files[0])}
+          />
+          <button className="if-btn sm" onClick={() => fileRef.current?.click()}>Import CSV/JSON</button>
+        </div>
       </div>
 
-      {/* Sheets import row */}
+      {/* ── Sheets import row ──────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <input
           className="if-input"
           style={{ flex: 1, minWidth: 200 }}
-          placeholder="Paste Google Sheets URL to import..."
+          placeholder="Paste Google Sheets URL to import…"
           value={sheetsUrl}
           onChange={e => setSheetsUrl(e.target.value)}
         />
         <button className="if-btn ghost sm" onClick={importFromSheets} disabled={importing}>
-          {importing ? 'Importing...' : 'Import Sheets'}
+          {importing ? 'Importing…' : 'Import Sheets'}
         </button>
         {importStatus && (
           <span className={`if-status ${importStatus.startsWith('Error') ? 'err' : 'ok'}`}>
@@ -224,11 +210,11 @@ export default function InviteesTab() {
         )}
       </div>
 
-      {/* Bulk actions */}
+      {/* ── Bulk action bar ────────────────────────────────────────────── */}
       {selected.length > 0 && (
         <div className="if-bulk-bar">
-          <span style={{ fontSize: 10, color: 'var(--gold)', fontFamily: 'monospace' }}>
-            {selected.length} selected
+          <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--accent)', letterSpacing: '0.08em' }}>
+            {selected.length} SELECTED
           </span>
           <button className="if-btn grn sm" onClick={bulkMarkSent}>Mark Sent</button>
           <button className="if-btn sm" onClick={bulkReset}>Reset Status</button>
@@ -239,8 +225,8 @@ export default function InviteesTab() {
         </div>
       )}
 
-      {/* DataTable */}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
+      {/* ── DataTable ──────────────────────────────────────────────────── */}
+      <div style={{ flex: 1, overflow: 'hidden', borderRadius: 'var(--rt-card-radius)', border: '1px solid var(--border)' }}>
         <DataTable
           value={state.invitees}
           selection={selected}
@@ -252,7 +238,7 @@ export default function InviteesTab() {
           virtualScrollerOptions={{ itemSize: 36 }}
           size="small"
           filterDisplay="row"
-          emptyMessage="No invitees yet."
+          emptyMessage="No invitees yet. Add them above or import from Sheets."
           style={{ fontSize: 11 }}
           onRowEditComplete={e => dispatch({ type: 'UPDATE_INVITEE', invitee: e.newData as Invitee })}
           editMode="row"
@@ -269,7 +255,7 @@ export default function InviteesTab() {
             sortable filter filterPlaceholder="Filter"
             style={{ minWidth: 90 }}
             body={(r: Invitee) => (
-              <span style={{ color: STATUS_COLORS[r.inviteStatus] ?? 'var(--text-muted)', fontSize: 10, letterSpacing: '0.07em', fontFamily: 'monospace' }}>
+              <span style={{ color: INVITE_STATUS_COLOR[r.inviteStatus] ?? 'var(--text-muted)', fontSize: 9, letterSpacing: '0.07em', fontFamily: 'var(--rf-mono)' }}>
                 {r.inviteStatus.toUpperCase()}
               </span>
             )}
@@ -287,7 +273,7 @@ export default function InviteesTab() {
             sortable filter filterPlaceholder="Filter"
             style={{ minWidth: 110 }}
             body={(r: Invitee) => (
-              <span style={{ color: RSVP_COLORS[r.rsvpStatus] ?? 'var(--text-muted)', fontSize: 10, fontFamily: 'monospace' }}>
+              <span style={{ color: RSVP_STATUS_COLOR[r.rsvpStatus] ?? 'var(--text-muted)', fontSize: 9, fontFamily: 'var(--rf-mono)' }}>
                 {r.rsvpStatus}
               </span>
             )}
@@ -297,21 +283,27 @@ export default function InviteesTab() {
             header="Notes"
             style={{ minWidth: 140 }}
             editor={(opts) => (
-              <input style={inputStyle} value={opts.value} onChange={e => opts.editorCallback?.(e.target.value)} />
+              <input
+                className="if-input"
+                style={{ fontSize: 11, minHeight: 28, padding: '4px 8px' }}
+                value={opts.value}
+                onChange={e => opts.editorCallback?.(e.target.value)}
+              />
             )}
           />
           <Column rowEditor style={{ width: 70 }} />
         </DataTable>
       </div>
 
-      {/* Add manually modal */}
+      {/* ── Add manually modal ─────────────────────────────────────────── */}
       {showAdd && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,.85)', zIndex: 300, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <div className="if-card" style={{ width: 400 }}>
-            <div className="if-page-title mb-4">ADD INVITEE</div>
+        <div className="if-modal-backdrop">
+          <div className="if-modal">
+            <div className="if-modal-title">Add Invitee</div>
+            <div className="if-modal-sub">Fill in the contact details. Email is required.</div>
             {(['firstName', 'lastName', 'title', 'category', 'email'] as const).map(k => (
               <div key={k} style={{ marginBottom: 10 }}>
-                <label className="if-label">{k.toUpperCase()}</label>
+                <label className="if-label">{k}</label>
                 <input
                   className="if-input"
                   value={String(draft[k] ?? '')}
@@ -320,7 +312,7 @@ export default function InviteesTab() {
               </div>
             ))}
             <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-              <button className="if-btn grn" onClick={addManually}>Add</button>
+              <button className="if-btn grn" onClick={addManually} disabled={!draft.email}>Add</button>
               <button className="if-btn" onClick={() => { setShowAdd(false); setDraft({}); }}>Cancel</button>
             </div>
           </div>

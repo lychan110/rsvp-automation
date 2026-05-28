@@ -1,24 +1,7 @@
 # Invite Automation Suite — Claude Guide
 
 Author: Lenya Chan
-Updated: 2026-04-28
-
-## Approach
-- Read existing files before writing. Don't re-read unless changed.
-- Thorough in reasoning, concise in output.
-- Skip files over 100KB unless required.
-- No sycophantic openers or closing fluff.
-- No emojis or em-dashes.
-- Do not guess APIs, versions, flags, commit SHAs, or package names. Verify by reading code or docs before asserting.
-
-## Code Exploration Policy
-Always use jCodemunch-MCP tools for code navigation. See AGENTS.md for detailed tool reference.
-- Symbol search: `search_symbols` with filters for kind, language, file_pattern
-- Text search: `search_text` (supports regex, context_lines)
-- File analysis: `get_file_outline` before opening any file; `get_file_content` only for specific ranges
-- Repo structure: `get_repo_outline`, `get_file_tree`
-- Relationships: `find_importers`, `find_references`, `get_blast_radius`
-- Call `resolve_repo` first; if not indexed, call `index_folder`.
+Updated: 2026-05-23
 
 ## Overview
 
@@ -35,7 +18,7 @@ Both run entirely in the browser. InviteFlow uses Gmail + Google Sheets; Contact
 
 ## File structure
 
-**InviteFlow** (React + Vite, v3.1)
+**InviteFlow** (React + Vite, v4.1)
 - Source: `src/inviteflow/` (React + TypeScript + Tailwind v4 + PrimeReact)
 - Built from root: `npm run build` → `dist/src/inviteflow/`
 - Entry: `src/inviteflow/index.html`, mounts `src/inviteflow/main.tsx`
@@ -108,7 +91,7 @@ React app in `src/contact-scout/`. Own `package.json`, own Vite config. State ma
 
 ---
 
-## InviteFlow (React + Vite, v3.1)
+## InviteFlow (React + Vite, v4.1)
 
 **Setup**
 ```bash
@@ -254,21 +237,25 @@ src/contact-scout/
 ```
 
 **Customization before first use**
-The scan prompts in `src/App.tsx` (`SCAN_PROMPTS`) contain placeholder text: `[YOUR STATE]`, `[YOUR COUNTIES]`, `[CITY 1]`, `[CITY 2]`, `[CITY 3]`. Replace these with the actual state, counties, and cities before scanning. `needsCustomization()` detects these placeholders and shows a banner in the Scan tab.
+The scan prompts in `src/scout/utils.ts` (`SCAN_PROMPTS`) contain placeholder text: `[YOUR STATE]`, `[YOUR COUNTIES]`, `[CITY 1]`, `[CITY 2]`, `[CITY 3]`. Replace these with the actual state, counties, and cities before scanning. The Discover page shows a banner if these placeholders are detected.
 
 **State & persistence**
 - `localStorage` key: `contactscout_state` — stores `{ officials, newOfficials, scanStatus, scanMeta }`
-- `sessionStorage` key: `cs_api_key` — stores Claude API key for this session
+- `sessionStorage` key: `cs_api_key` — stores LiteLLM API key for this session
+- `sessionStorage` key: `cs_endpoint` — stores LiteLLM endpoint URL (default: `http://127.0.0.1:4000/v1`)
+- `sessionStorage` key: `cs_search_key` — stores SerpAPI key for web search
 - `sessionStorage` key: `cs_unlocked` — set to `'1'` after password gate is passed
 
-**Claude API setup**
-ContactScout calls the Anthropic API directly from the browser.
-1. Go to https://console.anthropic.com/ → API Keys → Create Key.
-2. Copy the key (starts with `sk-ant-`).
-3. In the app, click **Key** in the header and paste the key.
-4. The key is stored in `sessionStorage` only — never persisted to `localStorage`.
-5. Required header: `anthropic-dangerous-direct-browser-access: true`.
-6. Model and tools configured in `src/constants.ts` — check `MODEL_ID` and tool definitions. Update when new Sonnet/Opus versions release.
+**LiteLLM + SerpAPI setup**
+ScoutPage (in InviteFlow) uses LiteLLM proxy with SerpAPI for web search grounding.
+1. Configure LiteLLM proxy (runs on `http://127.0.0.1:4000` in WSL)
+2. Get SerpAPI key from https://serpapi.com/
+3. In InviteFlow → Discover page → Settings, enter:
+   - LiteLLM API key
+   - LiteLLM endpoint (default: `http://127.0.0.1:4000/v1`)
+   - SerpAPI key
+4. Keys are stored in `sessionStorage` only — never persisted to `localStorage`
+5. Scout functionality is in `src/scout/` and integrated into InviteFlow's Discover workflow
 
 **Export formats**
 - **InviteFlow JSON** (`export_invitees`): `{ exportedAt, source, count, invitees[] }` in InviteFlow's schema for direct import
@@ -292,6 +279,59 @@ Each calls Claude with a web-search-enabled prompt:
 - Feedback-first — every action produces immediate visible feedback (spinners, status messages, button state changes)
 - Mobile-aware — components must not break below 1024 px; use percentage widths and `max-width` rather than fixed px
 - Dark theme consistent — reference existing color variables before introducing new ones
+
+---
+
+## Commit Message Convention (Required)
+
+All commits MUST follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<type>(<scope>): <short description>
+
+[optional body]
+
+[optional footer: BREAKING CHANGE: ...]
+```
+
+**Types that trigger version bumps:**
+- `feat` → **minor** version bump (new feature)
+- `fix` → **patch** version bump (bug fix)
+- `feat!:` or `fix!:` or footer `BREAKING CHANGE:` → **major** version bump
+
+**Types that do NOT trigger a release:**
+- `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`
+
+**Examples:**
+```
+feat(inviteflow): add event RSVP confirmation modal
+fix(sync): correct OAuth token refresh on expiry
+docs: update README with new setup steps
+chore: bump version to v4.2.0
+refactor(tracker): extract stat calculation into utility hook
+```
+
+**Rules:**
+- Type is always lowercase
+- Scope is optional but uses `kebab-case` (e.g. `inviteflow`, `sync`, `contactscout`)
+- Description is ≤100 characters, no period at end
+- Subject line empty or has no trailing punctuation
+- Never use bare messages like "update", "fixes", "changes"
+**Version bumping — agents MUST do this before opening a PR:**
+
+Before submitting a PR, check if the work warrants a version bump:
+- `feat:` commits → bump minor version (e.g. 4.1.0 → 4.2.0)
+- `fix:` commits → bump patch version (e.g. 4.1.0 → 4.1.1)
+- `docs:`, `chore:`, `refactor:` → no version bump needed
+
+If a bump is warranted, update **only** `package.json` in a single commit:
+- `package.json` → `"version": "5.1.0"`
+
+⚠️ **IMPORTANT:** `.env` is local-only and should NEVER be committed to the repository. It contains sensitive API keys (Resend, OpenAI, SerpAPI). Update your local `.env` file manually; it will not be in version control.
+
+Then commit with: `chore: bump version to v5.1.0`
+
+`scripts/inject-version.js` runs during `npm run build` and propagates the version to HTML title, README, and GAS comments automatically.
 
 ---
 

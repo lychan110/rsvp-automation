@@ -1,18 +1,20 @@
 {
-  "name": "inviteflow-v3.1",
-  "version": "3.1.0",
+  "name": "inviteflow-v4",
+  "version": "5.1.0",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc && vite build && node scripts/inject-version.js",
+    "copy-static": "node scripts/copy-static.js",
     "predeploy": "npm run build && node scripts/copy-static.js",
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@react-email/components": "^1.0.12",
+    "@react-email/render": "^2.0.8",
     "@tailwindcss/vite": "^4.2.4",
-    "@tiptap/react": "^2.11.7",
-    "@tiptap/starter-kit": "^2.11.7",
+    "dexie": "^4.4.2",
     "primeflex": "^3.3.1",
     "primeicons": "^7.0.0",
     "primereact": "^10.8.3",
