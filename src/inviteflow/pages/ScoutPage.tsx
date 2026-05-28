@@ -11,7 +11,12 @@ import {
   CS_SEARCH_KEY,
   CS_JX_KEY,
   CS_OS_KEY,
+  CS_ENV_APIKEY,
+  CS_ENV_ENDPOINT,
+  CS_ENV_SEARCHKEY,
+  CS_ENV_OSKEY,
   DEFAULT_ENDPOINT,
+  readScoutKey,
 } from '../../scout/constants';
 import { officialToInvitee, buildScanPrompts } from '../../scout/utils';
 import { bestEmail } from '../../scout/emailPatterns';
@@ -43,10 +48,10 @@ export default function ScoutPage() {
   const dispatch = useAppDispatch();
   const { goBack } = useRouter();
 
-  const apiKey    = sessionStorage.getItem(CS_APIKEY_SK) ?? '';
-  const endpoint   = sessionStorage.getItem(CS_ENDPOINT_SK) ?? DEFAULT_ENDPOINT;
-  const searchKey  = sessionStorage.getItem(CS_SEARCH_KEY) ?? '';
-  const osKey      = sessionStorage.getItem(CS_OS_KEY) ?? '';
+  const apiKey    = readScoutKey(CS_APIKEY_SK, CS_ENV_APIKEY);
+  const endpoint   = readScoutKey(CS_ENDPOINT_SK, CS_ENV_ENDPOINT, DEFAULT_ENDPOINT);
+  const searchKey  = readScoutKey(CS_SEARCH_KEY, CS_ENV_SEARCHKEY);
+  const osKey      = readScoutKey(CS_OS_KEY, CS_ENV_OSKEY);
   const jx         = JSON.parse(sessionStorage.getItem(CS_JX_KEY) ?? '{}') as CSJurisdiction;
   const hasLiteLLM = !!apiKey;
   const hasOS      = !!osKey;

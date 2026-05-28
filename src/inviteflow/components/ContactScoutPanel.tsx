@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
+import { readScoutKey, CS_ENV_APIKEY } from '../../scout/constants';
 import type { Invitee } from '../types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -105,7 +106,7 @@ export default function ContactScoutPanel() {
   const [pwErr, setPwErr] = useState(false);
 
   const [scout, setScout] = useState<ScoutState>(loadScoutState);
-  const [apiKey, setApiKey] = useState(() => sessionStorage.getItem(SS_KEY) ?? '');
+  const [apiKey, setApiKey] = useState(() => readScoutKey(SS_KEY, CS_ENV_APIKEY));
   const [apiKeyDraft, setApiKeyDraft] = useState('');
   const [showKeyInput, setShowKeyInput] = useState(false);
   const [running, setRunning] = useState(false);

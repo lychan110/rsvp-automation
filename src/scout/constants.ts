@@ -8,6 +8,20 @@ export const CS_SEARCH_KEY = 'cs_search_key';
 export const CS_OS_KEY     = 'cs_os_key';
 export const SCOUT_PW      = 'scout2025';
 
+// VITE env var fallback names (used when sessionStorage is empty)
+export const CS_ENV_APIKEY    = 'VITE_OPENAI_API_KEY';
+export const CS_ENV_ENDPOINT  = 'VITE_OPENAI_ENDPOINT';
+export const CS_ENV_SEARCHKEY = 'VITE_SERPAPI_KEY';
+export const CS_ENV_OSKEY     = 'VITE_OPENSTATES_API_KEY';
+export const CS_ENV_RESENDKEY = 'VITE_RESEND_API_KEY';
+
+// Read a key: sessionStorage first (runtime override), then VITE_ env var (from .env / CI), then fallback
+export function readScoutKey(sessionKey: string, envKey: string, fallback = ''): string {
+  return sessionStorage.getItem(sessionKey)
+    ?? (typeof import.meta !== 'undefined' ? (import.meta as Record<string, any>).env?.[envKey] : undefined)
+    ?? fallback;
+}
+
 // LiteLLM defaults
 export const DEFAULT_ENDPOINT = 'http://127.0.0.1:4000/v1';
 
