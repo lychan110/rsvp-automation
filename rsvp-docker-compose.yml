@@ -1,19 +1,23 @@
-# Standalone docker-compose for RSVP Automation.
-# Test this independently with: docker compose -f rsvp-docker-compose.yml up --build
-# Integrate into rolodex/docker-compose.yml by copying the `rsvp-automation` service block.
+name: rolodex
 
 services:
   rsvp-automation:
+    container_name: rsvp-automation
     build:
-      context: ./rsvp-automation
+      context: .
       dockerfile: Dockerfile
       args:
         - VITE_APP_VERSION=5.1.0
     ports:
-      - "5176:80"
+      - "5176:5173"
+    networks:
+      - webapps
     restart: unless-stopped
-    # API keys: set in .env or pass via --env-file
-    # NOT via 'environment:' below — those are visible in `docker inspect`
-    # Instead use --env-file or mount: ~/.rsvp/.env:/rsvp/.env:ro
+    # Use env_file for API keys — 'environment:' entries are visible in `docker inspect`
     env_file:
       - ~/.rsvp-automation.env
+
+networks:
+  webapps:
+    name: webapps
+    external: true

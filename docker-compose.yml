@@ -1,12 +1,18 @@
+name: rolodex
+
 services:
-  inviteflow:
+  rsvp-automation:
+    container_name: rsvp-automation
     build: .
-    container_name: rsvp-inviteflow
     ports:
-      - "5173:5173"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "5177:5173"
+    networks:
+      - webapps
+    restart: unless-stopped
     env_file:
       - .env
-    restart: unless-stopped
+
+networks:
+  webapps:
+    name: webapps
+    external: true
