@@ -1,4 +1,5 @@
 import type { AppEvent, Invitee } from '../types';
+import { renderTemplate } from '../emails/render';
 
 const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY;
 
@@ -20,6 +21,19 @@ export function personalize(template: string, invitee: Invitee, event: AppEvent)
     .replace(/\{\{VIPStart\}\}/g, event.vipStart)
     .replace(/\{\{VIPEnd\}\}/g, event.vipEnd)
     .replace(/\{\{Date_Sent\}\}/g, dateSent);
+}
+
+export async function buildEmailHtml(
+  templateId: string | null,
+  templateParams: Record<string, string>,
+  htmlBody: string,
+  invitee: Invitee,
+  event: AppEvent
+): Promise<string> {
+  if (templateId) {
+    return renderTemplate({ templateId, event, invitee, params: templateParams });
+  }
+  return personalize(htmlBody, invitee, event);
 }
 
 export async function sendEmail(

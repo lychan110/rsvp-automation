@@ -46,3 +46,9 @@ env/
 user_data/
 html/user_images/
 
+
+# Build artifacts
+node_modules/
+dist/
+build/
+

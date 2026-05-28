@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
-import { personalize, sendEmail } from '../api/email';
+import { buildEmailHtml, sendEmail } from '../api/email';
 
 type Filter = 'all' | 'pending' | 'failed';
 
@@ -59,7 +59,7 @@ export default function SendTab() {
 
       try {
         const subject = ev.name;
-        const html = personalize(state.htmlBody, inv, ev);
+        const html = await buildEmailHtml(state.templateId, state.templateParams, state.htmlBody, inv, ev);
         await sendEmail(from, inv.email, subject, html);
         dispatch({ type: 'UPDATE_INVITEE', invitee: { ...inv, inviteStatus: 'sent', sentAt: new Date().toISOString() } });
       } catch (e) {
@@ -87,7 +87,7 @@ export default function SendTab() {
         rsvpLink: 'https://example.com/rsvp',
       };
       const subject = `TEST: ${ev.name} Invitation`;
-      const html = personalize(state.htmlBody, testInvitee, ev);
+      const html = await buildEmailHtml(state.templateId, state.templateParams, state.htmlBody, testInvitee, ev);
       const from = ev.contactEmail || 'invites@resend.dev';
       await sendEmail(from, testEmail, subject, html);
       setTestSent(true);

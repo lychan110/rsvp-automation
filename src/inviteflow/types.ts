@@ -50,6 +50,8 @@ export interface AppState {
   tab: TabId;
   textSubject: string;
   htmlBody: string;
+  templateId: string | null;
+  templateParams: Record<string, string>;
   sendLog: SendLogEntry[];
   sending: boolean;
   sendProgress: { current: number; total: number; currentName: string };

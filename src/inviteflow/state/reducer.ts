@@ -8,6 +8,8 @@ export const INITIAL_STATE: AppState = {
   tab: 'tracker',
   textSubject: '',
   htmlBody: '',
+  templateId: null,
+  templateParams: {},
   sendLog: [],
   sending: false,
   sendProgress: { current: 0, total: 0, currentName: '' },
@@ -41,6 +43,8 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, invitees: state.invitees.filter(i => !action.ids.includes(i.id)), unsaved: true };
     case 'SET_COMPOSE':
       return { ...state, textSubject: action.subject, htmlBody: action.html, unsaved: true };
+    case 'SET_TEMPLATE':
+      return { ...state, templateId: action.templateId, templateParams: action.templateParams, unsaved: true };
     case 'START_SEND':
       return { ...state, sending: true, sendLog: [], sendProgress: { current: 0, total: action.total, currentName: '' } };
     case 'SEND_PROGRESS':
