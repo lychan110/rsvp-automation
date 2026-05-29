@@ -49,8 +49,8 @@ env/
 .ignore
 .mcp.json
 redesign-scaffold/
-AGENTS.md
 CLAUDE.md
+.github/.copilot-instructions.md
 
 # User data and secrets
 user_data/
