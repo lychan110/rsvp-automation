@@ -42,6 +42,16 @@ env/
 .env.*.local
 .secret_key
 
+# Dev tooling artifacts
+.agents/
+.claude/
+.claudeignore
+.ignore
+.mcp.json
+redesign-scaffold/
+AGENTS.md
+CLAUDE.md
+
 # User data and secrets
 user_data/
 html/user_images/
