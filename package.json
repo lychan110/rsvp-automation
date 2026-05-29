@@ -11,6 +11,7 @@
     "deploy": "gh-pages -d dist"
   },
   "dependencies": {
+    "@lenya/webapp-shared": "file:./shared",
     "@react-email/components": "^1.0.12",
     "@react-email/render": "^2.0.8",
     "@tailwindcss/vite": "^4.2.4",
@@ -20,7 +21,8 @@
     "primereact": "^10.8.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "tailwindcss": "^4.2.4"
+    "tailwindcss": "^4.2.4",
+    "@lenya/webapp-shared": "file:./shared"
   },
   "devDependencies": {
     "@types/react": "^18.3.12",
