@@ -18,35 +18,13 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
 
-// ── Read version from .env (simple KEY=VALUE parser, no extra deps) ─────────
-function parseEnvFile(content) {
-  const env = {};
-  for (const line of content.split('\n')) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith('#')) continue;
-    const eq = trimmed.indexOf('=');
-    if (eq === -1) continue;
-    env[trimmed.slice(0, eq)] = trimmed.slice(eq + 1);
-  }
-  return env;
-}
-
-const envPath = join(root, '.env');
+// ── Read version from package.json (single source of truth) ──────────────────
 let version;
 
 if (process.env.VITE_APP_VERSION) {
+  // CI or explicit override
   version = process.env.VITE_APP_VERSION;
 } else {
-  try {
-    const parsed = parseEnvFile(readFileSync(envPath, 'utf8'));
-    version = parsed.VITE_APP_VERSION;
-  } catch {
-    version = null;
-  }
-}
-
-// Final fallback: read from package.json (release-please bumps this)
-if (!version) {
   try {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
     version = pkg.version;
@@ -54,6 +32,7 @@ if (!version) {
     version = '0.0.0';
   }
 }
+
 console.log(`[inject-version] Injecting version: ${version}`);
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

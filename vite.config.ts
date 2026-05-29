@@ -2,30 +2,35 @@ import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 import path from 'path';
+import { readFileSync } from 'fs';
+
+// Read version once from package.json — single source of truth
+const pkg = JSON.parse(readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8'));
+const APP_VERSION = process.env.VITE_APP_VERSION ?? pkg.version ?? '0.0.0';
 
 export default defineConfig(({ mode }) => {
-  // Load .env file (Vite auto-loads .env but we also need it in this config)
+  // Load .env file for other secrets/config
   const env = loadEnv(mode, process.cwd(), '');
 
   return {
     plugins: [
       tailwindcss(),
       react(),
-      // Inject VITE_APP_VERSION into HTML <title> at build time
+      // Inject version into HTML <title> at build time
       {
         name: 'inject-version',
         transformIndexHtml(html) {
-          const version = env.VITE_APP_VERSION ?? '0.0.0';
           return html.replace(
             '<title>InviteFlow · Convene</title>',
-            `<title>InviteFlow · Convene v${version}</title>`
+            `<title>InviteFlow · Convene v${APP_VERSION}</title>`
           );
         },
       },
     ],
-    // Expose VITE_APP_VERSION to client-side TypeScript as a typed constant
+    // Expose version to client-side TypeScript
     define: {
-      __APP_VERSION__: JSON.stringify(env.VITE_APP_VERSION ?? '0.0.0'),
+      __APP_VERSION__: JSON.stringify(APP_VERSION),
+      'import.meta.env.VITE_APP_VERSION': JSON.stringify(APP_VERSION),
     },
     server: {
       allowedHosts: true,
