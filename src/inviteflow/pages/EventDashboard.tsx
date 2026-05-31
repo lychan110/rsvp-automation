@@ -24,7 +24,7 @@ interface NextStep {
 
 function getNextStep(state: AppState): NextStep {
   const hasInvitees = state.invitees.length > 0;
-  const hasTemplate = !!state.htmlBody.trim();
+  const hasTemplate = !!state.htmlBody.trim() || !!state.templateId;
   const pendingCount = state.invitees.filter(i => i.inviteStatus === 'pending').length;
   const sentCount    = state.invitees.filter(i => i.inviteStatus === 'sent').length;
 
@@ -53,7 +53,7 @@ function getNextStep(state: AppState): NextStep {
 const WORKFLOW: WorkflowRow[] = [
   { num: '01', icon: 'users',    title: 'Invitees',   sub: 'IMPORT, MANAGE & REVIEW GUEST LIST',  route: 'invitees' },
   { num: '02', icon: 'pen',      title: 'Compose',    sub: 'WRITE & PREVIEW THE INVITE EMAIL',    route: 'compose'  },
-  { num: '03', icon: 'send',     title: 'Send',       sub: 'BULK SEND VIA GMAIL',                 route: 'send'     },
+  { num: '03', icon: 'send',     title: 'Send',       sub: 'BULK SEND VIA RESEND',                route: 'send'     },
   { num: '04', icon: 'calendar', title: 'Tracker',    sub: 'MONITOR RSVP RESPONSES',              route: 'tracker'  },
   { num: '05', icon: 'sync',     title: 'Sync',       sub: 'PUSH / PULL GOOGLE SHEETS',           route: 'sync'     },
 ];
@@ -182,7 +182,7 @@ export default function EventDashboard() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
           {WORKFLOW.slice(0, 4).map((w) => {
             const isCompleted = w.route === 'invitees' && state.invitees.length > 0
-              || w.route === 'compose' && !!state.htmlBody.trim()
+              || w.route === 'compose' && (!!state.htmlBody.trim() || !!state.templateId)
               || w.route === 'send' && state.invitees.filter(i => i.inviteStatus === 'sent').length > 0;
             const isCurrent = nextStep.route === w.route;
 

@@ -80,8 +80,9 @@ export default function EventSetupPage() {
         <div className="if-section-label" style={{ padding: '12px 0 8px' }}>GOOGLE OAUTH</div>
         <div className="if-card" style={{ marginBottom: 12 }}>
           <div style={{ padding: 'var(--rt-row-pad)', borderBottom: '1px solid var(--border)' }}>
-            <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>GOOGLE CLIENT ID</label>
+            <label htmlFor="setup-google-client-id" className="if-label" style={{ display: 'block', marginBottom: 6 }}>GOOGLE CLIENT ID</label>
             <input
+              id="setup-google-client-id"
               className="if-input"
               style={{ width: '100%' }}
               value={clientIdDraft}
@@ -101,8 +102,9 @@ export default function EventSetupPage() {
           <div style={{ display: 'grid', gap: 12 }}>
             {FIELDS_DETAILS.map(f => (
               <div key={f.key}>
-                <label className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
+                <label htmlFor={`setup-${f.key}`} className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
                 <input
+                  id={`setup-${f.key}`}
                   className="if-input"
                   style={{ width: '100%' }}
                   type={f.type ?? 'text'}
@@ -123,8 +125,9 @@ export default function EventSetupPage() {
           <div style={{ display: 'grid', gap: 12 }}>
             {FIELDS_CONTACT.map(f => (
               <div key={f.key}>
-                <label className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
+                <label htmlFor={`setup-${f.key}`} className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
                 <input
+                  id={`setup-${f.key}`}
                   className="if-input"
                   style={{ width: '100%' }}
                   type={f.type ?? 'text'}
@@ -142,8 +145,9 @@ export default function EventSetupPage() {
           <div style={{ display: 'grid', gap: 12 }}>
             {FIELDS_LINKS.map(f => (
               <div key={f.key}>
-                <label className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
+                <label htmlFor={`setup-${f.key}`} className="if-label" style={{ display: 'block', marginBottom: 5 }}>{f.label}</label>
                 <input
+                  id={`setup-${f.key}`}
                   className="if-input"
                   style={{ width: '100%' }}
                   type={f.type ?? 'text'}
