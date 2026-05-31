@@ -32,6 +32,7 @@ export function reducer(state: AppState, action: Action): AppState {
       return { ...state, events, activeEventId, unsaved: true };
     }
     case 'SET_ACTIVE_EVENT':
+      if (state.activeEventId === action.id) return { ...state, unsaved: false };
       return { ...state, activeEventId: action.id, invitees: [], unsaved: false };
     case 'SET_INVITEES':
       return { ...state, invitees: action.invitees, unsaved: true };

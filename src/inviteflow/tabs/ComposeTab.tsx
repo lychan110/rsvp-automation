@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
 import { buildEmailHtml } from '../api/email';
 import { TEMPLATES, type ParamField } from '../emails';
+import PageHeader from '../components/PageHeader';
 
 export default function ComposeTab() {
   const state = useAppState();
@@ -68,32 +69,29 @@ export default function ComposeTab() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* ── Top bar ────────────────────────────────────────────────────── */}
-      <div
-        className="px-4 pt-3 pb-2.5 flex flex-col gap-2.5 shrink-0"
-        style={{ borderBottom: '1px solid var(--border)' }}
-      >
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <div className="if-eyebrow" style={{ marginBottom: 2 }}>COMPOSE</div>
-            <div className="if-page-title" style={{ fontSize: 15 }}>Invitation template</div>
-          </div>
+      <PageHeader
+        eyebrow="COMPOSE"
+        title="Invitation template"
+        showBack
+        right={
           <div className="if-tab-switcher" style={{ width: 200, flexShrink: 0 }}>
             <button
               className={`if-tab-option${activePane === 'edit' ? ' active' : ''}`}
               onClick={() => setActivePane('edit')}
-            >
-              Edit
-            </button>
+            >Edit</button>
             <button
               className={`if-tab-option${activePane === 'preview' ? ' active' : ''}`}
               onClick={() => setActivePane('preview')}
-            >
-              Preview
-            </button>
+            >Preview</button>
           </div>
-        </div>
+        }
+      />
 
+      {/* ── Subject + Template toolbar ─────────────────────────────────── */}
+      <div
+        className="shrink-0 flex flex-col gap-2.5 px-[18px] pb-3"
+        style={{ borderBottom: '1px solid var(--border)' }}
+      >
         {/* Subject field */}
         <div className="flex items-center gap-2.5">
           <label className="if-label" style={{ flexShrink: 0, marginBottom: 0 }}>Subject</label>
@@ -197,20 +195,12 @@ export default function ComposeTab() {
 
           <div className="flex gap-3 mt-4">
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 7, letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
-                TOKENS
-              </div>
-              <div style={{ fontFamily: 'var(--rf-serif)', fontSize: 16, fontWeight: 500, color: 'var(--text-heading)', lineHeight: 1 }}>
-                {Object.keys(state.templateParams).length}
-              </div>
+              <div className="if-stat-chip-label">TOKENS</div>
+              <div className="if-stat-chip-value">{Object.keys(state.templateParams).length}</div>
             </div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 7, letterSpacing: '0.1em', color: 'var(--text-muted)' }}>
-                RECIPIENTS
-              </div>
-              <div style={{ fontFamily: 'var(--rf-serif)', fontSize: 16, fontWeight: 500, color: 'var(--text-heading)', lineHeight: 1 }}>
-                {recipientCount}
-              </div>
+              <div className="if-stat-chip-label">RECIPIENTS</div>
+              <div className="if-stat-chip-value">{recipientCount}</div>
             </div>
           </div>
         </div>
