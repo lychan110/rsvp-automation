@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { useAppState, useAppDispatch } from '../state/AppContext';
 import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
+import { loadInvitees } from '../api/storage';
 import type { RouteId } from '../state/RouterContext';
 import type { AppState } from '../types';
 
@@ -97,7 +99,17 @@ function CardRow({
 
 export default function EventDashboard() {
   const state = useAppState();
+  const dispatch = useAppDispatch();
   const { navigate } = useRouter();
+
+  // Reload invitees from Dexie when state is empty but an event is active.
+  // This handles the case where SET_ACTIVE_EVENT clears invitees (e.g. switching events).
+  useEffect(() => {
+    if (!state.activeEventId || state.invitees.length > 0) return;
+    loadInvitees(state.activeEventId).then(invitees => {
+      if (invitees.length > 0) dispatch({ type: 'LOAD_STATE', partial: { invitees } });
+    });
+  }, [state.activeEventId, state.invitees.length]);
 
   const ev = state.events.find(e => e.id === state.activeEventId);
 

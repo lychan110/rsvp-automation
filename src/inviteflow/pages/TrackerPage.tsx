@@ -181,7 +181,7 @@ export default function TrackerPage() {
                     <tr>
                       {['Category', 'Total', 'Sent', 'Attending', 'Declined', 'No Response'].map(h => (
                         <th key={h} style={{
-                          fontSize: 8, color: 'var(--text-secondary)', letterSpacing: '0.12em',
+                          fontSize: 10, color: 'var(--text-secondary)', letterSpacing: '0.12em',
                           textTransform: 'uppercase', textAlign: 'left', padding: '7px 12px',
                           borderBottom: '1px solid var(--border)', background: 'var(--bg-subtle)',
                         }}>
