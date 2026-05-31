@@ -49,3 +49,8 @@ export async function logSync(entry: { action: string; source: string; timestamp
   const id = await db.syncLog.add(entry);
   return id as number;
 }
+
+export async function importBackupData(parsed: { events?: AppEvent[]; invitees?: Invitee[] }): Promise<void> {
+  for (const ev of parsed.events ?? []) await db.events.put(ev);
+  for (const inv of parsed.invitees ?? []) await db.invitees.put(inv);
+}

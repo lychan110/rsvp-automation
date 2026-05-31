@@ -62,13 +62,8 @@ export default function EventsPage() {
   async function tryDemo() {
     setLoadingDemo(true); setErr('');
     try {
-      const { event, invitees, compose } = await loadDemoData();
-      dispatch({ type: 'ADD_EVENT', event });
-      dispatch({ type: 'SET_ACTIVE_EVENT', id: event.id });
-      dispatch({ type: 'SET_INVITEES', invitees });
-      dispatch({ type: 'SET_TEMPLATE', templateId: compose.templateId, templateParams: compose.templateParams });
-      dispatch({ type: 'SET_COMPOSE', subject: compose.textSubject, html: '' });
-      await refresh();
+      const backup = await loadDemoData();
+      dispatch({ type: 'LOAD_STATE', partial: backup });
       navigate('event-home');
     } catch (e) { setErr(String(e)); }
     finally { setLoadingDemo(false); }

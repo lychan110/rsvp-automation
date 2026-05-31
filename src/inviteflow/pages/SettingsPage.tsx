@@ -4,6 +4,7 @@ import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import { DEFAULT_ENDPOINT } from '../../scout/constants';
+import { importBackupData } from '../api/storage';
 
 export default function SettingsPage() {
   const state = useAppState();
@@ -41,10 +42,11 @@ export default function SettingsPage() {
 
   function importBackup(file: File) {
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = async e => {
       try {
         const parsed = JSON.parse(e.target?.result as string);
         if (parsed.events) {
+          await importBackupData(parsed);
           dispatch({ type: 'LOAD_STATE', partial: parsed });
           setStatus('Backup imported.');
         } else {
