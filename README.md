@@ -62,6 +62,12 @@ VITE_SERPAPI_KEY=xxxxxxxxxxxxxxxxxxxx
 
 ---
 
+## Try the Demo
+
+Open the app with no events and click **▶ Try a demo** on the home screen. It loads a pre-filled event with 14 invitees across multiple categories and RSVP states — no API keys needed, nothing sent.
+
+---
+
 ## The Workflow
 
 1. **Setup** — Create an event with name, date, venue, contact info

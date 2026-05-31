@@ -215,7 +215,7 @@ export default function ScoutPage() {
               API keys required
             </div>
             <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>
-              Configure your AI provider API key and endpoint. Optionally add SerpAPI key for web search.
+              Configure your AI provider API key and endpoint. Optionally add a web search key for grounded results.
             </div>
             <button
               onClick={() => setShowKeysModal(true)}
@@ -273,7 +273,7 @@ export default function ScoutPage() {
               <optgroup label="Fast — no web search">
                 <option value="openstates">State Legislators (Open States — all chambers)</option>
               </optgroup>
-              <optgroup label="AI provider + SerpAPI web search">
+              <optgroup label="AI + web search">
                 {SCAN_TARGETS.map(t => (
                   <option key={t.id} value={t.id}>{t.label}</option>
                 ))}

@@ -127,10 +127,35 @@ GitHub Actions workflow: `.github/workflows/deploy.yml`
 5. **`.env` secrets** — `.env` is gitignored. CI uses env vars from workflow; local dev uses `.env` file
 6. **ContactScout is embedded** — `src/scout/` is the ContactScout engine, imported directly by `ScoutPage`. The standalone ContactScout app no longer exists in this repo.
 
+## Documentation Map
+
+When adding or changing a feature, update the right docs. Each file has a distinct scope — don't blur them.
+
+| File | What belongs here | Update when |
+|------|-------------------|-------------|
+| `README.md` | User-facing feature overview, setup steps, tech stack | New feature added, setup flow changes |
+| `docs/QUICKSTART.md` | Step-by-step guide for first-time users | Workflow changes, new first-run experience (e.g. demo) |
+| `docs/MEMORY.md` | Non-obvious learnings: gotchas, invariants, design decisions with hidden constraints | Something surprising discovered; a decision that would confuse a future developer |
+| `AGENTS.md` | Architecture, conventions, gotchas for agents/developers | Architecture changes, new conventions, new gotchas |
+| `docs/DESIGN.md` | Visual design system, layout rules, color/type scale | Design language changes |
+
+### What goes in MEMORY.md
+
+Add an entry whenever you discover something **non-obvious** — something a future developer would reasonably get wrong. Examples: why a check must be two conditions not one, why an import must also write to Dexie, why a feature uses fixed IDs. Do not add entries for things that are obvious from reading the code.
+
+### UI strings vs. docs
+
+Keep tech implementation details **out of UI labels and action text**. Describe what the feature does for the user, not which service or library implements it. Service names belong in:
+- Setup/configuration screens where the user needs them to sign up (e.g. "Get your key at resend.com →")
+- Help text below form fields
+- Project docs (README, QUICKSTART)
+
+Not in: button labels, workflow step subtitles, status messages, section headers.
+
 ## Agent Operating Principles
 
 - **Think before coding** — state assumptions, present tradeoffs, ask when unclear
 - **Surgical changes** — touch only what's needed, match existing style, clean up your own orphans
 - **Goal-driven** — define success criteria, verify before declaring done
 - **Simplicity first** — no speculative abstractions, no features beyond the ask
-- **Update this file** — when architecture or conventions change, revise AGENTS.md before or alongside the code
+- **Update docs alongside code** — when a feature ships, update README + QUICKSTART (user-facing) and MEMORY (non-obvious learnings) in the same commit or PR

@@ -50,6 +50,7 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
 
   return (
     <div
+      role="presentation"
       style={{
         position: 'fixed',
         inset: 0,
@@ -62,6 +63,9 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="scout-modal-title"
         style={{
           background: 'var(--bg-root)',
           borderRadius: 12,
@@ -74,25 +78,29 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
           boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
         }}
         onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.key === 'Escape' && onClose()}
       >
-        <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 16 }}>
+        <div id="scout-modal-title" style={{ fontSize: 16, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 16 }}>
           API Configuration
         </div>
 
         {/* AI Provider API Key */}
         <div style={{ marginBottom: 4 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
+          <label htmlFor="scout-api-key" style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
             AI Provider API Key
           </label>
           <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>
             API key for your OpenAI-compatible provider (OpenAI, Anthropic, etc.). Stored in session only.
           </div>
           <input
+            id="scout-api-key"
             type="password"
             placeholder="sk-..."
             value={keyDraft}
             onChange={e => { setKeyDraft(e.target.value); setKeyErr(false); }}
             onKeyDown={e => e.key === 'Enter' && save()}
+            aria-invalid={keyErr}
+            aria-describedby={keyErr ? 'scout-api-key-err' : undefined}
             style={{
               width: '100%',
               padding: '8px 10px',
@@ -106,23 +114,26 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
             }}
             autoFocus
           />
-          {keyErr && <div style={{ fontSize: 10, color: 'var(--danger)', marginBottom: 12 }}>API key is required</div>}
+          {keyErr && <div id="scout-api-key-err" role="alert" style={{ fontSize: 10, color: 'var(--danger)', marginBottom: 12 }}>API key is required</div>}
         </div>
 
         {/* AI Provider Endpoint */}
         <div style={{ marginBottom: 4 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
+          <label htmlFor="scout-endpoint" style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
             API Endpoint
           </label>
           <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>
             Base URL for any OpenAI-compatible API. Defaults to <code style={{ color: 'var(--blue)' }}>https://api.openai.com/v1</code>.
           </div>
           <input
+            id="scout-endpoint"
             type="text"
             placeholder="https://api.openai.com/v1"
             value={endDraft}
             onChange={e => { setEndDraft(e.target.value); setEndErr(false); }}
             onKeyDown={e => e.key === 'Enter' && save()}
+            aria-invalid={endErr}
+            aria-describedby={endErr ? 'scout-endpoint-err' : undefined}
             style={{
               width: '100%',
               padding: '8px 10px',
@@ -135,15 +146,15 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
               marginBottom: endErr ? 4 : 12,
             }}
           />
-          {endErr && <div style={{ fontSize: 10, color: 'var(--danger)', marginBottom: 12 }}>Must be a valid URL</div>}
+          {endErr && <div id="scout-endpoint-err" role="alert" style={{ fontSize: 10, color: 'var(--danger)', marginBottom: 12 }}>Must be a valid URL</div>}
         </div>
 
         <div style={{ borderTop: '1px solid var(--border)', margin: '14px 0' }} />
 
         {/* SerpAPI Key */}
         <div style={{ marginBottom: 4 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
-            SerpAPI Key <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(recommended)</span>
+          <label htmlFor="scout-serpapi-key" style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
+            Web Search Key <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(recommended)</span>
           </label>
           <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>
             Enables web search for discovering officials. Get a free key at{' '}
@@ -153,6 +164,7 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
             {' '} — free tier includes 100 searches/month.
           </div>
           <input
+            id="scout-serpapi-key"
             type="password"
             placeholder="SerpAPI key..."
             value={searchDraft}
@@ -176,7 +188,7 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
 
         {/* Open States */}
         <div style={{ marginBottom: 4 }}>
-          <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
+          <label htmlFor="scout-openstates-key" style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
             Open States API <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(optional)</span>
           </label>
           <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>
@@ -187,6 +199,7 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
             {' '} for a free key.
           </div>
           <input
+            id="scout-openstates-key"
             type="password"
             placeholder="Open States API key..."
             value={osDraft}
@@ -217,8 +230,9 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
             Configure your state and location(s) for targeted official discovery scans.
           </div>
 
-          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>State</label>
+          <label htmlFor="scout-jx-state" style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>State</label>
           <input
+            id="scout-jx-state"
             type="text"
             placeholder="e.g., California"
             value={stateDraft}
@@ -237,8 +251,9 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
             }}
           />
 
-          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>Counties (comma-separated)</label>
+          <label htmlFor="scout-jx-counties" style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>Counties (comma-separated)</label>
           <input
+            id="scout-jx-counties"
             type="text"
             placeholder="e.g., Santa Clara, San Mateo"
             value={countiesDraft}
@@ -257,8 +272,9 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
             }}
           />
 
-          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 1</label>
+          <label htmlFor="scout-jx-city1" style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 1</label>
           <input
+            id="scout-jx-city1"
             type="text"
             placeholder="e.g., San Jose"
             value={city1Draft}
@@ -277,8 +293,9 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
             }}
           />
 
-          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 2</label>
+          <label htmlFor="scout-jx-city2" style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 2</label>
           <input
+            id="scout-jx-city2"
             type="text"
             placeholder="e.g., Palo Alto"
             value={city2Draft}
@@ -297,8 +314,9 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
             }}
           />
 
-          <label style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 3</label>
+          <label htmlFor="scout-jx-city3" style={{ display: 'block', fontSize: 10, color: 'var(--text-secondary)', marginBottom: 2 }}>City 3</label>
           <input
+            id="scout-jx-city3"
             type="text"
             placeholder="e.g., Mountain View"
             value={city3Draft}

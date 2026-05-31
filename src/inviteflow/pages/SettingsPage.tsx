@@ -4,6 +4,7 @@ import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import { DEFAULT_ENDPOINT } from '../../scout/constants';
+import { importBackupData } from '../api/storage';
 
 export default function SettingsPage() {
   const state = useAppState();
@@ -19,14 +20,14 @@ export default function SettingsPage() {
 
   function saveResendConfig() {
     localStorage.setItem('resend_api_key', resendKey);
-    setStatus('Resend API key saved.');
+    setStatus('Email API key saved.');
   }
 
   function saveLlmConfig() {
     sessionStorage.setItem('cs_api_key', llmApiKey);
     sessionStorage.setItem('cs_endpoint', llmEndpoint || DEFAULT_ENDPOINT);
     sessionStorage.setItem('cs_search_key', serpApiKey);
-    setStatus('LLM & SerpAPI configuration saved.');
+    setStatus('Scout configuration saved.');
   }
 
   function exportData() {
@@ -41,10 +42,11 @@ export default function SettingsPage() {
 
   function importBackup(file: File) {
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = async e => {
       try {
         const parsed = JSON.parse(e.target?.result as string);
         if (parsed.events) {
+          await importBackupData(parsed);
           dispatch({ type: 'LOAD_STATE', partial: parsed });
           setStatus('Backup imported.');
         } else {
@@ -92,18 +94,18 @@ export default function SettingsPage() {
           <span style={{ color: 'var(--warning)', fontSize: 8, marginLeft: 6 }}>REQUIRED FOR SENDING</span>
         </div>
         <div className="if-card" style={{ padding: 14, marginBottom: 12, borderLeft: '3px solid var(--warning)' }}>
-          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>RESEND API KEY</label>
+          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>EMAIL API KEY</label>
           <input
             className="if-input"
             style={{ width: '100%', marginBottom: 8 }}
             type="password"
             value={resendKey}
             onChange={e => setResendKey(e.target.value)}
-            placeholder="re_xxxxxxxxxxxxx — get from resend.com"
+            placeholder="re_xxxxxxxxxxxxx"
           />
           <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 8, lineHeight: 1.5 }}>
             Required to send invitation emails. Free tier: 3,000 emails/month.<br />
-            <a href="https://resend.com" target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Sign up at resend.com →</a>
+            <a href="https://resend.com" target="_blank" rel="noopener" style={{ color: 'var(--accent)' }}>Get your key at resend.com →</a>
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', letterSpacing: '0.06em' }}>
@@ -141,14 +143,14 @@ export default function SettingsPage() {
             Supports OpenAI, Anthropic, Ollama, or any OpenAI-compatible endpoint.
           </div>
 
-          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>SERPAPI KEY</label>
+          <label className="if-label" style={{ display: 'block', marginBottom: 6 }}>WEB SEARCH KEY</label>
           <input
             className="if-input"
             style={{ width: '100%', marginBottom: 8 }}
             type="password"
             value={serpApiKey}
             onChange={e => setSerpApiKey(e.target.value)}
-            placeholder="Get from https://serpapi.com/"
+            placeholder="serpapi.com — 100 free searches/month"
           />
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

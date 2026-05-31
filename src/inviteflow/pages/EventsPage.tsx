@@ -4,6 +4,7 @@ import { useRouter } from '../state/RouterContext';
 import PageHeader from '../components/PageHeader';
 import Icon from '../components/Icon';
 import { loadEvents as fetchEventsFromDb, saveEvent, deleteEvent } from '../api/storage';
+import { loadDemoData } from '../data/demoSeed';
 import type { AppEvent } from '../types';
 
 function blankEvent(id: string): AppEvent {
@@ -31,6 +32,7 @@ export default function EventsPage() {
   const dispatch = useAppDispatch();
   const { navigate } = useRouter();
   const [loading, setLoading] = useState(false);
+  const [loadingDemo, setLoadingDemo] = useState(false);
   const [err, setErr] = useState('');
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
@@ -55,6 +57,16 @@ export default function EventsPage() {
       dispatch({ type: 'SET_ACTIVE_EVENT', id });
       navigate('event-setup');
     } catch (e) { setErr(String(e)); }
+  }
+
+  async function tryDemo() {
+    setLoadingDemo(true); setErr('');
+    try {
+      const backup = await loadDemoData();
+      dispatch({ type: 'LOAD_STATE', partial: backup });
+      navigate('event-home');
+    } catch (e) { setErr(String(e)); }
+    finally { setLoadingDemo(false); }
   }
 
   async function handleDelete(id: string) {
@@ -100,14 +112,27 @@ export default function EventsPage() {
             <div style={{ fontFamily: 'var(--font-body)', fontSize: 12, color: 'var(--text-muted)', marginBottom: 20 }}>
               Each event has its own guest list, email template, and send history.
             </div>
-            <button
-              className="if-btn pri"
-              style={{ minHeight: 44 }}
-              onClick={createEvent}
-            >
-              <Icon name="plus" size={13} style={{ marginRight: 6 }} />
-              New Event
-            </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
+              <button
+                className="if-btn pri"
+                style={{ minHeight: 44, minWidth: 160 }}
+                onClick={createEvent}
+              >
+                <Icon name="plus" size={13} style={{ marginRight: 6 }} />
+                New Event
+              </button>
+              <button
+                className="if-btn ghost"
+                style={{ minHeight: 40, minWidth: 160 }}
+                onClick={tryDemo}
+                disabled={loadingDemo}
+              >
+                {loadingDemo ? 'Loading…' : '▶ Try a demo'}
+              </button>
+            </div>
+            <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 10, color: 'var(--text-muted)', marginTop: 14, letterSpacing: '0.04em' }}>
+              Demo loads a pre-filled event — no emails sent, no API calls made.
+            </div>
           </div>
         )}
 
@@ -176,7 +201,7 @@ export default function EventsPage() {
                             {!isActive && (
                               <button className="if-btn sm" onClick={() => openEvent(ev.id)}>Open</button>
                             )}
-                            <button className="if-btn del sm" onClick={() => setConfirmDelete(ev.id)}>
+                            <button className="if-btn del sm" onClick={() => setConfirmDelete(ev.id)} aria-label={`Delete ${ev.name || 'event'}`}>
                               <Icon name="x" size={11} />
                             </button>
                           </>

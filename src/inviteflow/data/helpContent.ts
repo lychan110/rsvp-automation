@@ -43,7 +43,7 @@ export const helpSections: HelpSection[] = [
       {
         num: '05',
         title: 'Discover Officials (Optional)',
-        body: 'Use the Discover page to find and verify elected officials for your jurisdiction. Configure your AI provider API key, endpoint, and SerpAPI key in Settings, then run scans. Add discovered officials directly to your invitees.',
+        body: 'Use the Discover page to find and verify elected officials for your jurisdiction. Configure your AI provider API key, endpoint, and web search key in Settings, then run scans. Add discovered officials directly to your invitees.',
       },
     ],
   },
@@ -79,7 +79,7 @@ export const helpSections: HelpSection[] = [
       {
         num: '06',
         title: 'Configure Discover (Optional)',
-        body: 'To discover elected officials: 1) Get a SerpAPI key from https://serpapi.com/; 2) Get an API key from any OpenAI-compatible provider (OpenAI, Anthropic, etc.); 3) Go to Discover → Settings and enter your endpoint, API key, and SerpAPI key.',
+        body: 'To discover elected officials: 1) Get a web search API key (e.g. serpapi.com — 100 free/month); 2) Get an AI provider API key (OpenAI, Anthropic, or any compatible provider); 3) Go to Discover → Settings and enter your endpoint, AI key, and web search key.',
       },
     ],
   },
@@ -108,7 +108,7 @@ export const helpSections: HelpSection[] = [
     label: 'TIPS',
     bullets: [
       'Start small — test with 3–5 guests before your full list.',
-      'Use Discover to find officials for your jurisdiction — search results are grounded with real-time web data via SerpAPI.',
+      'Use Discover to find officials for your jurisdiction — search results are grounded with real-time web data.',
       'Use Compose → Preview to check merged emails before sending.',
       'InviteFlow sends in batches with delays to respect rate limits.',
       'Connect a Google Form to RSVP tracking and responses will auto-populate in the Tracker.',
@@ -124,7 +124,7 @@ export const helpSections: HelpSection[] = [
       'Emails not sending? Check that all required fields are configured in Setup.',
       'Template tokens not merging? Verify token names match exactly (case-sensitive: {{FirstName}}, not {{firstname}}).',
       'CSV import failed? Ensure CSV has a header row and email column. Check for proper CSV formatting.',
-      'Discover page not working? Configure your AI provider API key, endpoint, and jurisdiction in Discover → Settings.',
+      'Discover page not working? Configure your AI provider API key, endpoint, and jurisdiction in Discover → Settings. Web search requires a separate web search key.',
     ],
   },
 ];
