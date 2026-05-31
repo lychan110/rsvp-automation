@@ -26,6 +26,16 @@ The Scout/Discover feature calls any OpenAI-compatible API endpoint (`/v1/chat/c
 
 ---
 
+### Demo Seed Uses the Real Import Path
+`src/inviteflow/data/demoSeed.ts` exports `DEMO_BACKUP` — an object shaped exactly like a real app export (`exportData()` in SettingsPage). `loadDemoData()` calls `importBackupData()` from `api/storage.ts`, then returns the backup for the caller to dispatch `LOAD_STATE`. This is the same two-step sequence as `importBackup` in SettingsPage. Any change to import behavior automatically applies to the demo.
+
+`DEMO_BACKUP` uses fixed IDs (`demo-inv-01` … `demo-inv-14`, event `demo-event-2026-08-14`) so repeated loads are idempotent — Dexie `put` upserts without duplicating rows.
+
+### importBackup Must Write to Dexie
+`importBackupData()` in `api/storage.ts` writes events and invitees to Dexie (IndexedDB) before `LOAD_STATE` updates React state/localStorage. This is essential: EventsPage calls `loadEvents()` from Dexie on mount. If events are only in localStorage/state (not Dexie), they disappear the moment EventsPage re-fetches. Any code that "imports" an event must call `importBackupData` or `saveEvent`/`saveInvitee` directly — `LOAD_STATE` alone is not sufficient for persistence.
+
+---
+
 ## Build System
 
 ### Version: Single Source of Truth Is `package.json`

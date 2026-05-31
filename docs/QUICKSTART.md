@@ -6,6 +6,14 @@ InviteFlow manages VIP event invitations end-to-end — from drafting personaliz
 
 ---
 
+## Try the Demo First
+
+If you have no events yet, the home screen shows a **▶ Try a demo** button. Click it to instantly load a pre-filled event with 14 invitees across Federal, State, City, County, Business, and Education categories — with a mix of sent, pending, failed, attending, and declined statuses. No API keys needed, nothing sent.
+
+This is a great way to explore all the pages before setting up your own event.
+
+---
+
 ## The Workflow
 
 ### Step 1 — Create an Event
