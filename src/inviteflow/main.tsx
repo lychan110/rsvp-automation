@@ -6,7 +6,6 @@ import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import 'primeflex/primeflex.css';
 import './styles/primereact-reset.css';
-import './styles/tiptap.css';
 import './theme.css';
 import './styles/if.css';
 import App from './App';

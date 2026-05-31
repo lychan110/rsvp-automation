@@ -122,10 +122,10 @@ Use the Discover page to find and verify elected officials for your jurisdiction
 ### Setup
 
 1. **Get a SerpAPI key** — Sign up at https://serpapi.com/ (free tier: 100 searches/month)
-2. **Set up LiteLLM proxy** — Run locally on `http://127.0.0.1:4000` (or your configured endpoint)
+2. **Set up an OpenAI-compatible endpoint** — LiteLLM running locally (`http://127.0.0.1:4000`) is the typical setup. Alternatively, use any OpenAI-compatible API directly (OpenAI, Anthropic, etc.).
 3. **Configure in Discover**:
    - Go to Discover tab → click Settings
-   - Enter your LiteLLM endpoint, API key, and SerpAPI key
+   - Enter your API endpoint, API key, and SerpAPI key
    - Set your jurisdiction: State, Counties, Cities
    - Keys are stored in session only — never persisted
 
@@ -164,7 +164,7 @@ Verify token names are exact (case-sensitive): `{{FirstName}}` not `{{firstname}
 - Verify proper CSV formatting (commas, quotes)
 
 ### "Discover not working?"
-- Configure LiteLLM endpoint and API key in Discover → Settings
+- Configure your API endpoint and key in Discover → Settings (must be an OpenAI-compatible endpoint)
 - Set your jurisdiction (State field required)
 - Verify SerpAPI key is set for web search scans
 

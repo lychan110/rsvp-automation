@@ -1,10 +1,9 @@
 /**
  * inject-version.js
  *
- * Reads VITE_APP_VERSION from .env and propagates it to:
+ * Reads version from package.json and propagates it to:
  *   - README.md  (product name, subtitle, and "InviteFlow vX" mentions)
  *   - src/inviteflow/pages/SyncPage.tsx  (GAS code comment header)
- *   - src/inviteflow/tabs/SyncTab.tsx    (GAS code comment header)
  *
  * Run after `vite build` (post-build step) so the .env is available.
  *
@@ -72,9 +71,8 @@ function replaceVersionInFile(file, newVersion) {
 // create "4.2.0.1.0" (a bug that occurred with naive prefix-based matching).
 replaceVersionInFile('README.md', version);
 
-// ── GAS code comments (SyncTab / SyncPage) ───────────────────────────────────
+// ── GAS code comments (SyncPage) ─────────────────────────────────────────────
 // The GAS script header comment also bakes the version string.
 replaceVersionInFile('src/inviteflow/pages/SyncPage.tsx', version);
-replaceVersionInFile('src/inviteflow/tabs/SyncTab.tsx', version);
 
 console.log('[inject-version] Done.');

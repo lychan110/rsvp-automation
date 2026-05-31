@@ -26,15 +26,15 @@ src/
     App.tsx             # Router switch — renders page by route
     state/              # AppContext, RouterContext
     pages/              # Full-page components (Events, Dashboard, Setup, etc.)
-    tabs/               # Sub-views (Compose, Send) — NOT in tsconfig
+    tabs/               # ComposeTab + SendTab (active but excluded from tsconfig; other tab files are legacy stubs)
     components/         # Reusable UI pieces
-    styles/             # App-specific CSS (if.css, tiptap.css, primereact-reset.css)
+    styles/             # App-specific CSS (if.css, primereact-reset.css)
     theme.css           # CSS variables for theming
     api/                # Resend, OpenAI, SerpAPI clients
     db/                 # Dexie schema
     emails/             # React Email templates
     types.ts            # Shared TypeScript types
-  scout/                # ContactScout (archived sub-project)
+  scout/                # ContactScout engine (imported by ScoutPage)
   index.css             # Tailwind entry + shared token imports
 shared/                 # @lenya/webapp-shared (git submodule)
 scripts/
@@ -99,7 +99,7 @@ Custom `RouterContext` — not React Router. Routes are string keys (`events`, `
 - Fonts loaded from Google Fonts in `index.html`
 
 ### TypeScript
-- `tsconfig.json` excludes `src/contact-scout` and `src/inviteflow/tabs` (legacy)
+- `tsconfig.json` excludes `src/inviteflow/tabs` (ComposeTab and SendTab are active but not type-checked; other tab files are legacy stubs)
 - `noUnusedLocals: false` — don't let TS nag about unused variables during prototyping
 
 ## Testing
@@ -123,9 +123,9 @@ GitHub Actions workflow: `.github/workflows/deploy.yml`
 1. **Submodule not checked out** → build fails with "Can't resolve '../shared/src/styles/fonts.css'". Fix: `git submodule update --init --recursive`
 2. **Stale version strings** → `inject-version.js` uses `package.json` as source of truth; if you see old versions, the build likely failed before inject-version ran
 3. **PrimeReact CSS load order** matters — import PrimeReact theme BEFORE app styles in `main.tsx`
-4. **`src/inviteflow/tabs` excluded from tsconfig** — these files are NOT typechecked. If you add new files there, move them to `src/inviteflow/pages/` or update tsconfig
+4. **`src/inviteflow/tabs` excluded from tsconfig** — these files are NOT typechecked. Only ComposeTab and SendTab are active; the rest are legacy stubs. If you add new files there, move them to `src/inviteflow/pages/` or update tsconfig
 5. **`.env` secrets** — `.env` is gitignored. CI uses env vars from workflow; local dev uses `.env` file
-6. **ContactScout is archived** — `src/scout/` and `src/contact-scout/` are historical. The active contact discovery is the `ScoutPage` inside InviteFlow
+6. **ContactScout is embedded** — `src/scout/` is the ContactScout engine, imported directly by `ScoutPage`. The standalone ContactScout app no longer exists in this repo.
 
 ## Agent Operating Principles
 
