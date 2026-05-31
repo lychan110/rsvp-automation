@@ -43,7 +43,7 @@ export const helpSections: HelpSection[] = [
       {
         num: '05',
         title: 'Discover Officials (Optional)',
-        body: 'Use the Discover page to find and verify elected officials for your jurisdiction. Configure LiteLLM endpoint, API key, and SerpAPI key in Settings, then run scans. Add discovered officials directly to your invitees.',
+        body: 'Use the Discover page to find and verify elected officials for your jurisdiction. Configure your AI provider API key, endpoint, and SerpAPI key in Settings, then run scans. Add discovered officials directly to your invitees.',
       },
     ],
   },
@@ -79,7 +79,7 @@ export const helpSections: HelpSection[] = [
       {
         num: '06',
         title: 'Configure Discover (Optional)',
-        body: 'To discover elected officials: 1) Get a SerpAPI key from https://serpapi.com/; 2) Set up a LiteLLM proxy (default: http://127.0.0.1:4000); 3) Go to Discover → Settings and enter your endpoint, API key, and SerpAPI key.',
+        body: 'To discover elected officials: 1) Get a SerpAPI key from https://serpapi.com/; 2) Get an API key from any OpenAI-compatible provider (OpenAI, Anthropic, etc.); 3) Go to Discover → Settings and enter your endpoint, API key, and SerpAPI key.',
       },
     ],
   },
@@ -124,7 +124,7 @@ export const helpSections: HelpSection[] = [
       'Emails not sending? Check that all required fields are configured in Setup.',
       'Template tokens not merging? Verify token names match exactly (case-sensitive: {{FirstName}}, not {{firstname}}).',
       'CSV import failed? Ensure CSV has a header row and email column. Check for proper CSV formatting.',
-      'Discover page not working? Configure LiteLLM endpoint, API key, and jurisdiction in Discover → Settings.',
+      'Discover page not working? Configure your AI provider API key, endpoint, and jurisdiction in Discover → Settings.',
     ],
   },
 ];

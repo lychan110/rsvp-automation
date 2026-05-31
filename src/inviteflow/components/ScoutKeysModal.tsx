@@ -79,13 +79,13 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
           API Configuration
         </div>
 
-        {/* LiteLLM API Key */}
+        {/* AI Provider API Key */}
         <div style={{ marginBottom: 4 }}>
           <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
-            LiteLLM API Key
+            AI Provider API Key
           </label>
           <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>
-            Your LiteLLM proxy API key. This authenticates requests to the LiteLLM endpoint. Stored in session only.
+            API key for your OpenAI-compatible provider (OpenAI, Anthropic, etc.). Stored in session only.
           </div>
           <input
             type="password"
@@ -109,17 +109,17 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
           {keyErr && <div style={{ fontSize: 10, color: 'var(--danger)', marginBottom: 12 }}>API key is required</div>}
         </div>
 
-        {/* LiteLLM Endpoint */}
+        {/* AI Provider Endpoint */}
         <div style={{ marginBottom: 4 }}>
           <label style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
-            LiteLLM Endpoint
+            API Endpoint
           </label>
           <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>
-            Base URL for your LiteLLM proxy. Defaults to <code style={{ color: 'var(--blue)' }}>http://127.0.0.1:4000/v1</code>.
+            Base URL for any OpenAI-compatible API. Defaults to <code style={{ color: 'var(--blue)' }}>https://api.openai.com/v1</code>.
           </div>
           <input
             type="text"
-            placeholder="http://127.0.0.1:4000/v1"
+            placeholder="https://api.openai.com/v1"
             value={endDraft}
             onChange={e => { setEndDraft(e.target.value); setEndErr(false); }}
             onKeyDown={e => e.key === 'Enter' && save()}

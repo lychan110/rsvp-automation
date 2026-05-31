@@ -107,6 +107,6 @@ To restore: **Sync** tab → **Import** → Upload your backup
 
 - React 18 + TypeScript + Vite
 - PrimeReact (DataTable)
-- TipTap (rich text editor)
+- React Email (invitation templates)
 - Dexie.js (IndexedDB)
 - Resend (email delivery)

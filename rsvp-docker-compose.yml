@@ -3,11 +3,7 @@ name: rolodex
 services:
   rsvp-automation:
     container_name: rsvp-automation
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        - VITE_APP_VERSION=5.1.0
+    build: .
     ports:
       - "5176:5173"
     networks:

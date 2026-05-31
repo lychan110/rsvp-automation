@@ -1,75 +1,46 @@
-// InviteFlow v3 — RSVP Ingest Trigger
+// InviteFlow v5.1.1 — RSVP ingest trigger
+// Deploy: Extensions → Apps Script → add trigger: onFormSubmit (Form Submit)
+// Set script property MASTER_SHEET_URL via Project Settings → Script Properties
 //
-// Setup:
-//   1. Open your Google Form → Extensions → Apps Script
-//   2. Paste this entire file into Code.gs
-//   3. Project Settings → Script Properties → Add property:
-//        MASTER_SHEET_URL = <your master sheet URL>
-//   4. Triggers → Add trigger: onFormSubmit, Event source: From form, Event type: On form submit
-//
-// What it does: when a guest submits the RSVP form, this writes their
-// RSVP status and date into the master Sheets row matched by Email.
+// NOTE: The canonical version of this script is embedded in the InviteFlow app
+// (Sync tab → "Copy GAS code" button). Always use the app version — this file
+// is updated manually and may lag behind.
 
 function onFormSubmit(e) {
-  var props = PropertiesService.getScriptProperties();
-  var sheetUrl = props.getProperty('MASTER_SHEET_URL');
-  if (!sheetUrl) {
-    Logger.log('MASTER_SHEET_URL not set in script properties.');
-    return;
+  const props = PropertiesService.getScriptProperties();
+  const sheetUrl = props.getProperty('MASTER_SHEET_URL');
+  if (!sheetUrl) return;
+
+  const ss = SpreadsheetApp.openByUrl(sheetUrl);
+  const sheet = ss.getSheets()[0];
+  const responses = e.response.getItemResponses();
+
+  let email = '';
+  let attending = '';
+  for (const r of responses) {
+    const title = r.getItem().getTitle().toLowerCase();
+    if (title.includes('email')) email = r.getResponse().trim();
+    if (title.includes('attend') || title.includes('rsvp')) attending = r.getResponse().trim();
   }
+  if (!email) return;
 
-  var responses = e.response.getItemResponses();
-  var email = '';
-  var attending = '';
+  const data = sheet.getDataRange().getValues();
+  const header = data[0].map(String);
+  const emailCol = header.findIndex(h => h.toLowerCase() === 'email');
+  const statusCol = header.findIndex(h => h.toLowerCase() === 'rsvp_status');
+  const dateCol = header.findIndex(h => h.toLowerCase() === 'rsvp_date');
+  if (emailCol < 0) return;
 
-  for (var i = 0; i < responses.length; i++) {
-    var item = responses[i];
-    var title = item.getItem().getTitle().toLowerCase();
-    var answer = item.getResponse();
-    if (typeof answer === 'string') {
-      if (title.indexOf('email') >= 0) email = answer.trim();
-      if (title.indexOf('attend') >= 0 || title.indexOf('rsvp') >= 0) attending = answer.trim();
-    }
-  }
+  const today = new Date().toISOString().slice(0, 10);
+  const lower = attending.toLowerCase();
+  const rsvpStatus = (lower.includes('no') || lower.includes('declin') || lower.includes('unable'))
+    ? 'Declined' : 'Attending';
 
-  if (!email) {
-    Logger.log('No email field found in form response.');
-    return;
-  }
-
-  var ss = SpreadsheetApp.openByUrl(sheetUrl);
-  var sheet = ss.getSheets()[0];
-  var data = sheet.getDataRange().getValues();
-  var header = data[0];
-
-  var emailCol = -1, statusCol = -1, dateCol = -1;
-  for (var c = 0; c < header.length; c++) {
-    var h = String(header[c]).toLowerCase();
-    if (h === 'email') emailCol = c;
-    if (h === 'rsvp_status') statusCol = c;
-    if (h === 'rsvp_date') dateCol = c;
-  }
-
-  if (emailCol < 0) {
-    Logger.log('Email column not found in master sheet.');
-    return;
-  }
-
-  var today = new Date().toISOString().slice(0, 10);
-  var rsvpStatus = 'Attending';
-  var lower = attending.toLowerCase();
-  if (lower.indexOf('no') >= 0 || lower.indexOf('declin') >= 0 || lower.indexOf('unable') >= 0) {
-    rsvpStatus = 'Declined';
-  }
-
-  for (var row = 1; row < data.length; row++) {
+  for (let row = 1; row < data.length; row++) {
     if (String(data[row][emailCol]).toLowerCase() === email.toLowerCase()) {
       if (statusCol >= 0) sheet.getRange(row + 1, statusCol + 1).setValue(rsvpStatus);
       if (dateCol >= 0) sheet.getRange(row + 1, dateCol + 1).setValue(today);
-      Logger.log('Updated RSVP for ' + email + ': ' + rsvpStatus);
       return;
     }
   }
-
-  Logger.log('Email not found in master sheet: ' + email);
 }

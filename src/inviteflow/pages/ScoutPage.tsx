@@ -1,5 +1,5 @@
 // ── ContactScout engine (direct imports — same logic as ContactScout standalone app) ───
-import { callLiteLLM } from '../../scout/api';
+import { callAIProvider } from '../../scout/api';
 import { searchWeb, buildSearchQuery } from '../../scout/search';
 import { fetchStateLegislators } from '../../scout/openStates';
 import {
@@ -53,9 +53,9 @@ export default function ScoutPage() {
   const searchKey  = readScoutKey(CS_SEARCH_KEY, CS_ENV_SEARCHKEY);
   const osKey      = readScoutKey(CS_OS_KEY, CS_ENV_OSKEY);
   const jx         = JSON.parse(sessionStorage.getItem(CS_JX_KEY) ?? '{}') as CSJurisdiction;
-  const hasLiteLLM = !!apiKey;
+  const hasApiKey  = !!apiKey;
   const hasOS      = !!osKey;
-  const hasKeys    = hasLiteLLM || hasOS;
+  const hasKeys    = hasApiKey || hasOS;
   const hasJx      = !!jx.state;
 
   const [scanState,  setScanState]  = useState<ScanState>('idle');
@@ -101,7 +101,7 @@ export default function ScoutPage() {
         const { officials: house } = await fetchStateLegislators(osKey, state, 'lower');
         officials = [...leg, ...house];
       } else {
-        // LiteLLM web search (with SerpAPI pre-fetch)
+        // AI provider web search (with SerpAPI pre-fetch)
         const jx = JSON.parse(sessionStorage.getItem(CS_JX_KEY) ?? '{}') as CSJurisdiction;
         const target = SCAN_TARGETS.find(t => t.id === scanTarget);
         if (!target) throw new Error(`Unknown scan target: ${scanTarget}`);
@@ -120,7 +120,7 @@ export default function ScoutPage() {
           }
         }
 
-        const raw = await callLiteLLM(apiKey, endpoint, MODEL_SCAN, SCAN_SYS, finalPrompt);
+        const raw = await callAIProvider(apiKey, endpoint, MODEL_SCAN, SCAN_SYS, finalPrompt);
         officials = (raw.officials as CSOfficial[]) ?? [];
       }
 
@@ -215,7 +215,7 @@ export default function ScoutPage() {
               API keys required
             </div>
             <div style={{ fontFamily: 'var(--rf-mono)', fontSize: 11, color: 'var(--text-secondary)', marginBottom: 10 }}>
-              Configure your LiteLLM API key and endpoint. Optionally add SerpAPI key for web search.
+              Configure your AI provider API key and endpoint. Optionally add SerpAPI key for web search.
             </div>
             <button
               onClick={() => setShowKeysModal(true)}
@@ -273,7 +273,7 @@ export default function ScoutPage() {
               <optgroup label="Fast — no web search">
                 <option value="openstates">State Legislators (Open States — all chambers)</option>
               </optgroup>
-              <optgroup label="LiteLLM + SerpAPI web search">
+              <optgroup label="AI provider + SerpAPI web search">
                 {SCAN_TARGETS.map(t => (
                   <option key={t.id} value={t.id}>{t.label}</option>
                 ))}
@@ -293,7 +293,7 @@ export default function ScoutPage() {
               Scanning...
             </div>
             <div style={{ color: 'var(--text-muted)', fontFamily: 'var(--rf-mono)', fontSize: 11 }}>
-              LiteLLM scans with web search may take 30–60 seconds
+              AI scans with web search may take 30–60 seconds
             </div>
           </div>
         )}

@@ -11,7 +11,7 @@ This document is the single source of truth for the visual and interaction desig
 
 The design direction is **Roster** — a warm dark, data-dense, power-user aesthetic. It pairs a terracotta accent with a brown-black ground, Fraunces serif italic for headings, and Geist Mono for all labels and metadata. The result reads like a printed ledger rendered in low light: warm, legible, purposeful.
 
-**Cardinal rules (from `redesign-scaffold/CLAUDE_CODE_HANDOFF.md`)**
+**Cardinal rules**
 
 1. **Never hardcode spacing, type, or color.** Always reach for a `var(--*)` token. If you find yourself writing `padding: 14px 18px` inline, that value belongs in `--rt-row-pad`.
 2. **Never duplicate a row pattern.** If something looks like a row inside a card, use `.if-card-row`. If it needs custom controls, build a thin wrapper that extends `.if-card-row` via a custom right slot — do not write a parallel row from scratch.
@@ -22,7 +22,7 @@ The design direction is **Roster** — a warm dark, data-dense, power-user aesth
 
 ## Color Palette
 
-All values are exposed as CSS custom properties in `src/inviteflow/theme.css`. The canonical source palette is `R_DARK` in `redesign-scaffold/roster.jsx`.
+All values are exposed as CSS custom properties in `src/inviteflow/theme.css`.
 
 ### Backgrounds
 
@@ -111,7 +111,7 @@ Fonts are loaded in `src/inviteflow/index.html` via Google Fonts (Fraunces varia
 
 ## Layout Tokens
 
-Defined in `theme.css` as `--rt-*` variables, mirroring the `RT` object in `redesign-scaffold/roster.jsx`. Mutate here; never compute equivalent strings inline.
+Defined in `theme.css` as `--rt-*` variables. Mutate here; never compute equivalent strings inline.
 
 | Token | Value | Use |
 |-------|-------|-----|
@@ -322,5 +322,3 @@ These are enforced at the code level, not just guidelines.
 | `src/inviteflow/theme.css` | All CSS custom properties (`--bg-*`, `--text-*`, `--accent`, `--rt-*`, `--rf-*`) |
 | `src/inviteflow/styles/if.css` | All `.if-*` primitive classes |
 | `src/inviteflow/styles/primereact-reset.css` | PrimeReact token overrides (mapped to warm palette at `:root`) |
-| `redesign-scaffold/roster.jsx` | Reference implementation: `R_DARK` palette, `RT` tokens, all React primitives |
-| `redesign-scaffold/CLAUDE_CODE_HANDOFF.md` | Engineering handoff: rules, route map, TODO items |
