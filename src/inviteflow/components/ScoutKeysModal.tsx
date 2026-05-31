@@ -154,7 +154,7 @@ export default function ScoutKeysModal({ apiKey, endpoint, searchKey, osKey, jx,
         {/* SerpAPI Key */}
         <div style={{ marginBottom: 4 }}>
           <label htmlFor="scout-serpapi-key" style={{ display: 'block', fontSize: 11, fontWeight: 600, color: 'var(--text-heading)', marginBottom: 4, letterSpacing: '0.05em' }}>
-            SerpAPI Key <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(recommended)</span>
+            Web Search Key <span style={{ fontWeight: 400, color: 'var(--text-muted)' }}>(recommended)</span>
           </label>
           <div style={{ fontSize: 10, color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: 6 }}>
             Enables web search for discovering officials. Get a free key at{' '}

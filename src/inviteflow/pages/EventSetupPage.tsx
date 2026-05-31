@@ -92,7 +92,6 @@ export default function EventSetupPage() {
           </div>
           <div style={{ padding: 'var(--rt-row-pad)', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <button className="if-btn ghost sm" onClick={() => authorize('spreadsheets')}>Authorize Sheets</button>
-            <button className="if-btn ghost sm" onClick={() => authorize('gmail.send')}>Authorize Gmail</button>
             <button className="if-btn ghost sm" onClick={() => authorize('drive.appdata')}>Authorize Drive</button>
           </div>
         </div>

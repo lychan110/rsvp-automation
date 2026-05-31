@@ -53,9 +53,9 @@ function getNextStep(state: AppState): NextStep {
 const WORKFLOW: WorkflowRow[] = [
   { num: '01', icon: 'users',    title: 'Invitees',   sub: 'IMPORT, MANAGE & REVIEW GUEST LIST',  route: 'invitees' },
   { num: '02', icon: 'pen',      title: 'Compose',    sub: 'WRITE & PREVIEW THE INVITE EMAIL',    route: 'compose'  },
-  { num: '03', icon: 'send',     title: 'Send',       sub: 'BULK SEND VIA RESEND',                route: 'send'     },
+  { num: '03', icon: 'send',     title: 'Send',       sub: 'BULK SEND INVITATIONS',               route: 'send'     },
   { num: '04', icon: 'calendar', title: 'Tracker',    sub: 'MONITOR RSVP RESPONSES',              route: 'tracker'  },
-  { num: '05', icon: 'sync',     title: 'Sync',       sub: 'PUSH / PULL GOOGLE SHEETS',           route: 'sync'     },
+  { num: '05', icon: 'sync',     title: 'Sync',       sub: 'SYNC WITH SPREADSHEET',               route: 'sync'     },
 ];
 
 function CardRow({
