@@ -152,6 +152,15 @@ Keep tech implementation details **out of UI labels and action text**. Describe 
 
 Not in: button labels, workflow step subtitles, status messages, section headers.
 
+## Shipping Checklist
+
+Before marking a PR ready or closing a task, verify:
+
+- [ ] **Version bumped** — edit `package.json` `"version"` for any user-visible change (new feature, fix, or significant refactor). Patch = `x.y.Z`, minor = `x.Y.0`, major = `X.0.0`. Run `npm run build` after bumping so `inject-version.js` bakes it into `README.md` and `SyncPage.tsx`.
+- [ ] **PR description current** — reflects the full set of changes actually merged, not just the initial scope. Update it as the PR evolves.
+- [ ] **Docs updated** — see Documentation Map above.
+- [ ] **Build passes** — `npm run build` with no TypeScript errors.
+
 ## Agent Operating Principles
 
 - **Think before coding** — state assumptions, present tradeoffs, ask when unclear
