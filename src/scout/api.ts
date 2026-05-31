@@ -19,14 +19,14 @@ function extractJson(text: string): Record<string, unknown> {
 }
 
 /**
- * Calls the LiteLLM endpoint (OpenAI-compatible API) with search results pre-injected.
+ * Calls any OpenAI-compatible API endpoint with search results pre-injected.
  * Retries up to 3 times on 429 (rate limit) with exponential backoff.
  * Throws on invalid key and unrecoverable errors.
  *
  * Web search results are pre-fetched and included in the user message,
  * so the LLM receives grounded context without needing tool calls.
  */
-export async function callLiteLLM(
+export async function callAIProvider(
   key: string,
   endpoint: string,
   model: string,
@@ -82,5 +82,5 @@ export async function callLiteLLM(
   }
 
   // Unreachable but satisfies TypeScript
-  throw new Error('callLiteLLM: exhausted retry loop unexpectedly');
+  throw new Error('callAIProvider: exhausted retry loop unexpectedly');
 }

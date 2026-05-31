@@ -22,8 +22,8 @@ export function readScoutKey(sessionKey: string, envKey: string, fallback = ''):
     ?? fallback;
 }
 
-// LiteLLM defaults
-export const DEFAULT_ENDPOINT = 'http://127.0.0.1:4000/v1';
+// Default OpenAI-compatible endpoint (override via VITE_OPENAI_ENDPOINT or in-app settings)
+export const DEFAULT_ENDPOINT = 'https://api.openai.com/v1';
 
 // Model IDs — update here when new releases drop; api.ts + App.tsx read these.
 export const MODEL_SCAN   = 'claude-haiku-4-5';

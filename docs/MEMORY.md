@@ -15,14 +15,14 @@ The app originally sent email via the Gmail API (Google OAuth tokens, `buildMime
 ### ContactScout: Embedded, Not Standalone
 `src/scout/` is the ContactScout engine (API client, search, email patterns, types). It is NOT a standalone app — it is imported directly by `src/inviteflow/pages/ScoutPage.tsx` and `ContactScoutPanel.tsx`. The standalone ContactScout app was archived. Never treat `src/scout/` as independently runnable.
 
-### LiteLLM as AI Gateway
-The Scout/Discover feature calls an OpenAI-compatible endpoint from the browser. The default (`http://127.0.0.1:4000/v1`) is LiteLLM running locally. API keys are stored in `sessionStorage` (not persisted between page loads). `MODEL_SCAN` and `MODEL_VERIFY` in `constants.ts` are model identifiers sent to LiteLLM — LiteLLM routes to the actual provider. These can be any model ID your LiteLLM instance supports.
+### OpenAI-Compatible AI Provider
+The Scout/Discover feature calls any OpenAI-compatible API endpoint (`/v1/chat/completions`) from the browser. The default is `https://api.openai.com/v1`. API keys are stored in `sessionStorage` (not persisted between page loads). `MODEL_SCAN` and `MODEL_VERIFY` in `constants.ts` are the model identifiers sent in the request body — set these to whatever model your chosen provider supports.
 
 ### Gemini Migration Plan (Not Fully Executed As Written)
-`docs/superpowers/plans/2026-04-29-gemini-migration.md` intended to switch from Claude API to Google Gemini. What actually happened: the code moved to a LiteLLM proxy (OpenAI-compatible interface). `MODEL_SCAN`/`MODEL_VERIFY` were NOT changed to `gemini-2.5-flash` — they remain `claude-haiku-4-5`. This is intentional: LiteLLM handles the actual model routing. The plan's rate limit analysis (15 RPM, 4500ms delay) applies if routing to Gemini free tier.
+`docs/superpowers/plans/2026-04-29-gemini-migration.md` intended to switch from Claude API to Google Gemini. What actually happened: the code moved to a generic OpenAI-compatible API interface. `MODEL_SCAN`/`MODEL_VERIFY` were NOT changed to `gemini-2.5-flash` — they remain `claude-haiku-4-5`. To use Gemini, point the endpoint to a Gemini-compatible URL and update these constants. The plan's rate limit analysis (15 RPM, 4500ms delay) applies if routing to Gemini free tier.
 
 ### JSON Mode + Google Search Grounding Are Incompatible
-`responseMimeType: "application/json"` cannot be combined with the `google_search` tool on Google's API (returns 400). The workaround in `api.ts` is to use text output with `extractJson()` parsing — system prompts instruct the model to output raw JSON. This is why there is no `response_format` parameter in `callLiteLLM()`.
+`responseMimeType: "application/json"` cannot be combined with the `google_search` tool on Google's API (returns 400). The workaround in `api.ts` is to use text output with `extractJson()` parsing — system prompts instruct the model to output raw JSON. This is why there is no `response_format` parameter in `callAIProvider()`.
 
 ---
 
