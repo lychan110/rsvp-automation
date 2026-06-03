@@ -20,9 +20,9 @@ const root = join(__dirname, '..');
 // ── Read version from package.json (single source of truth) ──────────────────
 let version;
 
-if (process.env.VITE_APP_VERSION) {
+if (process.env.APP_VERSION) {
   // CI or explicit override
-  version = process.env.VITE_APP_VERSION;
+  version = process.env.APP_VERSION;
 } else {
   try {
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));

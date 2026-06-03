@@ -11,10 +11,6 @@ import {
   CS_SEARCH_KEY,
   CS_JX_KEY,
   CS_OS_KEY,
-  CS_ENV_APIKEY,
-  CS_ENV_ENDPOINT,
-  CS_ENV_SEARCHKEY,
-  CS_ENV_OSKEY,
   DEFAULT_ENDPOINT,
   readScoutKey,
 } from '../../scout/constants';
@@ -48,10 +44,10 @@ export default function ScoutPage() {
   const dispatch = useAppDispatch();
   const { goBack } = useRouter();
 
-  const apiKey    = readScoutKey(CS_APIKEY_SK, CS_ENV_APIKEY);
-  const endpoint   = readScoutKey(CS_ENDPOINT_SK, CS_ENV_ENDPOINT, DEFAULT_ENDPOINT);
-  const searchKey  = readScoutKey(CS_SEARCH_KEY, CS_ENV_SEARCHKEY);
-  const osKey      = readScoutKey(CS_OS_KEY, CS_ENV_OSKEY);
+  const apiKey    = readScoutKey(CS_APIKEY_SK, import.meta.env.OPENAI_API_KEY);
+  const endpoint   = readScoutKey(CS_ENDPOINT_SK, import.meta.env.OPENAI_ENDPOINT, DEFAULT_ENDPOINT);
+  const searchKey  = readScoutKey(CS_SEARCH_KEY, import.meta.env.SERPAPI_KEY);
+  const osKey      = readScoutKey(CS_OS_KEY, import.meta.env.OPENSTATES_API_KEY);
   const jx         = JSON.parse(sessionStorage.getItem(CS_JX_KEY) ?? '{}') as CSJurisdiction;
   const hasApiKey  = !!apiKey;
   const hasOS      = !!osKey;

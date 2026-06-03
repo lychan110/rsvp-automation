@@ -20,7 +20,7 @@ InviteFlow requires one **required** API key and supports two **optional** keys 
 
 Add to `.env`:
 ```
-VITE_RESEND_API_KEY=re_xxxxxxxxxxxxx
+RESEND_API_KEY=re_xxxxxxxxxxxxx
 ```
 
 ### Optional
@@ -34,8 +34,8 @@ Supports OpenAI, Anthropic, Ollama, or any OpenAI-compatible endpoint.
 
 Add to `.env`:
 ```
-VITE_OPENAI_API_KEY=sk-xxxxxxxxxxxxx
-VITE_OPENAI_ENDPOINT=https://api.openai.com/v1  # optional, for custom endpoints
+OPENAI_API_KEY=***
+OPENAI_ENDPOINT=https://api.openai.com/v1  # optional, for custom endpoints
 ```
 
 **SerpAPI** — Web search for official discovery
@@ -45,7 +45,7 @@ VITE_OPENAI_ENDPOINT=https://api.openai.com/v1  # optional, for custom endpoints
 
 Add to `.env`:
 ```
-VITE_SERPAPI_KEY=xxxxxxxxxxxxxxxxxxxx
+SERPAPI_KEY=xxx...xxx
 ```
 
 ---

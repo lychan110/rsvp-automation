@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 
 // Read version once from package.json — single source of truth
 const pkg = JSON.parse(readFileSync(path.resolve(process.cwd(), 'package.json'), 'utf8'));
-const APP_VERSION = process.env.VITE_APP_VERSION ?? pkg.version ?? '0.0.0';
+const APP_VERSION = process.env.APP_VERSION ?? pkg.version ?? '0.0.0';
 
 export default defineConfig(({ mode }) => {
   // Load .env file for other secrets/config
@@ -27,10 +27,15 @@ export default defineConfig(({ mode }) => {
         },
       },
     ],
-    // Expose version to client-side TypeScript
+    // Expose version to client-side TypeScript + non-prefixed BWS env vars
     define: {
       __APP_VERSION__: JSON.stringify(APP_VERSION),
-      'import.meta.env.VITE_APP_VERSION': JSON.stringify(APP_VERSION),
+      'import.meta.env.APP_VERSION': JSON.stringify(APP_VERSION),
+      'import.meta.env.RESEND_API_KEY': JSON.stringify(env.RESEND_API_KEY ?? ''),
+      'import.meta.env.OPENAI_API_KEY': JSON.stringify(env.OPENAI_API_KEY ?? ''),
+      'import.meta.env.OPENAI_ENDPOINT': JSON.stringify(env.OPENAI_ENDPOINT ?? ''),
+      'import.meta.env.SERPAPI_KEY': JSON.stringify(env.SERPAPI_KEY ?? ''),
+      'import.meta.env.OPENSTATES_API_KEY': JSON.stringify(env.OPENSTATES_API_KEY ?? ''),
     },
     server: {
       allowedHosts: true,
@@ -40,7 +45,7 @@ export default defineConfig(({ mode }) => {
         '@lenya/webapp-shared': path.resolve(__dirname, 'shared'),
       },
     },
-    base: env.VITE_BASE_URL ?? './',
+    base: env.BASE_URL ?? './',
     build: {
       outDir: 'dist',
       rollupOptions: {
