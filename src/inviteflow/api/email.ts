@@ -1,7 +1,7 @@
 import type { AppEvent, Invitee } from '../types';
 import { renderTemplate } from '../emails/render';
 
-const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY;
+const RESEND_API_KEY = import.meta.env.RESEND_API_KEY;
 
 export function personalize(template: string, invitee: Invitee, event: AppEvent): string {
   const now = new Date();
@@ -43,7 +43,7 @@ export async function sendEmail(
   html: string
 ): Promise<void> {
   if (!RESEND_API_KEY) {
-    throw new Error('Resend API key not configured. Add VITE_RESEND_API_KEY to .env');
+    throw new Error('Resend API key not configured. Add RESEND_API_KEY to .env');
   }
 
   const response = await fetch('https://api.resend.com/emails', {

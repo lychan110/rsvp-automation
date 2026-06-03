@@ -57,16 +57,16 @@ Copy `.env.example` → `.env` and fill secrets. **Never commit `.env`** — it 
 
 | Key | Required | Purpose |
 |-----|----------|---------|
-| `VITE_RESEND_API_KEY` | Yes | Send invitation emails |
-| `VITE_OPENAI_API_KEY` | No | AI-powered official discovery |
-| `VITE_OPENAI_ENDPOINT` | No | Custom OpenAI-compatible endpoint |
-| `VITE_SERPAPI_KEY` | No | Web search for official discovery |
+| `RESEND_API_KEY` | Yes | Send invitation emails |
+| `OPENAI_API_KEY` | No | AI-powered official discovery |
+| `OPENAI_ENDPOINT` | No | Custom OpenAI-compatible endpoint |
+| `SERPAPI_KEY` | No | Web search for official discovery |
 
 ## Version Policy
 
 **Single source of truth: `package.json`**
 
-- `vite.config.ts` reads `package.json` version at build time → injects into HTML title and `import.meta.env.VITE_APP_VERSION`
+- `vite.config.ts` reads `package.json` version at build time → injects into HTML title and `import.meta.env.APP_VERSION`
 - `scripts/inject-version.js` reads `package.json` → bakes version into `README.md` and GAS code headers
 - CI workflow passes version via `$GITHUB_ENV`
 - **Do NOT store version in `.env`** — it goes stale.

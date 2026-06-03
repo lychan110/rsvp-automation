@@ -40,10 +40,8 @@ The Scout/Discover feature calls any OpenAI-compatible API endpoint (`/v1/chat/c
 
 ### Version: Single Source of Truth Is `package.json`
 Never put the version in `.env`. The pipeline:
-- `vite.config.ts` reads `package.json` at build time → injects into HTML `<title>` and `import.meta.env.VITE_APP_VERSION`
-- `scripts/inject-version.js` reads `package.json` → updates the `InviteFlow vX.Y.Z` string in `README.md` and `SyncPage.tsx` GAS header
-- CI extracts it via `node -p "require('./package.json').version"`
-- Docker: do NOT hardcode `VITE_APP_VERSION` in compose build args — it goes stale
+- `vite.config.ts` reads `package.json` at build time → injects into HTML `<title>` and `import.meta.env.APP_VERSION`
+- Docker: do NOT hardcode `APP_VERSION` in compose build args — it goes stale
 
 ### `copy-static.js` Overwrites `dist/index.html`
 The script first copies the root `index.html` landing page to `dist/`, then immediately overwrites `dist/index.html` with the InviteFlow app's own `index.html`. Net result: the root landing page is **not published**; the InviteFlow app is served at the root URL on GitHub Pages. The root `index.html` in the repo exists only for local reference.
@@ -99,7 +97,7 @@ Reversing this order breaks PrimeReact component styling.
 `SCOUT_PW = 'scout2025'` in `src/scout/constants.ts` is a basic access gate. It is client-side and provides no real security — anyone who inspects the bundle can bypass it. It is meant to prevent accidental use, not unauthorized access.
 
 ### OpenStates API for State Legislators
-`src/scout/openStates.ts` fetches state legislators from the OpenStates API (`VITE_OPENSTATES_API_KEY`). This supplements the LLM-based scan for state legislature targets, returning structured data without an LLM call.
+`src/scout/openStates.ts` fetches state legislators from the OpenStates API (`OPENSTATES_API_KEY`). This supplements the LLM-based scan for state legislature targets, returning structured data without an LLM call.
 
 ### Email Pattern Inference Reduces LLM Calls
 `src/scout/emailPatterns.ts` infers email addresses for officials with known patterns:
