@@ -66,7 +66,7 @@ The RSVP ingest script exists in two places:
 - `docker-compose.yml` — local dev, port 5177, reads `.env` in repo root
 - `rsvp-docker-compose.yml` — server/shared deployment, port 5176, reads `~/.rsvp-automation.env` (keeps secrets out of the repo checkout)
 
-Both run the dev server (`Dockerfile` only has a dev stage). `nginx.conf` in the repo is prepared for a future production multi-stage build and is not currently wired into the Dockerfile.
+Both run the containerized app via Docker Compose. Rolodex orchestrates rsvp-automation as part of the ecosystem stack via `docker-compose.ecosystem.yml`. `nginx.conf` in the repo is prepared for a future production multi-stage build.
 
 ### Submodule: Always Init Before Build
 `shared/` is a git submodule (`@lenya/webapp-shared`). Build fails with "Can't resolve '../shared/src/styles/fonts.css'" if not initialized. Fix: `git submodule update --init --recursive`. The `.githooks/post-checkout` and `.githooks/post-merge` scripts do this automatically after pull/branch-switch in local dev. CI uses `submodules: true` in the checkout action.
