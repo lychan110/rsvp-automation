@@ -38,8 +38,8 @@ jobs:
       - name: Install, build, and copy static files
         run: npm ci && npm run build && node scripts/copy-static.js
         env:
-          VITE_BASE_URL: ${{ steps.pages.outputs.base_path }}/
-          VITE_APP_VERSION: ${{ env.APP_VERSION }}
+          BASE_URL: ${{ steps.pages.outputs.base_path }}/
+          APP_VERSION: ${{ env.APP_VERSION }}
 
       - uses: actions/upload-pages-artifact@v3
         with:
