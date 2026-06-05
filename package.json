@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && node scripts/inject-version.js",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
     "copy-static": "node scripts/copy-static.js",
     "predeploy": "npm run build && node scripts/copy-static.js",
     "deploy": "gh-pages -d dist"
