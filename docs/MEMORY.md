@@ -41,7 +41,6 @@ The Scout/Discover feature calls any OpenAI-compatible API endpoint (`/v1/chat/c
 ### Version: Single Source of Truth Is `package.json`
 Never put the version in `.env`. The pipeline:
 - `vite.config.ts` reads `package.json` at build time → injects into HTML `<title>` and `import.meta.env.APP_VERSION`
-- Docker: do NOT hardcode `APP_VERSION` in compose build args — it goes stale
 
 ### `copy-static.js` Overwrites `dist/index.html`
 The script first copies the root `index.html` landing page to `dist/`, then immediately overwrites `dist/index.html` with the InviteFlow app's own `index.html`. Net result: the root landing page is **not published**; the InviteFlow app is served at the root URL on GitHub Pages. The root `index.html` in the repo exists only for local reference.
@@ -60,11 +59,8 @@ The RSVP ingest script exists in two places:
 
 ## Deployment
 
-### Docker: Two Compose Files, Different Contexts
-- `docker-compose.yml` — local dev, port 5177, reads `.env` in repo root
-- `rsvp-docker-compose.yml` — server/shared deployment, port 5176, reads `~/.rsvp-automation.env` (keeps secrets out of the repo checkout)
-
-Both run the containerized app via Docker Compose. Rolodex orchestrates rsvp-automation as part of the ecosystem stack via `docker-compose.ecosystem.yml`. `nginx.conf` in the repo is prepared for a future production multi-stage build.
+### Deployment: Host-Native via Caddy
+Rsvp-automation is built to `dist/` and served via Caddy as part of the ecosystem. Rolodex orchestrates it via `~/webapps/rolodex/config.json` with host-native start/stop commands.
 
 ### Submodule: Always Init Before Build
 `shared/` is a git submodule (`@lenya/webapp-shared`). Build fails with "Can't resolve '../shared/src/styles/fonts.css'" if not initialized. Fix: `git submodule update --init --recursive`. The `.githooks/post-checkout` and `.githooks/post-merge` scripts do this automatically after pull/branch-switch in local dev. CI uses `submodules: true` in the checkout action.
