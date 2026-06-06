@@ -45,7 +45,7 @@ export default defineConfig(({ mode }) => {
         '@lenya/webapp-shared': path.resolve(__dirname, 'shared'),
       },
     },
-    base: env.BASE_URL ?? '/rsvp/',
+    base: env.BASE_URL ?? './',
     build: {
       outDir: 'dist',
       rollupOptions: {
