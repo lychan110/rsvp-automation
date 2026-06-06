@@ -11,6 +11,7 @@ const APP_VERSION = process.env.APP_VERSION ?? pkg.version ?? '0.0.0';
 export default defineConfig(({ mode }) => {
   // Load .env file for other secrets/config
   const env = loadEnv(mode, process.cwd(), '');
+  const isProduction = mode === 'production';
 
   return {
     plugins: [
@@ -45,7 +46,7 @@ export default defineConfig(({ mode }) => {
         '@lenya/webapp-shared': path.resolve(__dirname, 'shared'),
       },
     },
-    base: env.BASE_URL ?? './',
+    base: env.BASE_URL ?? (isProduction ? '/rsvp/' : './'),
     build: {
       outDir: 'dist',
       rollupOptions: {
